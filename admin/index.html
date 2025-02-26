@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FSTYLE ADMIN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body class="bg-[#f5f7ff] min-h-screen">
+    <!-- Overlay khi mở menu trên mobile -->
+    <div
+      id="sidebar-overlay"
+      class="fixed inset-0 bg-black opacity-50 hidden z-30"
+    ></div>
+
+    <!-- Container chính -->
+    <div class="flex">
+      <!-- Sidebar -->
+      <aside
+        id="sidebar"
+        class="fixed md:relative z-40 w-72 bg-white h-screen p-6 shadow-md transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between"
+      >
+        <div>
+          <div class="text-3xl font-bold text-indigo-600 mb-10 hidden md:block">
+            FSTYLE ADMIN
+          </div>
+          <nav class="space-y-4">
+            <a
+              href="#"
+              class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg"
+            >
+              <img
+                src="assets/icons/customer.svg"
+                class="w-6 h-6 mr-3"
+                alt="Khách hàng"
+              />
+              Khách hàng
+            </a>
+            <a
+              href="#"
+              class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg"
+            >
+              <img
+                src="assets/icons/account.svg"
+                class="w-6 h-6 mr-3"
+                alt="Tài khoản"
+              />
+              Tài khoản
+            </a>
+            <a
+              href="#"
+              class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg"
+            >
+              <img
+                src="assets/icons/product.svg"
+                class="w-6 h-6 mr-3"
+                alt="Sản phẩm"
+              />
+              Sản phẩm
+            </a>
+            <a
+              href="#"
+              class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg"
+            >
+              <img
+                src="assets/icons/category.svg"
+                class="w-6 h-6 mr-3"
+                alt="Danh mục sản phẩm"
+              />
+              Danh mục sản phẩm
+            </a>
+            <a
+              href="#"
+              class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg"
+            >
+              <img
+                src="assets/icons/banner.svg"
+                class="w-6 h-6 mr-3"
+                alt="Banner"
+              />
+              Banner
+            </a>
+          </nav>
+        </div>
+        <!-- Logout sát lề dưới -->
+        <a
+          href="#"
+          class="flex items-center text-red-500 rounded-md p-3 mb-4 font-bold text-lg"
+        >
+          <img
+            src="assets/icons/logout.svg"
+            alt="Logout"
+            class="w-6 h-6 mr-3"
+            style="
+              filter: invert(32%) sepia(99%) saturate(7581%) hue-rotate(359deg)
+                brightness(93%) contrast(107%);
+            "
+          />
+          Logout
+        </a>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="flex-1 flex flex-col min-h-screen">
+        <!-- Navbar -->
+        <nav
+          class="bg-white shadow-md p-6 flex justify-between items-center relative"
+        >
+          <!-- Nút mở sidebar trên mobile -->
+          <button
+            id="menu-toggle"
+            class="md:hidden text-gray-700 focus:outline-none"
+          >
+            <img
+              src="assets/icons/menu.svg"
+              class="w-6 h-6 text-indigo-600"
+              alt="Menu"
+            />
+          </button>
+
+          <!-- Logo ở giữa trên mobile và ẩn trên desktop -->
+          <div class="absolute left-1/2 transform -translate-x-1/2 md:hidden">
+            <span class="text-3xl font-bold text-indigo-600">FSTYLE ADMIN</span>
+          </div>
+
+          <!-- Icon Profile bên phải trên cả mobile và desktop -->
+          <div class="ml-auto flex items-center">
+            <img
+              src="https://via.placeholder.com/50"
+              alt="User"
+              class="rounded-full"
+            />
+          </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="p-6 flex-1">
+          <h1 class="text-4xl font-bold mb-6">Dashboard</h1>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const menuToggle = document.getElementById("menu-toggle");
+      const sidebarOverlay = document.getElementById("sidebar-overlay");
+
+      menuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("-translate-x-full");
+        sidebarOverlay.classList.toggle("hidden");
+      });
+
+      sidebarOverlay.addEventListener("click", () => {
+        sidebar.classList.add("-translate-x-full");
+        sidebarOverlay.classList.add("hidden");
+      });
+    </script>
+  </body>
+</html>

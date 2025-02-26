@@ -1,0 +1,10 @@
+.icon-hover img {
+  transition: filter 0.3s ease;
+  filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%)
+    hue-rotate(0deg) brightness(100%) contrast(100%);
+}
+
+.icon-hover:hover img {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(81%) saturate(476%)
+    hue-rotate(219deg) brightness(98%) contrast(101%);
+}

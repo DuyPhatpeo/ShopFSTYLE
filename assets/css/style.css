@@ -1,0 +1,48 @@
+.logo-small {
+  max-width: 0px;
+  height: auto;
+}
+
+/* Mặc định (desktop) */
+#auth-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fade-in 0.3s ease-out;
+}
+
+#auth-modal.hidden {
+  display: none !important; /* Đảm bảo ẩn modal */
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #auth-modal {
+    align-items: flex-end;
+    animation: none;
+  }
+  #auth-modal-content {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    animation: slide-up 0.3s ease-out;
+  }
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
