@@ -28,20 +28,6 @@ closeMenu.addEventListener("click", () => {
   mobileMenu.classList.add("-translate-x-full");
 });
 
-// Lấy các phần tử liên quan đến tìm kiếm di động
-const mobileSearchBtn = document.getElementById("mobile-search-btn");
-const mobileSearch = document.getElementById("mobile-search");
-const closeSearch = document.getElementById("close-search");
-
-// Hiển thị overlay tìm kiếm khi click vào nút tìm kiếm di động
-mobileSearchBtn.addEventListener("click", () => {
-  mobileSearch.classList.remove("-translate-y-full");
-});
-
-// Đóng overlay tìm kiếm khi click vào nút close-search
-closeSearch.addEventListener("click", () => {
-  mobileSearch.classList.add("-translate-y-full");
-});
 // JavaScript để mở và đóng modal đăng nhập
 const profileButtons = document.querySelectorAll(".profile-btn");
 const authModal = document.getElementById("auth-modal");
@@ -137,4 +123,34 @@ showLogin.addEventListener("click", () => {
   signupContainer.classList.add("hidden");
   loginContainer.classList.remove("hidden");
   modalTitle.innerHTML = `FYSYLE <span class="text-blue-800">CLUB</span> - Đăng nhập`;
+});
+
+// --- Xử lý hiện hộp thoại tìm kiếm khi ở mobile - search ---
+document.addEventListener("DOMContentLoaded", function () {
+  // Lấy các phần tử liên quan đến tìm kiếm di động
+  const mobileSearchBtn = document.getElementById("mobile-search-btn");
+  const mobileSearch = document.getElementById("mobile-search");
+  const closeSearch = document.getElementById("close-search");
+
+  if (mobileSearchBtn && mobileSearch && closeSearch) {
+    // Hiển thị hộp thoại tìm kiếm khi click vào icon tìm kiếm
+    mobileSearchBtn.addEventListener("click", () => {
+      mobileSearch.classList.remove("-translate-y-full");
+      mobileSearch.classList.add("translate-y-0");
+    });
+
+    // Đóng hộp thoại tìm kiếm khi click vào icon đóng
+    closeSearch.addEventListener("click", () => {
+      mobileSearch.classList.remove("translate-y-0");
+      mobileSearch.classList.add("-translate-y-full");
+    });
+  } else {
+    console.error(
+      "Không tìm thấy phần tử mobile-search hoặc mobile-search-btn."
+    );
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("JS đã tải thành công!");
 });

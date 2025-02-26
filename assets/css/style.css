@@ -1,8 +1,3 @@
-.logo-small {
-  max-width: 0px;
-  height: auto;
-}
-
 /* Mặc định (desktop) */
 #auth-modal {
   display: flex;
