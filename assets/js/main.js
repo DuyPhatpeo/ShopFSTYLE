@@ -137,6 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
     mobileSearchBtn.addEventListener("click", () => {
       mobileSearch.classList.remove("-translate-y-full");
       mobileSearch.classList.add("translate-y-0");
+      console.log("Click vào icon tìm kiếm.");
     });
 
     // Đóng hộp thoại tìm kiếm khi click vào icon đóng
@@ -149,8 +150,4 @@ document.addEventListener("DOMContentLoaded", function () {
       "Không tìm thấy phần tử mobile-search hoặc mobile-search-btn."
     );
   }
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("JS đã tải thành công!");
 });

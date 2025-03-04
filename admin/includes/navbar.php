@@ -6,7 +6,7 @@
 
     <!-- Logo trên mobile -->
     <div class="absolute left-1/2 transform -translate-x-1/2 md:hidden">
-        <span class="text-3xl font-bold text-indigo-600">FSTYLE ADMIN</span>
+        <img src="assets/images/logo-fstyle.png" alt="FSTYLE ADMIN" class="h-10">
     </div>
 
     <!-- Icon Profile -->
