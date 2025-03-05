@@ -1,6 +1,6 @@
 <?php 
 include ('../includes/header.php'); 
-include ('../views/auth/login.php'); 
+include ('../views/auth/login-register.php'); 
 include ('../views/auth/search.php'); 
 
     include_once __DIR__ . "/../includes/config.php";
