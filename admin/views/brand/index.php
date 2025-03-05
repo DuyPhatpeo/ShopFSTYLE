@@ -1,6 +1,6 @@
 <?php 
-require_once('includes/header.php');
-require_once('../includes/db.php'); // Kết nối CSDL
+include("../../includes/header.php");
+require_once('../../../includes/db.php'); // Kết nối CSDL
 
 // Kiểm tra kết nối CSDL
 if (!$conn instanceof mysqli) {
@@ -37,7 +37,7 @@ if (!$brands) {
         <!-- Tiêu đề + Nút thêm thương hiệu -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2 sm:mb-0">Danh sách thương hiệu</h1>
-            <a href="views/brand/add-brand.php"
+            <a href="add-brand.php"
                 class="bg-green-700 hover:bg-green-800 text-white p-2 rounded-lg shadow-md transition flex items-center space-x-2">
                 <img src="assets/icons/add.svg" class="w-6 h-6" alt="Add">
                 <span>Thêm thương hiệu</span>
@@ -119,7 +119,7 @@ if (!$brands) {
             <!-- Cột giữa: Phân trang -->
             <div class="flex justify-center">
                 <?php
-                require_once('includes/pagination.php');
+                require_once('../../includes/pagination.php');
                 renderPagination($currentPage, $totalPages, $limit);
                 ?>
             </div>
@@ -127,4 +127,4 @@ if (!$brands) {
     </div>
 </main>
 
-<?php require_once('includes/footer.php'); ?>
+<?php include('../../includes/footer.php'); ?>
