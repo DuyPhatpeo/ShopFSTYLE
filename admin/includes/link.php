@@ -10,5 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="../../assets/css/style.css" />
+
 </head>

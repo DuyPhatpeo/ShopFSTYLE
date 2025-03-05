@@ -1,13 +1,14 @@
 <?php
-$host = "localhost";
-$dbname = "fstyle_shop";
-$username = "root";
-$password = "";
+$host = "localhost"; // hoặc địa chỉ IP của server MySQL
+$username = "root"; // Tên người dùng MySQL
+$password = ""; // Mật khẩu MySQL (nếu có)
+$database = "fstyle_shop"; // Tên database
 
-try {
-    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Lỗi kết nối database: " . $e->getMessage());
+// Tạo kết nối
+$conn = new mysqli($host, $username, $password, $database);
+
+// Kiểm tra kết nối
+if ($conn->connect_error) {
+    die("Kết nối CSDL thất bại: " . $conn->connect_error);
 }
 ?>

@@ -6,7 +6,7 @@
     <p>© 2025 FSTYLE ADMIN. Được phát triển bởi <span class="font-semibold">Trần Duy Phát</span>.</p>
 </footer>
 
-<script src="assets/js/main.js"></script>
+<script src="../../assets/js/main.js"></script>
 </body>
 
 </html>
