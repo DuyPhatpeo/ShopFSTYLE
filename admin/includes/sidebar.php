@@ -47,7 +47,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M10 3H3v7h7V3zm11 0h-7v7h7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z" />
                 </svg>
-                Danh mục sản phẩm
+                Danh mục
             </a>
             <a href="<?= ADMIN_URL ?>/views/product/index.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
