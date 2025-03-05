@@ -1,7 +1,3 @@
-<?php
-    include_once __DIR__ . "/../../includes/config.php";
-?>
-
 <nav class="bg-white shadow-md p-6 flex justify-between items-center relative">
     <!-- Nút mở sidebar trên mobile -->
     <button id="menu-toggle" class="md:hidden text-gray-700 focus:outline-none">
