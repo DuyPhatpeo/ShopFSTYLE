@@ -6,11 +6,11 @@
     <p>© 2025 FSTYLE ADMIN. Được phát triển bởi <span class="font-semibold">Trần Duy Phát</span>.</p>
 </footer>
 
-<script src="<?= $base_path ?>/assets/js/main.js"></script>
+<script src="<?= ADMIN_URL ?>/assets/js/main.js"></script>
 </body>
 
 </html>
 
 <?php
-    include_once __DIR__ . "/../includes/config.php";
+    include_once __DIR__ . "../../includes/config.php";
 ?>

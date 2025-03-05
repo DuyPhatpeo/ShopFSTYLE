@@ -1,5 +1,5 @@
 <?php
-    include_once __DIR__ . "/../includes/config.php";
+    include_once __DIR__ . "/../../includes/config.php";
 ?>
 
 
@@ -7,11 +7,11 @@
     class="fixed md:relative z-40 w-72 bg-white h-screen p-6 shadow-md transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
     <div>
         <div class="mb-10 hidden md:block">
-            <img src="<?= $base_path ?>/assets/images/logo-fstyle.png" alt="FSTYLE ADMIN"
+            <img src="<?= ADMIN_URL ?>/assets/images/logo-fstyle.png" alt="FSTYLE ADMIN"
                 class="w-32 object-contain mx-auto">
         </div>
         <nav class="space-y-2">
-            <a href="<?= $base_path ?>/views/index.php"
+            <a href="<?= ADMIN_URL ?>/views/index.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z" />
@@ -19,7 +19,7 @@
                 Dashboard
             </a>
 
-            <a href="<?= $base_path ?>/views/users.php"
+            <a href="<?= ADMIN_URL ?>/views/users.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="currentColor" class="w-6 h-6">
                     <path
@@ -27,7 +27,7 @@
                 </svg>
                 Người dùng
             </a>
-            <a href="<?= $base_path ?>/views/accounts.php"
+            <a href="<?= ADMIN_URL ?>/views/accounts.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="w-6 h-6">
                     <path
@@ -35,7 +35,7 @@
                 </svg>
                 Tài khoản
             </a>
-            <a href="<?= $base_path ?>/views/brand/index.php"
+            <a href="<?= ADMIN_URL ?>/views/brand/index.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor" class="w-6 h-6">
                     <path
@@ -43,21 +43,21 @@
                 </svg>
                 Thương hiệu
             </a>
-            <a href="<?= $base_path ?>/views/category.php"
+            <a href="<?= ADMIN_URL ?>/views/category.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M10 3H3v7h7V3zm11 0h-7v7h7V3zM3 14h7v7H3v-7zm11 0h7v7h-7v-7z" />
                 </svg>
                 Danh mục sản phẩm
             </a>
-            <a href="<?= $base_path ?>/views/product.php"
+            <a href="<?= ADMIN_URL ?>/views/product.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M21 7l-9-5-9 5 9 5 9-5zm-9 7L3 9v10l9 5 9-5V9l-9 5z" />
                 </svg>
                 Sản phẩm
             </a>
-            <a href="<?= $base_path ?>/views/banner.php"
+            <a href="<?= ADMIN_URL ?>/views/banner.php"
                 class="flex items-center gap-3 p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 font-bold text-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
                     <path d="M4 4h16v2H4V4zm0 4h16v2H4V8zm0 4h10v2H4v-2zm0 4h16v2H4v-2z" />
