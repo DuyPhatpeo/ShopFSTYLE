@@ -124,30 +124,51 @@ showLogin.addEventListener("click", () => {
   loginContainer.classList.remove("hidden");
   modalTitle.innerHTML = `FYSYLE <span class="text-blue-800">CLUB</span> - Đăng nhập`;
 });
-
-// --- Xử lý hiện hộp thoại tìm kiếm khi ở mobile - search ---
+// Hiển thị hộp thoại tìm kiếm
 document.addEventListener("DOMContentLoaded", function () {
-  // Lấy các phần tử liên quan đến tìm kiếm di động
+  const searchModal = document.getElementById("search-modal");
   const mobileSearchBtn = document.getElementById("mobile-search-btn");
-  const mobileSearch = document.getElementById("mobile-search");
-  const closeSearch = document.getElementById("close-search");
+  const desktopSearchBtn = document.getElementById("desktop-search-btn");
+  const desktopSearchInput = document.getElementById("desktop-search-input");
+  const closeSearchModalBtn = document.getElementById("close-search-modal");
 
-  if (mobileSearchBtn && mobileSearch && closeSearch) {
-    // Hiển thị hộp thoại tìm kiếm khi click vào icon tìm kiếm
-    mobileSearchBtn.addEventListener("click", () => {
-      mobileSearch.classList.remove("-translate-y-full");
-      mobileSearch.classList.add("translate-y-0");
-      console.log("Click vào icon tìm kiếm.");
-    });
+  // Hiển thị modal
+  function showSearchModal() {
+    searchModal.classList.remove("opacity-0", "pointer-events-none");
+    const modalContent = searchModal.querySelector("div");
+    modalContent.classList.remove("-translate-y-full");
+  }
 
-    // Đóng hộp thoại tìm kiếm khi click vào icon đóng
-    closeSearch.addEventListener("click", () => {
-      mobileSearch.classList.remove("translate-y-0");
-      mobileSearch.classList.add("-translate-y-full");
+  // Ẩn modal
+  function hideSearchModal() {
+    const modalContent = searchModal.querySelector("div");
+    modalContent.classList.add("-translate-y-full");
+    setTimeout(() => {
+      searchModal.classList.add("opacity-0", "pointer-events-none");
+    }, 300);
+  }
+
+  // Nút tìm kiếm mobile
+  if (mobileSearchBtn) {
+    mobileSearchBtn.addEventListener("click", showSearchModal);
+  }
+  // Nút tìm kiếm desktop (icon)
+  if (desktopSearchBtn) {
+    desktopSearchBtn.addEventListener("click", showSearchModal);
+  }
+  // Ô input desktop (bấm vào để mở modal)
+  if (desktopSearchInput) {
+    desktopSearchInput.addEventListener("focus", function (e) {
+      e.preventDefault();
+      showSearchModal();
     });
-  } else {
-    console.error(
-      "Không tìm thấy phần tử mobile-search hoặc mobile-search-btn."
-    );
+    desktopSearchInput.addEventListener("click", function (e) {
+      e.preventDefault();
+      showSearchModal();
+    });
+  }
+  // Nút đóng modal
+  if (closeSearchModalBtn) {
+    closeSearchModalBtn.addEventListener("click", hideSearchModal);
   }
 });
