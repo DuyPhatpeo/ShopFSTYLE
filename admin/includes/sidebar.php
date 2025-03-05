@@ -18,13 +18,21 @@
                 class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg">
                 <img src="assets/icons/product.svg" class="w-6 h-6 mr-3" alt="Sản phẩm" /> Sản phẩm
             </a>
-            <a href="#"
+            <a href="brand.php"
+                class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg">
+                <img src="assets/icons/brand.svg" class="w-6 h-6 mr-3" alt="Hãng" /> Hãng
+            </a>
+            <a href="category.php"
                 class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg">
                 <img src="assets/icons/category.svg" class="w-6 h-6 mr-3" alt="Danh mục sản phẩm" /> Danh mục sản phẩm
             </a>
             <a href="#"
                 class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg">
                 <img src="assets/icons/banner.svg" class="w-6 h-6 mr-3" alt="Banner" /> Banner
+            </a>
+            <a href="role.php"
+                class="block p-3 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-200 flex items-center icon-hover font-bold text-lg">
+                <img src="assets/icons/role.svg" class="w-6 h-6 mr-3" alt="Vai trò" /> Vai trò
             </a>
         </nav>
     </div>

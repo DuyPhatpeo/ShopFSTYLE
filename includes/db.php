@@ -1,12 +1,13 @@
 <?php
-$servername = "localhost"; // hoặc 127.0.0.1
-$username = "root"; // Tên đăng nhập mặc định của XAMPP là "root"
-$password = ""; // XAMPP mặc định không có mật khẩu
-$dbname = "fstyle_shop"; // Tên database của bạn
+$host = "localhost";
+$dbname = "fstyle_shop";
+$username = "root";
+$password = "";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Kết nối thất bại: " . $conn->connect_error);
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Lỗi kết nối database: " . $e->getMessage());
 }
 ?>
