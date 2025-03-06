@@ -10,9 +10,13 @@
     class="fixed md:relative z-40 w-72 bg-white h-screen p-6 shadow-md transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col justify-between">
     <div>
         <div class="mb-10 hidden md:block">
-            <img src="<?= ADMIN_URL ?>/assets/images/logo-fstyle.png" alt="FSTYLE ADMIN"
-                class="w-32 object-contain mx-auto">
+            <a href="<?= ADMIN_URL ?>/views/index.php">
+                <img src="<?= ADMIN_URL ?>/assets/images/logo-fstyle.png" alt="FSTYLE ADMIN"
+                    class="w-32 object-contain mx-auto">
+            </a>
         </div>
+
+
         <nav class="space-y-2">
             <a href="<?= ADMIN_URL ?>/views/dashboard/index.php"
                 class="flex items-center gap-3 p-3 rounded-md font-bold text-lg <?= activeClass('/views/dashboard/') ?>">
