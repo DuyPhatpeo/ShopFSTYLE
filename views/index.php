@@ -1,8 +1,7 @@
 <?php 
-include ('../includes/header.php'); 
-include ('../views/auth/login-register.php'); 
-include ('../views/auth/search.php'); 
-
+    include ('../includes/header.php'); 
+    include ('../views/user/login-register.php'); 
+    include ('../views/search.php'); 
     include_once __DIR__ . "/../includes/config.php";
 
 ?>
@@ -14,48 +13,14 @@ include ('../views/auth/search.php');
     <img src="<?= USER_URL ?>/assets/icons/chevron-up.svg" alt="Back to Top" class="h-6 w-6" />
 </button>
 
-<!-- Banner Section -->
-<section class="relative">
-    <img src="https://via.placeholder.com/1920x600" alt="Banner"
-        class="w-full h-[200px] sm:h-[300px] md:h-[400px] lg:h-[600px] object-cover" />
-    <div
-        class="absolute inset-0 flex flex-col justify-center items-start px-4 md:px-10 text-white text-center md:text-left">
-        <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-white">
-            Áo Sơ Mi
-        </h1>
-        <p class="text-xl sm:text-2xl mb-4">Giảm 10% - Freeship đơn từ 200K</p>
-        <button class="px-4 py-2 sm:px-6 sm:py-3 bg-black hover:bg-gray-800 text-white rounded-full">
-            Mua Ngay
-        </button>
-    </div>
-</section>
+<?php 
+    include ('user/banner.php'); 
+?>
 
-<!-- Product Sections -->
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <h2 class="text-3xl font-bold mb-6">Mặc Hằng Ngày</h2>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6">
-        <div class="bg-white p-4 shadow rounded">
-            <img src="https://via.placeholder.com/300" alt="Product Image" class="w-full mb-4" />
-            <h3 class="text-lg font-semibold">Áo Hoodie</h3>
-            <p class="text-gray-600">Giá: 599,000đ</p>
-        </div>
-        <div class="bg-white p-4 shadow rounded">
-            <img src="https://via.placeholder.com/300" alt="Product Image" class="w-full mb-4" />
-            <h3 class="text-lg font-semibold">Áo Thể Thao</h3>
-            <p class="text-gray-600">Giá: 399,000đ</p>
-        </div>
-        <div class="bg-white p-4 shadow rounded">
-            <img src="https://via.placeholder.com/300" alt="Product Image" class="w-full mb-4" />
-            <h3 class="text-lg font-semibold">Áo Sơ Mi</h3>
-            <p class="text-gray-600">Giá: 499,000đ</p>
-        </div>
-        <div class="bg-white p-4 shadow rounded">
-            <img src="https://via.placeholder.com/300" alt="Product Image" class="w-full mb-4" />
-            <h3 class="text-lg font-semibold">Đồ Lót Nam</h3>
-            <p class="text-gray-600">Giá: 199,000đ</p>
-        </div>
-    </div>
-</section>
+<?php 
+    include ('product/product-list.php'); 
+?>
+
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <h2 class="text-3xl font-bold mb-6">Sản Phẩm Mặc Hằng Ngày</h2>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-6">
