@@ -60,11 +60,13 @@ $categories = $stmt->get_result();
 
         <!-- Thanh tìm kiếm (căn lề phải) -->
         <div class="flex justify-end mb-4">
-            <form method="GET" class="flex space-x-2">
-                <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" class="p-2 border rounded-lg"
-                    placeholder="Tìm kiếm danh mục...">
+            <form method="GET" class="flex">
+                <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
+                    class="p-2 border border-gray-300 rounded-l-lg focus:outline-none"
+                    placeholder="Tìm kiếm thương hiệu...">
                 <input type="hidden" name="limit" value="<?= $limit ?>">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg">
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 border border-gray-300 rounded-r-lg">
                     <!-- SVG của nút tìm kiếm (search icon) -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="white" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
