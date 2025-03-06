@@ -96,8 +96,7 @@ $totalBrands = $data['totalBrands'];
                                 </svg>
                             </a>
                             <a href="delete.php?id=<?= urlencode($brand['brand_id']) ?>"
-                                class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
-                                onclick="return confirm('Bạn có chắc muốn xóa?');">
+                                class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -108,6 +107,7 @@ $totalBrands = $data['totalBrands'];
                                     <path d="M14 11v6"></path>
                                 </svg>
                             </a>
+
                         </td>
                     </tr>
                     <?php endwhile; ?>

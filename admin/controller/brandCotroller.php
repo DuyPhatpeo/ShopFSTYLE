@@ -1,5 +1,5 @@
 <?php
-// admin/controller/brandController.php
+// admin/controller/brandCotroller.php
 
 // ---------------- PHÂN TRANG VÀ DANH SÁCH THƯƠNG HIỆU ----------------
 function getBrandsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
@@ -176,5 +176,13 @@ function processEditBrand($conn, $brand_id) {
     }
     
     return $error;
+}
+
+// ---------------- XÓA THƯƠNG HIỆU ----------------
+function deleteBrand($conn, $brand_id) {
+    $sql = "DELETE FROM brand WHERE brand_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $brand_id);
+    return $stmt->execute();
 }
 ?>
