@@ -1,6 +1,7 @@
 <?php
+// admin/controller/brandController.php
 
-// Hàm lấy danh sách thương hiệu (đã có)
+// ---------------- PHÂN TRANG VÀ DANH SÁCH THƯƠNG HIỆU ----------------
 function getBrandsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
     $page = max(1, (int)$page);
     $limit = max(1, (int)$limit);
@@ -36,13 +37,23 @@ function getBrandsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
     ];
 }
 
-// Hàm tạo UCCID tự sinh cho brand_id
+// ---------------- HÀM TẠO ID VỚI UUID V4 ----------------
 function generateUCCID() {
-    // Ví dụ: UCC + chuỗi uniqid() chuyển thành chữ in hoa
-    return 'UCC' . strtoupper(uniqid());
+    $data = random_bytes(16);
+    // Thiết lập phiên bản 4 cho UUID
+    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
+    // Thiết lập biến thể
+    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
+    return sprintf('%s-%s-%s-%s-%s',
+        bin2hex(substr($data, 0, 4)),
+        bin2hex(substr($data, 4, 2)),
+        bin2hex(substr($data, 6, 2)),
+        bin2hex(substr($data, 8, 2)),
+        bin2hex(substr($data, 10, 6))
+    );
 }
 
-// Hàm kiểm tra xem tên thương hiệu đã tồn tại hay chưa
+// ---------------- KIỂM TRA TÊN THƯƠNG HIỆU ----------------
 function isBrandNameExists($conn, $brandName) {
     $sql = "SELECT COUNT(*) as count FROM brand WHERE brand_name = ?";
     $stmt = $conn->prepare($sql);
@@ -56,10 +67,9 @@ function isBrandNameExists($conn, $brandName) {
     return ((int)$row['count'] > 0);
 }
 
-// Hàm thêm thương hiệu mới (chỉ thực hiện câu lệnh INSERT)
-// Sử dụng UCCID tự sinh cho brand_id
+// ---------------- THÊM THƯƠNG HIỆU ----------------
 function addBrand($conn, $brandName, $status = 1) {
-    $brand_id = generateUCCID(); // Sinh id theo kiểu UCCID
+    $brand_id = generateUCCID();
     $sql = "INSERT INTO brand (brand_id, brand_name, status) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -69,7 +79,6 @@ function addBrand($conn, $brandName, $status = 1) {
     return $stmt->execute();
 }
 
-// Hàm xử lý thêm thương hiệu, toàn bộ xử lý được thực hiện bên controller
 function processAddBrand($conn) {
     $error = null;
     
@@ -83,39 +92,89 @@ function processAddBrand($conn) {
             return $error;
         }
         
-        /* 
-           Ràng buộc: Tên thương hiệu không chứa ký tự đặt biệt
-        */
+        // Ràng buộc: Tên thương hiệu không chứa ký tự đặt biệt
         if (!preg_match("/^[\p{L}\p{N}\s]+$/u", $brandName)) {
             $error = "Tên thương hiệu không được chứa ký tự đặt biệt.";
             return $error;
         }
         
-        // Ràng buộc: Kiểm tra tên thương hiệu đã tồn tại chưa
+        // Ràng buộc: Kiểm tra tên đã tồn tại
         if (isBrandNameExists($conn, $brandName)) {
             $error = "Tên thương hiệu đã tồn tại.";
             return $error;
         }
         
-        // Ràng buộc: Trạng thái phải là 1 (On) hoặc 2 (Off)
+        // Ràng buộc: Trạng thái phải là 1 hoặc 2
         if ($status !== 1 && $status !== 2) {
             $error = "Trạng thái không hợp lệ.";
             return $error;
         }
         
-        // Nếu vượt qua các kiểm tra, thêm thương hiệu vào CSDL
-        $result = addBrand($conn, $brandName, $status);
-        if ($result) {
-            // Nếu thêm thành công, chuyển hướng về trang danh sách kèm thông báo
+        if (addBrand($conn, $brandName, $status)) {
             header("Location: index.php?msg=added");
             exit;
         } else {
             $error = "Thêm thương hiệu thất bại. Vui lòng thử lại.";
         }
     }
+    
     return $error;
 }
 
+// ---------------- CHỈNH SỬA THƯƠNG HIỆU ----------------
+function getBrandById($conn, $brand_id) {
+    $sql = "SELECT * FROM brand WHERE brand_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $brand_id);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
 
-
+function processEditBrand($conn, $brand_id) {
+    $error = null;
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $brandName = trim($_POST['brand_name']);
+        $status    = isset($_POST['status']) ? (int)$_POST['status'] : 1;
+        
+        if (empty($brandName)) {
+            $error = "Tên thương hiệu không được để trống.";
+            return $error;
+        }
+        
+        if (!preg_match("/^[\p{L}\p{N}\s]+$/u", $brandName)) {
+            $error = "Tên thương hiệu không được chứa ký tự đặt biệt.";
+            return $error;
+        }
+        
+        // Kiểm tra tên đã tồn tại, loại trừ bản ghi hiện tại
+        $sql = "SELECT COUNT(*) as count FROM brand WHERE brand_name = ? AND brand_id != ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $brandName, $brand_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        if ((int)$row['count'] > 0) {
+            $error = "Tên thương hiệu đã tồn tại.";
+            return $error;
+        }
+        
+        if ($status !== 1 && $status !== 2) {
+            $error = "Trạng thái không hợp lệ.";
+            return $error;
+        }
+        
+        $sql = "UPDATE brand SET brand_name = ?, status = ? WHERE brand_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sis", $brandName, $status, $brand_id);
+        if ($stmt->execute()) {
+            header("Location: index.php?msg=updated");
+            exit;
+        } else {
+            $error = "Cập nhật thương hiệu thất bại. Vui lòng thử lại.";
+        }
+    }
+    
+    return $error;
+}
 ?>
