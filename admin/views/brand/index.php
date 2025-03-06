@@ -1,7 +1,7 @@
 <?php 
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
-require_once('../../controller/brandCotroller.php'); // Hàm phụ trợ
+require_once('../../controller/brandController.php'); // Hàm phụ trợ
 
 // Lấy giá trị từ URL hoặc gán giá trị mặc định
 $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;

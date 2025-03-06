@@ -1,73 +1,47 @@
 <?php 
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
+require_once('../../controller/categoryController.php'); // Hàm phụ trợ cho danh mục
 
-// Kiểm tra kết nối CSDL
-if (!$conn instanceof mysqli) {
-    die("Kết nối CSDL thất bại: " . mysqli_connect_error());
-}
-
-// Lấy dữ liệu từ URL
-$currentPage = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
+// Lấy giá trị từ URL hoặc gán giá trị mặc định
+$page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit  = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? trim($_GET['search']) : "";
 
-// Đếm tổng số danh mục có từ khóa tìm kiếm
-$sqlCount = "SELECT COUNT(*) as total FROM category WHERE category_name LIKE ?";
-$stmtCount = $conn->prepare($sqlCount);
-$searchParam = "%" . $search . "%";
-$stmtCount->bind_param("s", $searchParam);
-$stmtCount->execute();
-$result = $stmtCount->get_result();
-$row = $result->fetch_assoc();
-$totalCategories = (int)($row['total'] ?? 0);
-$totalPages = max(1, ceil($totalCategories / $limit));
-
-// Đảm bảo currentPage không vượt quá tổng số trang
-$currentPage = min($currentPage, $totalPages);
-$offset = ($currentPage - 1) * $limit;
-
-// Lấy danh sách danh mục có từ khóa tìm kiếm và lấy tên danh mục cha thông qua LEFT JOIN
-$sql = "SELECT c.*, p.category_name AS parent_name 
-        FROM category c 
-        LEFT JOIN category p ON c.parent_id = p.category_id 
-        WHERE c.category_name LIKE ? 
-        ORDER BY c.category_name ASC 
-        LIMIT ? OFFSET ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("sii", $searchParam, $limit, $offset);
-$stmt->execute();
-$categories = $stmt->get_result();
+// Gọi hàm lấy dữ liệu danh sách danh mục có phân trang
+$data = getCategoriesWithPagination($conn, $page, $limit, $search);
+$categories      = $data['categories'];
+$totalPages      = $data['totalPages'];
+$currentPage     = $data['currentPage'];
+$totalCategories = $data['totalCategories'];
 ?>
 
 <main>
     <div class="container mx-auto p-6">
-        <!-- Header: Tiêu đề và nút thêm danh mục -->
+        <!-- Header: Tiêu đề và nút thêm (căn lề phải) -->
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Danh sách danh mục</h1>
-            <a href="add-category.php"
+            <a href="add.php"
                 class="bg-green-700 hover:bg-green-800 text-white p-2 rounded-lg shadow-md transition flex items-center space-x-2">
-                <!-- SVG của nút thêm (add) -->
+                <!-- Icon thêm danh mục -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="white"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                <!-- Chữ "Thêm danh mục" ẩn trên màn hình nhỏ -->
                 <span class="hidden sm:inline">Thêm danh mục</span>
             </a>
         </div>
 
-        <!-- Thanh tìm kiếm (căn lề phải) -->
+        <!-- Thanh tìm kiếm -->
         <div class="flex justify-end mb-4">
             <form method="GET" class="flex">
                 <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
                     class="p-2 border border-gray-300 rounded-l-lg focus:outline-none"
-                    placeholder="Tìm kiếm thương hiệu...">
+                    placeholder="Tìm kiếm danh mục...">
                 <input type="hidden" name="limit" value="<?= $limit ?>">
                 <button type="submit"
                     class="bg-blue-600 hover:bg-blue-700 text-white p-2 border border-gray-300 rounded-r-lg">
-                    <!-- SVG của nút tìm kiếm (search icon) -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="white" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -85,7 +59,7 @@ $categories = $stmt->get_result();
                         <th class="p-2 sm:p-3 text-left">STT</th>
                         <th class="p-2 sm:p-3 text-left">Mã danh mục</th>
                         <th class="p-2 sm:p-3 text-left">Tên danh mục</th>
-                        <th class="p-2 sm:p-3 text-left">Danh mục cha</th>
+                        <th class="p-2 sm:p-3 text-left">Praret ID</th>
                         <th class="p-2 sm:p-3 text-left">Trạng thái</th>
                         <th class="p-2 sm:p-3 text-center">Hành động</th>
                     </tr>
@@ -93,17 +67,16 @@ $categories = $stmt->get_result();
                 <tbody class="text-gray-700">
                     <?php if ($categories->num_rows > 0) : ?>
                     <?php 
-                        $stt = $offset + 1;
+                        // Tính số thứ tự bắt đầu dựa vào trang hiện tại
+                        $stt = ($currentPage - 1) * $limit + 1;
                         while ($category = $categories->fetch_assoc()) : 
                             $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                        ?>
+                    ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3"><?= $stt++ ?></td>
                         <td class="p-2 sm:p-3">#<?= htmlspecialchars($category['category_id']) ?></td>
                         <td class="p-2 sm:p-3 font-medium"><?= htmlspecialchars($category['category_name']) ?></td>
-                        <td class="p-2 sm:p-3">
-                            <?= htmlspecialchars($category['parent_name'] ?? 'Không có') ?>
-                        </td>
+                        <td class="p-2 sm:p-3"><?= htmlspecialchars($category['praret_id']) ?></td>
                         <td class="p-2 sm:p-3">
                             <?php 
                                 if ($category['status'] == 1) {
@@ -116,9 +89,8 @@ $categories = $stmt->get_result();
                             ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center flex justify-center gap-1">
-                            <a href="edit-category.php?id=<?= urlencode($category['category_id']) ?>"
+                            <a href="edit.php?id=<?= urlencode($category['category_id']) ?>"
                                 class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
-                                <!-- SVG của nút edit -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -126,10 +98,8 @@ $categories = $stmt->get_result();
                                     <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"></path>
                                 </svg>
                             </a>
-                            <a href="delete-category.php?id=<?= urlencode($category['category_id']) ?>"
-                                class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
-                                onclick="return confirm('Bạn có chắc muốn xóa danh mục này?');">
-                                <!-- SVG của nút delete -->
+                            <a href="delete.php?id=<?= urlencode($category['category_id']) ?>"
+                                class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -154,7 +124,6 @@ $categories = $stmt->get_result();
 
         <!-- Phân trang và dropdown chọn số dòng -->
         <div class="grid grid-cols-1 sm:grid-cols-3 items-center mt-4 gap-4 mb-6">
-            <!-- Dropdown chọn số dòng -->
             <div class="flex justify-start items-center">
                 <form method="GET" id="limitForm" class="flex items-center">
                     <input type="hidden" name="page" value="<?= $currentPage ?>">
@@ -168,7 +137,6 @@ $categories = $stmt->get_result();
                     </select>
                 </form>
             </div>
-            <!-- Phân trang -->
             <div class="flex justify-center">
                 <?php
                 require_once('../../includes/pagination.php');

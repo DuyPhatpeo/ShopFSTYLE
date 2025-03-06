@@ -4,7 +4,7 @@ ob_start();
 
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
-require_once('../../controller/brandCotroller.php'); // File chứa xử lý
+require_once('../../controller/brandController.php'); // File chứa xử lý
 
 // Gọi hàm xử lý thêm thương hiệu (toàn bộ xử lý đã được thực hiện trong controller)
 // Nếu thêm thành công, hàm processAddBrand sẽ tự chuyển hướng về index.php

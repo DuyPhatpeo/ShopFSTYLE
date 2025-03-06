@@ -5,7 +5,7 @@ ob_start();
 // Include header và kết nối CSDL
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
-require_once('../../controller/brandCotroller.php'); // File chứa xử lý
+require_once('../../controller/brandController.php'); // File chứa xử lý
 
 // Kiểm tra sự tồn tại của biến GET id
 if (!isset($_GET['id'])) {
