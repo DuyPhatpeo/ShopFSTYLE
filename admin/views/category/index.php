@@ -1,7 +1,7 @@
 <?php 
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
-require_once('../../controller/categoryController.php'); // Hàm phụ trợ cho danh mục
+require_once('../../controller/categoryController.php'); // Hàm phụ trợ danh mục
 
 // Lấy giá trị từ URL hoặc gán giá trị mặc định
 $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -18,12 +18,11 @@ $totalCategories = $data['totalCategories'];
 
 <main>
     <div class="container mx-auto p-6">
-        <!-- Header: Tiêu đề và nút thêm (căn lề phải) -->
+        <!-- Header: Tiêu đề và nút thêm danh mục -->
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Danh sách danh mục</h1>
             <a href="add.php"
                 class="bg-green-700 hover:bg-green-800 text-white p-2 rounded-lg shadow-md transition flex items-center space-x-2">
-                <!-- Icon thêm danh mục -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="white"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -37,8 +36,7 @@ $totalCategories = $data['totalCategories'];
         <div class="flex justify-end mb-4">
             <form method="GET" class="flex">
                 <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
-                    class="p-2 border border-gray-300 rounded-l-lg focus:outline-none"
-                    placeholder="Tìm kiếm danh mục...">
+                    class="p-2 border border-gray-300 rounded-l-lg focus:outline-none" placeholder="Tìm danh mục...">
                 <input type="hidden" name="limit" value="<?= $limit ?>">
                 <button type="submit"
                     class="bg-blue-600 hover:bg-blue-700 text-white p-2 border border-gray-300 rounded-r-lg">
@@ -59,7 +57,7 @@ $totalCategories = $data['totalCategories'];
                         <th class="p-2 sm:p-3 text-left">STT</th>
                         <th class="p-2 sm:p-3 text-left">Mã danh mục</th>
                         <th class="p-2 sm:p-3 text-left">Tên danh mục</th>
-                        <th class="p-2 sm:p-3 text-left">Praret ID</th>
+                        <th class="p-2 sm:p-3 text-left">Danh mục cha</th>
                         <th class="p-2 sm:p-3 text-left">Trạng thái</th>
                         <th class="p-2 sm:p-3 text-center">Hành động</th>
                     </tr>
@@ -71,22 +69,24 @@ $totalCategories = $data['totalCategories'];
                         $stt = ($currentPage - 1) * $limit + 1;
                         while ($category = $categories->fetch_assoc()) : 
                             $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                    ?>
+                        ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3"><?= $stt++ ?></td>
                         <td class="p-2 sm:p-3">#<?= htmlspecialchars($category['category_id']) ?></td>
                         <td class="p-2 sm:p-3 font-medium"><?= htmlspecialchars($category['category_name']) ?></td>
-                        <td class="p-2 sm:p-3"><?= htmlspecialchars($category['praret_id']) ?></td>
+                        <td class="p-2 sm:p-3">
+                            <?= !empty($category['parent_name']) ? htmlspecialchars($category['parent_name']) : 'None' ?>
+                        </td>
                         <td class="p-2 sm:p-3">
                             <?php 
-                                if ($category['status'] == 1) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
-                                } elseif ($category['status'] == 2) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
-                                } else {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
-                                }
-                            ?>
+                                    if ($category['status'] == 1) {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
+                                    } elseif ($category['status'] == 2) {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
+                                    } else {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
+                                    }
+                                ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center flex justify-center gap-1">
                             <a href="edit.php?id=<?= urlencode($category['category_id']) ?>"
@@ -99,7 +99,8 @@ $totalCategories = $data['totalCategories'];
                                 </svg>
                             </a>
                             <a href="delete.php?id=<?= urlencode($category['category_id']) ?>"
-                                class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
+                                class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
+                                onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
