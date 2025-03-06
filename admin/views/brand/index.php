@@ -1,38 +1,19 @@
 <?php 
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
+require_once('../../controller/brandCotroller.php'); // Hàm phụ trợ
 
-// Kiểm tra kết nối CSDL
-if (!$conn instanceof mysqli) {
-    die("Kết nối CSDL thất bại: " . mysqli_connect_error());
-}
-
-// Lấy dữ liệu từ URL
-$currentPage = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
-$limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 10;
+// Lấy giá trị từ URL hoặc gán giá trị mặc định
+$page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit  = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? trim($_GET['search']) : "";
 
-// Đếm tổng số thương hiệu có từ khóa tìm kiếm
-$sqlCount = "SELECT COUNT(*) as total FROM brand WHERE brand_name LIKE ?";
-$stmtCount = $conn->prepare($sqlCount);
-$searchParam = "%" . $search . "%";
-$stmtCount->bind_param("s", $searchParam);
-$stmtCount->execute();
-$result = $stmtCount->get_result();
-$row = $result->fetch_assoc();
-$totalBrands = (int)($row['total'] ?? 0);
-$totalPages = max(1, ceil($totalBrands / $limit));
-
-// Đảm bảo currentPage không vượt quá tổng số trang
-$currentPage = min($currentPage, $totalPages);
-$offset = ($currentPage - 1) * $limit;
-
-// Lấy danh sách thương hiệu có từ khóa tìm kiếm
-$sql = "SELECT * FROM brand WHERE brand_name LIKE ? ORDER BY brand_name ASC LIMIT ? OFFSET ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("sii", $searchParam, $limit, $offset);
-$stmt->execute();
-$brands = $stmt->get_result();
+// Gọi hàm lấy dữ liệu danh sách thương hiệu có phân trang
+$data = getBrandsWithPagination($conn, $page, $limit, $search);
+$brands      = $data['brands'];
+$totalPages  = $data['totalPages'];
+$currentPage = $data['currentPage'];
+$totalBrands = $data['totalBrands'];
 ?>
 
 <main>
@@ -40,15 +21,13 @@ $brands = $stmt->get_result();
         <!-- Header: Tiêu đề và nút thêm (căn lề phải) -->
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Danh sách thương hiệu</h1>
-            <a href="add-brand.php"
+            <a href="add.php"
                 class="bg-green-700 hover:bg-green-800 text-white p-2 rounded-lg shadow-md transition flex items-center space-x-2">
-                <!-- SVG của nút thêm (add) -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="white"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                <!-- Chữ "Thêm thương hiệu" ẩn trên màn hình nhỏ -->
                 <span class="hidden sm:inline">Thêm thương hiệu</span>
             </a>
         </div>
@@ -62,7 +41,6 @@ $brands = $stmt->get_result();
                 <input type="hidden" name="limit" value="<?= $limit ?>">
                 <button type="submit"
                     class="bg-blue-600 hover:bg-blue-700 text-white p-2 border border-gray-300 rounded-r-lg">
-                    <!-- SVG của nút tìm kiếm (search icon) -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="white" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -71,7 +49,6 @@ $brands = $stmt->get_result();
                 </button>
             </form>
         </div>
-
 
         <!-- Bảng hiển thị thương hiệu -->
         <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
@@ -88,7 +65,8 @@ $brands = $stmt->get_result();
                 <tbody class="text-gray-700">
                     <?php if ($brands->num_rows > 0) : ?>
                     <?php 
-                        $stt = $offset + 1;
+                        // Tính số thứ tự bắt đầu dựa vào trang hiện tại
+                        $stt = ($currentPage - 1) * $limit + 1;
                         while ($brand = $brands->fetch_assoc()) : 
                             $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
                         ?>
@@ -98,19 +76,18 @@ $brands = $stmt->get_result();
                         <td class="p-2 sm:p-3 font-medium"><?= htmlspecialchars($brand['brand_name']) ?></td>
                         <td class="p-2 sm:p-3">
                             <?php 
-                                if ($brand['status'] == 1) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
-                                } elseif ($brand['status'] == 2) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
-                                } else {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
-                                }
-                            ?>
+                                    if ($brand['status'] == 1) {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
+                                    } elseif ($brand['status'] == 2) {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
+                                    } else {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
+                                    }
+                                ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center flex justify-center gap-1">
                             <a href="edit.php?id=<?= urlencode($brand['brand_id']) ?>"
                                 class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
-                                <!-- SVG của nút edit -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
@@ -121,7 +98,6 @@ $brands = $stmt->get_result();
                             <a href="delete.php?id=<?= urlencode($brand['brand_id']) ?>"
                                 class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
                                 onclick="return confirm('Bạn có chắc muốn xóa?');">
-                                <!-- SVG của nút delete -->
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round">
