@@ -16,6 +16,9 @@
 <?php 
     include ('user/banner.php'); 
 ?>
+<?php 
+    include ('category/category-list.php'); 
+?>
 
 <?php 
     include ('product/product-list.php'); 

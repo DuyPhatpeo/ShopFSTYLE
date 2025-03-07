@@ -32,15 +32,12 @@
         <!-- Swiper Slider -->
         <div class="swiper productSwiper">
             <div class="swiper-wrapper">
-
-                <!-- Mỗi sản phẩm bọc toàn bộ card trong thẻ div có onclick -->
                 <!-- Product 1 (Có giảm giá) -->
-                <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
-                        <!-- Ảnh sản phẩm (không có link) -->
+                <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px]">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product1.png" alt="Sản phẩm 1"
-                            class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
+                            class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3 cursor-pointer" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.9★ (21)
                         </div>
@@ -64,12 +61,8 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Thông tin sản phẩm (tên, màu, giá) -->
+                    <!-- Thông tin sản phẩm: Dòng chọn màu lên trên tên sản phẩm -->
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
-                            Sản phẩm 1
-                        </a>
                         <div class="flex space-x-1 mb-1">
                             <span
                                 class="w-7 h-5 bg-gray-800 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
@@ -78,6 +71,10 @@
                             <span
                                 class="w-7 h-5 bg-green-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
+                        <a href="views/product/product-detail.php"
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
+                            Sản phẩm 1
+                        </a>
                         <p class="text-sm sm:text-base font-bold mb-0">
                             599.000đ <span class="text-gray-500 line-through text-xs sm:text-sm">699.000đ</span>
                             <span class="ml-2 text-red-500 font-bold text-xs sm:text-sm">-14%</span>
@@ -86,11 +83,11 @@
                 </div>
 
                 <!-- Product 2 (Có giảm giá) -->
-                <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px]">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product2.png" alt="Sản phẩm 2"
-                            class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
+                            class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3 cursor-pointer" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (63)
                         </div>
@@ -114,10 +111,6 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
-                            Sản phẩm 2
-                        </a>
                         <div class="flex space-x-1 mb-1">
                             <span
                                 class="w-7 h-5 bg-black rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
@@ -126,6 +119,10 @@
                             <span
                                 class="w-7 h-5 bg-blue-400 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
+                        <a href="views/product/product-detail.php"
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
+                            Sản phẩm 2
+                        </a>
                         <p class="text-sm sm:text-base font-bold mb-0">
                             359.000đ <span class="text-gray-500 line-through text-xs sm:text-sm">399.000đ</span>
                             <span class="ml-2 text-red-500 font-bold text-xs sm:text-sm">-10%</span>
@@ -134,11 +131,11 @@
                 </div>
 
                 <!-- Product 3 (Không giảm giá) -->
-                <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px]">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product3.png" alt="Sản phẩm 3"
-                            class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
+                            class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3 cursor-pointer" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (173)
                         </div>
@@ -162,10 +159,7 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
-                            Sản phẩm 3
-                        </a>
+                        <!-- Dòng chọn màu nằm trên tên sản phẩm -->
                         <div class="flex space-x-1 mb-1">
                             <span
                                 class="w-7 h-5 bg-gray-800 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
@@ -174,6 +168,10 @@
                             <span
                                 class="w-7 h-5 bg-blue-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
+                        <a href="views/product/product-detail.php"
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
+                            Sản phẩm 3
+                        </a>
                         <p class="text-sm sm:text-base font-bold mb-0">161.000đ</p>
                     </div>
                 </div>
@@ -181,7 +179,8 @@
                 <!-- Product 4 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
                     onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product4.png" alt="Sản phẩm 4"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
@@ -207,10 +206,7 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
-                            Sản phẩm 4
-                        </a>
+                        <!-- Dòng chọn màu -->
                         <div class="flex space-x-1 mb-1">
                             <span
                                 class="w-7 h-5 bg-red-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
@@ -219,6 +215,10 @@
                             <span
                                 class="w-7 h-5 bg-green-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
+                        <a href="views/product/product-detail.php"
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
+                            Sản phẩm 4
+                        </a>
                         <p class="text-sm sm:text-base font-bold mb-0">
                             254.000đ <span class="text-gray-500 line-through text-xs sm:text-sm">299.000đ</span>
                             <span class="ml-2 text-red-500 font-bold text-xs sm:text-sm">-15%</span>
@@ -229,7 +229,8 @@
                 <!-- Product 5 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
                     onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product5.png" alt="Sản phẩm 5"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
@@ -255,10 +256,7 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
-                            Sản phẩm 5
-                        </a>
+                        <!-- Dòng chọn màu -->
                         <div class="flex space-x-1 mb-1">
                             <span
                                 class="w-7 h-5 bg-purple-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
@@ -267,6 +265,10 @@
                             <span
                                 class="w-7 h-5 bg-pink-500 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
+                        <a href="views/product/product-detail.php"
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
+                            Sản phẩm 5
+                        </a>
                         <p class="text-sm sm:text-base font-bold mb-0">
                             249.000đ <span class="text-gray-500 line-through text-xs sm:text-sm">299.000đ</span>
                             <span class="ml-2 text-red-500 font-bold text-xs sm:text-sm">-17%</span>
@@ -277,7 +279,8 @@
                 <!-- Product 6 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
                     onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product6.png" alt="Sản phẩm 6"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
@@ -304,7 +307,7 @@
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
                         <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 6
                         </a>
                         <div class="flex space-x-1 mb-1">
@@ -325,7 +328,8 @@
                 <!-- Product 7 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
                     onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product7.png" alt="Sản phẩm 7"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
@@ -351,10 +355,6 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
-                            Sản phẩm 7
-                        </a>
                         <div class="flex space-x-1 mb-1">
                             <span
                                 class="w-7 h-5 bg-teal-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
@@ -363,6 +363,10 @@
                             <span
                                 class="w-7 h-5 bg-red-500 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
+                        <a href="views/product/product-detail.php"
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
+                            Sản phẩm 7
+                        </a>
                         <p class="text-sm sm:text-base font-bold mb-0">
                             799.000đ <span class="text-gray-500 line-through text-xs sm:text-sm">899.000đ</span>
                             <span class="ml-2 text-red-500 font-bold text-xs sm:text-sm">-11%</span>
@@ -373,7 +377,8 @@
                 <!-- Product 8 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
                     onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product1.png" alt="Sản phẩm 8"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
@@ -400,7 +405,7 @@
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
                         <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 8
                         </a>
                         <div class="flex space-x-1 mb-1">
@@ -421,7 +426,8 @@
                 <!-- Product 9 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
                     onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product2.png" alt="Sản phẩm 9"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
@@ -448,7 +454,7 @@
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
                         <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 9
                         </a>
                         <div class="flex space-x-1 mb-1">
@@ -469,7 +475,8 @@
                 <!-- Product 10 (Không giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
                     onclick="location.href='views/product/product-detail.php'">
-                    <div class="relative group">
+                    <div class="relative group cursor-pointer"
+                        onclick="location.href='views/product/product-detail.php'">
                         <img src="assets/images/public/product/product3.png" alt="Sản phẩm 10"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
@@ -496,7 +503,7 @@
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
                         <a href="views/product/product-detail.php"
-                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500">
+                            class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 10
                         </a>
                         <div class="flex space-x-1 mb-1">
