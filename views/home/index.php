@@ -9,7 +9,7 @@
 
 
 <?php 
-    include ('../user/banner.php'); 
+    include ('banner.php'); 
 ?>
 <?php 
     include ('../category/category-list.php'); 

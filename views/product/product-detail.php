@@ -50,14 +50,26 @@
 </style>
 
 <!-- Chi tiết sản phẩm -->
-<main class="max-w-7xl mx-auto p-6 bg-white shadow-md mt-6">
+<main class="max-w-7xl mx-auto p-6 bg-white shadow-md mt-6 rounded-lg">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Hình ảnh sản phẩm -->
         <div class="flex">
             <div
-                class="flex flex-col space-y-2 mr-4 overflow-y-auto max-h-96 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+                class="flex flex-col space-y-2 mr-4 overflow-y-auto max-h-96 scrollbar-thin scrollbar-thumb-blue-500 scrollbar-track-gray-100 scrollbar-w-2">
                 <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product1.png"
                     alt="Sản phẩm 1" class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500">
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product2.png"
+                    alt="Sản phẩm 2"
+                    class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product3.png"
+                    alt="Sản phẩm 3"
+                    class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product4.png"
+                    alt="Sản phẩm 4"
+                    class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product5.png"
+                    alt="Sản phẩm 5"
+                    class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
                 <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product2.png"
                     alt="Sản phẩm 2"
                     class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
@@ -94,13 +106,78 @@
                     onclick="selectColor(this)"></span>
                 <span
                     class="color-swatch w-16 h-8 bg-green-500 border border-gray-400 rounded-full cursor-pointer out-of-stock"></span>
-
-
-
-
-
             </div>
-            <p class="mt-4">Chọn size:</p>
+            <div class="flex justify-end">
+                <button id="openSizeGuide" class="text-blue-500 cursor-pointer">
+                    Hướng dẫn chọn size
+                </button>
+            </div>
+
+            <!-- Modal -->
+            <div id="sizeGuideModal"
+                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50">
+                <div class="bg-white p-4 rounded-lg w-[600px] border border-gray-300 shadow-lg">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <h2 class="text-lg font-semibold">Bảng size</h2>
+                        <button id="closeSizeGuide" class="text-gray-500 hover:text-red-500 text-xl">&times;</button>
+                    </div>
+                    <table class="w-full border-collapse mt-3">
+                        <thead>
+                            <tr class="bg-blue-500 text-white">
+                                <th class="p-2">Size</th>
+                                <th class="p-2">M</th>
+                                <th class="p-2">L</th>
+                                <th class="p-2">XL</th>
+                                <th class="p-2">2XL</th>
+                                <th class="p-2">3XL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-2 font-semibold">Chiều cao</td>
+                                <td class="p-2">1m55 - 1m66</td>
+                                <td class="p-2">1m66 - 1m72</td>
+                                <td class="p-2">1m72 - 1m77</td>
+                                <td class="p-2">1m77 - 1m83</td>
+                                <td class="p-2">1m83 - 1m89</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-semibold">Cân nặng</td>
+                                <td class="p-2">55kg - 61kg</td>
+                                <td class="p-2">62kg - 68kg</td>
+                                <td class="p-2">69kg - 75kg</td>
+                                <td class="p-2">76kg - 84kg</td>
+                                <td class="p-2">85kg - 90kg</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-semibold">Dài quần</td>
+                                <td class="p-2">94</td>
+                                <td class="p-2">96</td>
+                                <td class="p-2">98</td>
+                                <td class="p-2">100</td>
+                                <td class="p-2">102</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-2 font-semibold">1/2 Vòng mông</td>
+                                <td class="p-2">50</td>
+                                <td class="p-2">52</td>
+                                <td class="p-2">54</td>
+                                <td class="p-2">56</td>
+                                <td class="p-2">58</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 font-semibold">1/2 Rộng đùi</td>
+                                <td class="p-2">32</td>
+                                <td class="p-2">33</td>
+                                <td class="p-2">34</td>
+                                <td class="p-2">35</td>
+                                <td class="p-2">36</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Nút chọn size -->
             <div class="flex space-x-4 mt-2">
                 <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200" data-size="S">S</button>
@@ -142,7 +219,7 @@
         nhiều dịp khác nhau.</p>
 </section>
 
-<!-- ĐÁNH GIÁ SẢN PHẨM (thay cho phần bình luận cũ) -->
+<!-- ĐÁNH GIÁ SẢN PHẨM -->
 <section class="max-w-7xl mx-auto p-6 bg-white mt-6 shadow-md rounded-md">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -156,11 +233,7 @@
                         <path
                             d="M287.9 17.8c7.8 15.8 15.6 31.5 23.4 47.3l52.2 105.8 116.8 17c17.4 2.5 24.4 23.9 11.8 36.2l-84.5 82.4 19.9 116.2c3 17.3-15.3 30.5-30.7 22.3L288 396.6l-104.5 55c-15.4 8.2-33.7-5-30.7-22.3l19.9-116.2-84.5-82.4c-12.6-12.2-5.6-33.6 11.8-36.2l116.8-17 52.2-105.8c7.8-15.8 30.6-15.8 38.4 0z" />
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
-                        class="h-5 w-5 text-yellow-500 fill-current">
-                        <path
-                            d="M287.9 17.8c7.8 15.8 15.6 31.5 23.4 47.3l52.2 105.8 116.8 17c17.4 2.5 24.4 23.9 11.8 36.2l-84.5 82.4 19.9 116.2c3 17.3-15.3 30.5-30.7 22.3L288 396.6l-104.5 55c-15.4 8.2-33.7-5-30.7-22.3l19.9-116.2-84.5-82.4c-12.6-12.2-5.6-33.6 11.8-36.2l116.8-17 52.2-105.8c7.8-15.8 30.6-15.8 38.4 0z" />
-                    </svg>
+                    <!-- Lặp lại 4 lần nữa -->
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
                         class="h-5 w-5 text-yellow-500 fill-current">
                         <path
@@ -212,11 +285,7 @@
                     <path
                         d="M287.9 17.8c7.8 15.8 15.6 31.5 23.4 47.3l52.2 105.8 116.8 17c17.4 2.5 24.4 23.9 11.8 36.2l-84.5 82.4 19.9 116.2c3 17.3-15.3 30.5-30.7 22.3L288 396.6l-104.5 55c-15.4 8.2-33.7-5-30.7-22.3l19.9-116.2-84.5-82.4c-12.6-12.2-5.6-33.6 11.8-36.2l116.8-17 52.2-105.8c7.8-15.8 30.6-15.8 38.4 0z" />
                 </svg>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
-                    class="h-4 w-4 text-yellow-500 fill-current mr-1">
-                    <path
-                        d="M287.9 17.8c7.8 15.8 15.6 31.5 23.4 47.3l52.2 105.8 116.8 17c17.4 2.5 24.4 23.9 11.8 36.2l-84.5 82.4 19.9 116.2c3 17.3-15.3 30.5-30.7 22.3L288 396.6l-104.5 55c-15.4 8.2-33.7-5-30.7-22.3l19.9-116.2-84.5-82.4c-12.6-12.2-5.6-33.6 11.8-36.2l116.8-17 52.2-105.8c7.8-15.8 30.6-15.8 38.4 0z" />
-                </svg>
+                <!-- Lặp lại 4 sao tương tự -->
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
                     class="h-4 w-4 text-yellow-500 fill-current mr-1">
                     <path
@@ -265,7 +334,6 @@ function changeImage(element) {
     element.classList.remove('opacity-50');
     currentImageIndex = images.indexOf(element);
 }
-
 document.querySelector('.flex-col img').classList.remove('opacity-50');
 
 // Mở modal với ảnh được chọn và reset trạng thái zoom
@@ -300,8 +368,9 @@ const dragThreshold = 5; // pixel
 
 const modalImage = document.getElementById('modalImage');
 
-// Khi nhấn xuống, lưu vị trí ban đầu
+// Khi nhấn xuống: chỉ xử lý sự kiện nếu nhấn chuột trái (button === 0)
 modalImage.addEventListener('pointerdown', function(e) {
+    if (e.button !== 0) return; // Chỉ xử lý chuột trái
     pointerDown = true;
     isDragging = false;
     startX = e.clientX;
@@ -367,8 +436,18 @@ function toggleZoom() {
     updateModalTransform(currentScale, currentOffsetX, currentOffsetY);
 }
 
-// Xử lý phím: Esc để đóng, ArrowLeft và ArrowRight để chuyển ảnh
+// Xử lý phím: chỉ khi modal mở, xử lý Escape, ArrowLeft, ArrowRight và bỏ qua phím "d"
 document.addEventListener('keydown', function(event) {
+    // Chỉ xử lý khi modal đang mở
+    const modal = document.getElementById('imageModal');
+    if (modal.classList.contains('hidden')) return;
+
+    // Nếu nhấn phím "d" (hoặc "D"), ngăn không cho xử lý thêm
+    if (event.key.toLowerCase() === "d" || event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        return;
+    }
+
     if (event.key === "Escape") {
         closeModal();
     } else if (event.key === "ArrowLeft") {
@@ -435,7 +514,6 @@ window.onload = function() {
     }
 };
 
-
 // Xử lý chọn size
 document.querySelectorAll('.size-button').forEach(function(button) {
     button.addEventListener('click', function() {
@@ -447,6 +525,19 @@ document.querySelectorAll('.size-button').forEach(function(button) {
         this.classList.add('bg-black', 'text-white');
         this.classList.remove('hover:bg-gray-200');
     });
+});
+document.getElementById('openSizeGuide').addEventListener('click', function() {
+    document.getElementById('sizeGuideModal').classList.remove('hidden');
+});
+
+document.getElementById('closeSizeGuide').addEventListener('click', function() {
+    document.getElementById('sizeGuideModal').classList.add('hidden');
+});
+
+document.getElementById('sizeGuideModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.classList.add('hidden');
+    }
 });
 </script>
 
