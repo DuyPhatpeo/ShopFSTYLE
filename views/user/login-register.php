@@ -4,7 +4,13 @@
         <!-- Nút đóng -->
         <button id="close-auth-modal"
             class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl focus:outline-none">
-            <img src="assets/icons/close.svg" alt="close" class="w-6 h-6" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
         </button>
         <!-- Tiêu đề Modal (cập nhật theo form) -->
         <h1 id="modal-title" class="text-3xl font-bold text-blue-600">
@@ -21,7 +27,16 @@
                         class="w-full px-4 py-2 border rounded pr-12 focus:outline-none focus:border-gray-500"
                         required />
                     <button type="button" id="toggle-password" class="absolute inset-y-0 right-3 flex items-center">
-                        <img id="eye-icon" src="assets/icons/eye-open.svg" alt="Show password" class="h-6 w-6" />
+                        <span id="eye-icon">
+                            <!-- eye-open.svg -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </span>
                     </button>
                 </div>
                 <button type="submit"
@@ -41,7 +56,7 @@
             <div class="mt-4">
                 <button type="button"
                     class="w-full border border-gray-300 rounded flex items-center justify-center py-2 space-x-2 hover:bg-gray-100 transition-colors duration-200">
-                    <img src="assets/images/google.png" alt="google" class="w-8 h-8" />
+                    <img src="<?= USER_URL ?>/assets/images/google.png" alt="google" class="w-8 h-8" />
                     <span class="font-medium text-gray-700">Đăng nhập bằng Google</span>
                 </button>
             </div>
@@ -70,7 +85,16 @@
                         required />
                     <button type="button" id="toggle-signup-password"
                         class="absolute inset-y-0 right-3 flex items-center">
-                        <img id="signup-eye-icon" src="assets/icons/eye-open.svg" alt="Show password" class="h-6 w-6" />
+                        <span id="signup-eye-icon">
+                            <!-- eye-open.svg -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </span>
                     </button>
                 </div>
                 <!-- Trường xác nhận mật khẩu với toggle -->
@@ -80,8 +104,16 @@
                         required />
                     <button type="button" id="toggle-signup-confirm-password"
                         class="absolute inset-y-0 right-3 flex items-center">
-                        <img id="signup-confirm-eye-icon" src="assets/icons/eye-open.svg" alt="Show password"
-                            class="h-6 w-6" />
+                        <span id="signup-confirm-eye-icon">
+                            <!-- eye-open.svg -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </span>
                     </button>
                 </div>
                 <button type="submit"
