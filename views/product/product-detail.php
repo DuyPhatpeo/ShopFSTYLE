@@ -1,7 +1,8 @@
 <?php 
+    include_once __DIR__ . "/../../includes/config.php";
     include ('../../includes/header.php'); 
-    include ('../../views/user/login-register.php'); 
-    include ('../../views/search.php'); 
+    include ('../user/login-register.php');
+    include ('../../includes/search.php');
 ?>
 <style>
 .out-of-stock {
@@ -55,19 +56,23 @@
         <div class="flex">
             <div
                 class="flex flex-col space-y-2 mr-4 overflow-y-auto max-h-96 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
-                <img onclick="changeImage(this)" src="../../assets/images/public/product/product1.png" alt="Sản phẩm 1"
-                    class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500">
-                <img onclick="changeImage(this)" src="../../assets/images/public/product/product2.png" alt="Sản phẩm 2"
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product1.png"
+                    alt="Sản phẩm 1" class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500">
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product2.png"
+                    alt="Sản phẩm 2"
                     class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
-                <img onclick="changeImage(this)" src="../../assets/images/public/product/product3.png" alt="Sản phẩm 3"
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product3.png"
+                    alt="Sản phẩm 3"
                     class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
-                <img onclick="changeImage(this)" src="../../assets/images/public/product/product4.png" alt="Sản phẩm 4"
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product4.png"
+                    alt="Sản phẩm 4"
                     class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
-                <img onclick="changeImage(this)" src="../../assets/images/public/product/product5.png" alt="Sản phẩm 5"
+                <img onclick="changeImage(this)" src="<?= USER_URL ?>/assets/images/public/product/product5.png"
+                    alt="Sản phẩm 5"
                     class="w-20 h-20 cursor-pointer border border-gray-300 hover:border-blue-500 opacity-50">
             </div>
             <div class="relative">
-                <img id="mainImage" src="../../assets/images/public/product/product1.png" alt="Sản phẩm"
+                <img id="mainImage" src="<?= USER_URL ?>/assets/images/public/product/product1.png" alt="Sản phẩm"
                     class="w-full h-auto object-cover cursor-pointer rounded-lg" onclick="openModal(this.src)">
             </div>
         </div>

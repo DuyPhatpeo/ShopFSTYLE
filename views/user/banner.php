@@ -4,18 +4,22 @@
         <div class="swiper-wrapper">
             <!-- Slide 1 -->
             <div class="swiper-slide relative">
-                <img src="assets/images/public/banner/banner1.png" alt="Banner 1" class="w-full h-full object-cover" />
+                <img src="<?= USER_URL ?>/assets/images/public/banner/banner1.png" alt="Banner 1"
+                    class="w-full h-full object-cover" />
             </div>
             <!-- Slide 2 -->
             <div class="swiper-slide relative">
-                <img src="assets/images/public/banner/banner2.png" alt="Banner 1" class="w-full h-full object-cover" />
+                <img src="<?= USER_URL ?>/assets/images/public/banner/banner2.png" alt="Banner 1"
+                    class="w-full h-full object-cover" />
             </div>
             <!-- Slide 2 -->
             <div class="swiper-slide relative">
-                <img src="assets/images/public/banner/banner1.png" alt="Banner 1" class="w-full h-full object-cover" />
+                <img src="<?= USER_URL ?>/assets/images/public/banner/banner1.png" alt="Banner 1"
+                    class="w-full h-full object-cover" />
             </div>
             <div class="swiper-slide relative">
-                <img src="assets/images/public/banner/banner2.png" alt="Banner 1" class="w-full h-full object-cover" />
+                <img src="<?= USER_URL ?>/assets/images/public/banner/banner2.png" alt="Banner 1"
+                    class="w-full h-full object-cover" />
             </div>
         </div>
         <!-- Pagination & Navigation -->

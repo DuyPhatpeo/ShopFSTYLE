@@ -35,8 +35,8 @@
                 <!-- Product 1 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px]">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product1.png" alt="Sản phẩm 1"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product1.png" alt="Sản phẩm 1"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3 cursor-pointer" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.9★ (21)
@@ -71,7 +71,7 @@
                             <span
                                 class="w-7 h-5 bg-green-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 1
                         </a>
@@ -85,8 +85,8 @@
                 <!-- Product 2 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px]">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product2.png" alt="Sản phẩm 2"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product2.png" alt="Sản phẩm 2"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3 cursor-pointer" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (63)
@@ -119,7 +119,7 @@
                             <span
                                 class="w-7 h-5 bg-blue-400 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 2
                         </a>
@@ -133,8 +133,8 @@
                 <!-- Product 3 (Không giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px]">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product3.png" alt="Sản phẩm 3"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product3.png" alt="Sản phẩm 3"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3 cursor-pointer" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (173)
@@ -168,7 +168,7 @@
                             <span
                                 class="w-7 h-5 bg-blue-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 3
                         </a>
@@ -178,10 +178,10 @@
 
                 <!-- Product 4 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
+                    onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product4.png" alt="Sản phẩm 4"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product4.png" alt="Sản phẩm 4"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (243)
@@ -215,7 +215,7 @@
                             <span
                                 class="w-7 h-5 bg-green-600 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 4
                         </a>
@@ -228,10 +228,10 @@
 
                 <!-- Product 5 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
+                    onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product5.png" alt="Sản phẩm 5"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product5.png" alt="Sản phẩm 5"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (24)
@@ -265,7 +265,7 @@
                             <span
                                 class="w-7 h-5 bg-pink-500 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 5
                         </a>
@@ -278,10 +278,10 @@
 
                 <!-- Product 6 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
+                    onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product6.png" alt="Sản phẩm 6"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product6.png" alt="Sản phẩm 6"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.9★ (58)
@@ -306,7 +306,7 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 6
                         </a>
@@ -327,10 +327,10 @@
 
                 <!-- Product 7 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
+                    onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product7.png" alt="Sản phẩm 7"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product7.png" alt="Sản phẩm 7"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.7★ (39)
@@ -363,7 +363,7 @@
                             <span
                                 class="w-7 h-5 bg-red-500 rounded-full border transition duration-200 hover:ring-2 hover:ring-gray-500 cursor-pointer"></span>
                         </div>
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 7
                         </a>
@@ -376,10 +376,10 @@
 
                 <!-- Product 8 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
+                    onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product1.png" alt="Sản phẩm 8"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product1.png" alt="Sản phẩm 8"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.9★ (21)
@@ -404,7 +404,7 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 8
                         </a>
@@ -425,10 +425,10 @@
 
                 <!-- Product 9 (Có giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
+                    onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product2.png" alt="Sản phẩm 9"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product2.png" alt="Sản phẩm 9"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (63)
@@ -453,7 +453,7 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 9
                         </a>
@@ -474,10 +474,10 @@
 
                 <!-- Product 10 (Không giảm giá) -->
                 <div class="swiper-slide flex flex-col h-[500px] sm:h-[600px] cursor-pointer"
-                    onclick="location.href='views/product/product-detail.php'">
+                    onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
                     <div class="relative group cursor-pointer"
-                        onclick="location.href='views/product/product-detail.php'">
-                        <img src="assets/images/public/product/product3.png" alt="Sản phẩm 10"
+                        onclick="location.href='<?= USER_URL ?>/views/product/product-detail.php'">
+                        <img src="<?= USER_URL ?>/assets/images/public/product/product3.png" alt="Sản phẩm 10"
                             class="w-full h-[400px] sm:h-[500px] object-cover rounded-lg mb-3" />
                         <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs">
                             4.8★ (173)
@@ -502,7 +502,7 @@
                         </div>
                     </div>
                     <div class="flex-grow flex flex-col justify-start">
-                        <a href="views/product/product-detail.php"
+                        <a href="<?= USER_URL ?>/views/product/product-detail.php"
                             class="text-sm sm:text-base font-semibold mb-1 cursor-pointer hover:text-blue-500 transition-colors duration-200">
                             Sản phẩm 10
                         </a>

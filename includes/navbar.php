@@ -19,8 +19,12 @@
 
             <!-- Logo -->
             <div class="flex items-center space-x-2">
-                <img src="<?= USER_URL ?>/assets/images/logo-fstyle.png" alt="logo" class="w-12 h-12 object-contain" />
+                <a href="<?= USER_URL ?>/views/home/index.php">
+                    <img src="<?= USER_URL ?>/assets/images/logo-fstyle.png" alt="logo"
+                        class="w-12 h-12 object-contain" />
+                </a>
             </div>
+
 
             <!-- Cart & Profile -->
             <div class="flex items-center space-x-4">
@@ -37,8 +41,10 @@
         <div class="hidden md:flex justify-between items-center">
             <!-- Logo -->
             <div class="flex items-center space-x-3 cursor-pointer">
-                <img src="<?= USER_URL ?>/assets/images/logo-fstyle.png" alt="logo"
-                    class="w-20 lg:w-24 object-contain" />
+                <a href="<?= USER_URL ?>/views/home/index.php">
+                    <img src="<?= USER_URL ?>/assets/images/logo-fstyle.png" alt="logo"
+                        class="w-20 lg:w-24 object-contain" />
+                </a>
             </div>
             <!-- Navigation Menu -->
             <nav class="hidden md:flex space-x-4 text-base lg:text-lg font-medium text-gray-700 items-center">

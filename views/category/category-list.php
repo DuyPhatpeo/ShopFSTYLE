@@ -12,7 +12,7 @@
                 <!-- Card Danh mục 1 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category1.png" alt="Danh mục 1"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category1.png" alt="Danh mục 1"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 1
@@ -21,7 +21,7 @@
                 <!-- Card Danh mục 2 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category2.png" alt="Danh mục 2"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category2.png" alt="Danh mục 2"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 2
@@ -30,7 +30,7 @@
                 <!-- Card Danh mục 3 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category3.png" alt="Danh mục 3"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category3.png" alt="Danh mục 3"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 3
@@ -39,7 +39,7 @@
                 <!-- Card Danh mục 4 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category4.png" alt="Danh mục 4"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category4.png" alt="Danh mục 4"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 4
@@ -48,7 +48,7 @@
                 <!-- Card Danh mục 5 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category5.png" alt="Danh mục 5"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category5.png" alt="Danh mục 5"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 5
@@ -57,7 +57,7 @@
                 <!-- Card Danh mục 6 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category6.png" alt="Danh mục 6"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category6.png" alt="Danh mục 6"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 6
@@ -66,7 +66,7 @@
                 <!-- Card Danh mục 7 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category7.png" alt="Danh mục 7"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category7.png" alt="Danh mục 7"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 7
@@ -75,7 +75,7 @@
                 <!-- Card Danh mục 8 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category8.png" alt="Danh mục 8"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category8.png" alt="Danh mục 8"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 8
@@ -84,7 +84,7 @@
                 <!-- Card Danh mục 9 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category1.png" alt="Danh mục 9"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category1.png" alt="Danh mục 9"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 9
@@ -93,7 +93,7 @@
                 <!-- Card Danh mục 10 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category2.png" alt="Danh mục 10"
+                    <img src="<?= USER_URL ?>/assets/images/public/category/category2.png" alt="Danh mục 10"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 10

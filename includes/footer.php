@@ -38,7 +38,7 @@
         </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
+    <script src="<?= USER_URL ?>/assets/js/main.js"></script>
 
     </body>
 
