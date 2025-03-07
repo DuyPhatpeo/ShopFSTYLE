@@ -84,7 +84,7 @@
                 <!-- Card Danh mục 9 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category9.png" alt="Danh mục 9"
+                    <img src="assets/images/public/category/category1.png" alt="Danh mục 9"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 9
@@ -93,7 +93,7 @@
                 <!-- Card Danh mục 10 -->
                 <div class="swiper-slide flex flex-col items-center cursor-pointer"
                     onclick="location.href='views/category/category-detail.php'">
-                    <img src="assets/images/public/category/category10.png" alt="Danh mục 10"
+                    <img src="assets/images/public/category/category2.png" alt="Danh mục 10"
                         class="w-full h-[350px] object-cover rounded-lg mb-3" />
                     <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
                         Danh mục 10
