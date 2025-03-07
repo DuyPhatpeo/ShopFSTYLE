@@ -1,5 +1,4 @@
 <?php 
-    include_once __DIR__ . "/../../includes/config.php";
     include ('../../includes/header.php'); 
     include ('../../includes/search.php');
     include ('../user/login-register.php');  

@@ -28,13 +28,14 @@
 
             <!-- Cart & Profile -->
             <div class="flex items-center space-x-4">
-                <button class="text-gray-600 hover:text-black">
+                <a href="<?= USER_URL ?>/views/user/shopping-card.php" class="text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/bag-shopping.svg" alt="bag-shopping" class="w-8 h-8" />
-                </button>
+                </a>
                 <button class="text-gray-600 hover:text-black profile-btn">
                     <img src="<?= USER_URL ?>/assets/icons/user.svg" alt="user" class="w-8 h-8" />
                 </button>
             </div>
+
         </div>
 
         <!-- Desktop Header -->
@@ -69,9 +70,9 @@
                 <button id="desktop-search-btn" class="block lg:hidden text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/search.svg" alt="search" class="w-6 h-6" />
                 </button>
-                <button class="text-gray-600 hover:text-black">
+                <a href="<?= USER_URL ?>/views/user/shopping-card.php" class="text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/bag-shopping.svg" alt="bag-shopping" class="w-8 h-8" />
-                </button>
+                </a>
                 <button class="text-gray-600 hover:text-black profile-btn">
                     <img src="<?= USER_URL ?>/assets/icons/user.svg" alt="user" class="w-8 h-8" />
                 </button>

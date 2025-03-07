@@ -115,68 +115,118 @@
 
             <!-- Modal -->
             <div id="sizeGuideModal"
-                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50">
-                <div class="bg-white p-4 rounded-lg w-[600px] border border-gray-300 shadow-lg">
+                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50 p-4">
+                <div class="bg-white p-4 rounded-lg w-full max-w-[1200px] border border-gray-300 shadow-lg">
                     <div class="flex justify-between items-center border-b pb-2">
                         <h2 class="text-lg font-semibold">Bảng size</h2>
                         <button id="closeSizeGuide" class="text-gray-500 hover:text-red-500 text-xl">&times;</button>
                     </div>
-                    <table class="w-full border-collapse mt-3">
-                        <thead>
-                            <tr class="bg-blue-500 text-white">
-                                <th class="p-2">Size</th>
-                                <th class="p-2">M</th>
-                                <th class="p-2">L</th>
-                                <th class="p-2">XL</th>
-                                <th class="p-2">2XL</th>
-                                <th class="p-2">3XL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b">
-                                <td class="p-2 font-semibold">Chiều cao</td>
-                                <td class="p-2">1m55 - 1m66</td>
-                                <td class="p-2">1m66 - 1m72</td>
-                                <td class="p-2">1m72 - 1m77</td>
-                                <td class="p-2">1m77 - 1m83</td>
-                                <td class="p-2">1m83 - 1m89</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-semibold">Cân nặng</td>
-                                <td class="p-2">55kg - 61kg</td>
-                                <td class="p-2">62kg - 68kg</td>
-                                <td class="p-2">69kg - 75kg</td>
-                                <td class="p-2">76kg - 84kg</td>
-                                <td class="p-2">85kg - 90kg</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-semibold">Dài quần</td>
-                                <td class="p-2">94</td>
-                                <td class="p-2">96</td>
-                                <td class="p-2">98</td>
-                                <td class="p-2">100</td>
-                                <td class="p-2">102</td>
-                            </tr>
-                            <tr class="border-b">
-                                <td class="p-2 font-semibold">1/2 Vòng mông</td>
-                                <td class="p-2">50</td>
-                                <td class="p-2">52</td>
-                                <td class="p-2">54</td>
-                                <td class="p-2">56</td>
-                                <td class="p-2">58</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 font-semibold">1/2 Rộng đùi</td>
-                                <td class="p-2">32</td>
-                                <td class="p-2">33</td>
-                                <td class="p-2">34</td>
-                                <td class="p-2">35</td>
-                                <td class="p-2">36</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <!-- Table on large screens (hidden on small screens) -->
+                    <div class="hidden md:grid grid-cols-6 gap-2 mt-3 text-center">
+                        <div class="bg-blue-500 text-white font-semibold p-2">Size</div>
+                        <div class="bg-blue-500 text-white font-semibold p-2">M</div>
+                        <div class="bg-blue-500 text-white font-semibold p-2">L</div>
+                        <div class="bg-blue-500 text-white font-semibold p-2">XL</div>
+                        <div class="bg-blue-500 text-white font-semibold p-2">2XL</div>
+                        <div class="bg-blue-500 text-white font-semibold p-2">3XL</div>
+
+                        <div class="font-semibold p-2">Chiều cao</div>
+                        <div class="p-2">1m55 - 1m66</div>
+                        <div class="p-2">1m66 - 1m72</div>
+                        <div class="p-2">1m72 - 1m77</div>
+                        <div class="p-2">1m77 - 1m83</div>
+                        <div class="p-2">1m83 - 1m89</div>
+
+                        <div class="font-semibold p-2">Cân nặng</div>
+                        <div class="p-2">55kg - 61kg</div>
+                        <div class="p-2">62kg - 68kg</div>
+                        <div class="p-2">69kg - 75kg</div>
+                        <div class="p-2">76kg - 84kg</div>
+                        <div class="p-2">85kg - 90kg</div>
+
+                        <div class="font-semibold p-2">Dài quần</div>
+                        <div class="p-2">94</div>
+                        <div class="p-2">96</div>
+                        <div class="p-2">98</div>
+                        <div class="p-2">100</div>
+                        <div class="p-2">102</div>
+
+                        <div class="font-semibold p-2">1/2 Vòng mông</div>
+                        <div class="p-2">50</div>
+                        <div class="p-2">52</div>
+                        <div class="p-2">54</div>
+                        <div class="p-2">56</div>
+                        <div class="p-2">58</div>
+
+                        <div class="font-semibold p-2">1/2 Rộng đùi</div>
+                        <div class="p-2">32</div>
+                        <div class="p-2">33</div>
+                        <div class="p-2">34</div>
+                        <div class="p-2">35</div>
+                        <div class="p-2">36</div>
+                    </div>
+
+                    <!-- Table on small screens (hidden on large screens) -->
+                    <div class="md:hidden mt-3">
+                        <table class="w-full border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-blue-500 text-white">
+                                    <th class="p-2">Size</th>
+                                    <th class="p-2">M</th>
+                                    <th class="p-2">L</th>
+                                    <th class="p-2">XL</th>
+                                    <th class="p-2">2XL</th>
+                                    <th class="p-2">3XL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="p-2 font-semibold">Chiều cao</td>
+                                    <td class="p-2">1m55 - 1m66</td>
+                                    <td class="p-2">1m66 - 1m72</td>
+                                    <td class="p-2">1m72 - 1m77</td>
+                                    <td class="p-2">1m77 - 1m83</td>
+                                    <td class="p-2">1m83 - 1m89</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-2 font-semibold">Cân nặng</td>
+                                    <td class="p-2">55kg - 61kg</td>
+                                    <td class="p-2">62kg - 68kg</td>
+                                    <td class="p-2">69kg - 75kg</td>
+                                    <td class="p-2">76kg - 84kg</td>
+                                    <td class="p-2">85kg - 90kg</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-2 font-semibold">Dài quần</td>
+                                    <td class="p-2">94</td>
+                                    <td class="p-2">96</td>
+                                    <td class="p-2">98</td>
+                                    <td class="p-2">100</td>
+                                    <td class="p-2">102</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-2 font-semibold">1/2 Vòng mông</td>
+                                    <td class="p-2">50</td>
+                                    <td class="p-2">52</td>
+                                    <td class="p-2">54</td>
+                                    <td class="p-2">56</td>
+                                    <td class="p-2">58</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-2 font-semibold">1/2 Rộng đùi</td>
+                                    <td class="p-2">32</td>
+                                    <td class="p-2">33</td>
+                                    <td class="p-2">34</td>
+                                    <td class="p-2">35</td>
+                                    <td class="p-2">36</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
 
             <!-- Nút chọn size -->
             <div class="flex space-x-4 mt-2">
