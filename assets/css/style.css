@@ -1,0 +1,88 @@
+/* Mặc định (desktop) */
+#auth-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fade-in 0.3s ease-out;
+}
+
+#auth-modal.hidden {
+  display: none !important; /* Đảm bảo ẩn modal */
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #auth-modal {
+    align-items: flex-end;
+    animation: none;
+  }
+  #auth-modal-content {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    animation: slide-up 0.3s ease-out;
+  }
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Product details */
+
+.out-of-stock {
+  opacity: 0.5;
+  pointer-events: none;
+  position: relative;
+}
+
+.out-of-stock::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: red;
+  transform: rotate(-45deg);
+}
+
+.zoomed {
+  /* Khi zoom, scale 1.5, dịch chuyển theo giá trị (mặc định là 0,0) */
+  transform: scale(1.5) translate(0px, 0px);
+  cursor: grab;
+}
+
+/* CSS cho nút size hết hàng */
+.disabled-size {
+  opacity: 0.5;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+/* CSS cho hướng dẫn trong modal */
+#modalHint {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 1.125rem;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 8px;
+  border-radius: 4px;
+}

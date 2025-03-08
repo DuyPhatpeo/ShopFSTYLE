@@ -4,51 +4,6 @@
     include ('../user/login-register.php');
     include ('../../includes/search.php');
 ?>
-<style>
-.out-of-stock {
-    opacity: 0.5;
-    pointer-events: none;
-    position: relative;
-}
-
-.out-of-stock::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: red;
-    transform: rotate(-45deg);
-}
-
-.zoomed {
-    /* Khi zoom, scale 1.5, dịch chuyển theo giá trị (mặc định là 0,0) */
-    transform: scale(1.5) translate(0px, 0px);
-    cursor: grab;
-}
-
-/* CSS cho nút size hết hàng */
-.disabled-size {
-    opacity: 0.5;
-    text-decoration: line-through;
-    pointer-events: none;
-}
-
-/* CSS cho hướng dẫn trong modal */
-#modalHint {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 1.125rem;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-</style>
-
 <!-- Chi tiết sản phẩm -->
 <main class="max-w-7xl mx-auto p-6 bg-white shadow-md mt-6 rounded-lg">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -90,12 +45,22 @@
         </div>
 
         <!-- Thông tin sản phẩm -->
-        <div>
-            <h2 class="text-2xl font-bold">Quần dài kaki ECC Pants</h2>
-            <p class="text-gray-600 mt-2">⭐⭐⭐⭐⭐ (4.9/5)</p>
-            <p class="text-xl text-red-500 font-bold mt-4">599.000đ</p>
-            <p class="mt-4">Màu sắc:</p>
-            <div class="flex space-x-2 mt-2">
+        <div class="p-4">
+            <h2 class="text-2xl font-bold mb-2">Quần dài kaki ECC Pants</h2>
+            <p class="text-gray-600 mb-2">⭐⭐⭐⭐⭐ (4.9/5)</p>
+
+            <!-- Giá khuyến mãi (màu xanh) -->
+            <p class="text-xl text-blue-500 font-bold mb-1">599.000đ</p>
+            <div class="flex items-center space-x-2 mb-4">
+                <!-- Giá gốc được gạch ngang -->
+                <p class="text-lg text-gray-500 line-through">699.000đ</p>
+                <!-- Phần trăm giảm (màu xanh) -->
+                <span class="bg-blue-500 text-white text-sm font-semibold px-2 py-1 rounded">-14%</span>
+            </div>
+
+
+            <p class="mb-2">Màu sắc:</p>
+            <div class="flex space-x-2 mb-4">
                 <span class="color-swatch w-16 h-8 bg-black border border-gray-400 rounded-full cursor-pointer"
                     onclick="selectColor(this)"></span>
                 <span class="color-swatch w-16 h-8 bg-gray-500 border border-gray-400 rounded-full cursor-pointer"
@@ -107,23 +72,25 @@
                 <span
                     class="color-swatch w-16 h-8 bg-green-500 border border-gray-400 rounded-full cursor-pointer out-of-stock"></span>
             </div>
-            <div class="flex justify-end">
-                <button id="openSizeGuide" class="text-blue-500 cursor-pointer">
-                    Hướng dẫn chọn size
-                </button>
+
+            <!-- Header cho phần size: Chọn size & Hướng dẫn chọn size -->
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-gray-700 font-semibold">Kích thước:</span>
+                <button id="openSizeGuide" class="text-blue-500 cursor-pointer">Hướng dẫn chọn size</button>
             </div>
 
-            <!-- Modal -->
+            <!-- Modal hướng dẫn chọn size -->
             <div id="sizeGuideModal"
                 class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-50 p-4">
                 <div class="bg-white p-4 rounded-lg w-full max-w-[1200px] border border-gray-300 shadow-lg">
-                    <div class="flex justify-between items-center border-b pb-2">
+                    <div class="flex justify-between items-center border-b pb-2 mb-4">
                         <h2 class="text-lg font-semibold">Bảng size</h2>
-                        <button id="closeSizeGuide" class="text-gray-500 hover:text-red-500 text-xl">&times;</button>
+                        <button id="closeSizeGuide" class="text-gray-500 hover:text-red-500 text-xl"
+                            aria-label="Đóng bảng size">&times;</button>
                     </div>
 
                     <!-- Table on large screens (hidden on small screens) -->
-                    <div class="hidden md:grid grid-cols-6 gap-2 mt-3 text-center">
+                    <div class="hidden md:grid grid-cols-6 gap-2 text-center">
                         <div class="bg-blue-500 text-white font-semibold p-2">Size</div>
                         <div class="bg-blue-500 text-white font-semibold p-2">M</div>
                         <div class="bg-blue-500 text-white font-semibold p-2">L</div>
@@ -168,7 +135,7 @@
                     </div>
 
                     <!-- Table on small screens (hidden on large screens) -->
-                    <div class="md:hidden mt-3">
+                    <div class="md:hidden">
                         <table class="w-full border-collapse text-sm">
                             <thead>
                                 <tr class="bg-blue-500 text-white">
@@ -227,27 +194,45 @@
                 </div>
             </div>
 
-
             <!-- Nút chọn size -->
-            <div class="flex space-x-4 mt-2">
-                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200" data-size="S">S</button>
-                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200" data-size="M">M</button>
-                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200" data-size="L">L</button>
-                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200 disabled-size" data-size="XL"
-                    disabled>XL</button>
+            <div class="flex space-x-4 mt-4">
+                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200 cursor-pointer"
+                    data-size="S">S</button>
+                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200 cursor-pointer"
+                    data-size="M">M</button>
+                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200 cursor-pointer"
+                    data-size="L">L</button>
+                <button class="size-button px-4 py-2 border rounded-lg hover:bg-gray-200 cursor-pointer disabled-size"
+                    data-size="XL" disabled>XL</button>
             </div>
 
             <!-- Số lượng và nút thêm vào giỏ hàng chung một hàng -->
-            <div class="flex items-center mt-4 space-x-2">
-                <!-- Chọn số lượng sản phẩm kiểu pill với chiều rộng cố định -->
-                <div class="flex items-center bg-gray-200 rounded-full p-1 space-x-2 w-32 justify-center">
+            <div class="flex items-center mt-4 space-x-4">
+                <!-- Chọn số lượng sản phẩm kiểu pill (chỉ viền, không nền) -->
+                <div class="flex items-center border border-gray-300 rounded-full p-1 space-x-2 w-32 justify-center">
                     <button id="decreaseQty"
-                        class="px-3 py-1 bg-white rounded-full border border-gray-300 hover:bg-gray-300">-</button>
-                    <span id="productQty" class="text-xl font-semibold">1</span>
+                        class="group px-3 py-1 rounded-full hover:bg-transparent transition-colors duration-200 focus:outline-none">
+                        <!-- Minus SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 group-hover:text-blue-500"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <span id="productQty" class="text-xl font-semibold text-gray-800">1</span>
                     <button id="increaseQty"
-                        class="px-3 py-1 bg-white rounded-full border border-gray-300 hover:bg-gray-300">+</button>
+                        class="group px-3 py-1 rounded-full hover:bg-transparent transition-colors duration-200 focus:outline-none">
+                        <!-- Plus SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 group-hover:text-blue-500"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
                 </div>
-                <!-- Nút thêm vào giỏ hàng cố định -->
+                <!-- Nút thêm vào giỏ hàng -->
                 <button
                     class="flex items-center justify-center bg-blue-600 text-white py-3 px-6 hover:bg-blue-700 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"
@@ -259,6 +244,7 @@
                 </button>
             </div>
         </div>
+
     </div>
 </main>
 
@@ -367,228 +353,5 @@
     <div id="modalHint">Chạm vào ảnh để phóng to &amp; giữ chuột trái để di chuyển</div>
 </div>
 
-<script>
-// Các biến toàn cục dùng cho modal ảnh
-let currentImageIndex = 0;
-const images = Array.from(document.querySelectorAll('.flex-col img'));
-
-// Hàm cập nhật transform cho modal (scale và offset)
-function updateModalTransform(scale, offsetX, offsetY) {
-    document.getElementById('modalImage').style.transform = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`;
-}
-
-// Thay đổi ảnh chính và cập nhật trạng thái selected cho ảnh nhỏ
-function changeImage(element) {
-    document.getElementById('mainImage').src = element.src;
-    images.forEach(img => img.classList.add('opacity-50'));
-    element.classList.remove('opacity-50');
-    currentImageIndex = images.indexOf(element);
-}
-document.querySelector('.flex-col img').classList.remove('opacity-50');
-
-// Mở modal với ảnh được chọn và reset trạng thái zoom
-function openModal(src) {
-    const modalImg = document.getElementById('modalImage');
-    modalImg.src = src;
-    currentScale = 1;
-    currentOffsetX = 0;
-    currentOffsetY = 0;
-    updateModalTransform(currentScale, currentOffsetX, currentOffsetY);
-    modalImg.style.cursor = 'zoom-in';
-    document.getElementById('modalHint').textContent = 'Chạm vào ảnh để phóng to & giữ chuột trái để di chuyển';
-    document.getElementById('imageModal').classList.remove('hidden');
-}
-
-// Đóng modal khi click ngoài ảnh hoặc nhấn nút đóng
-function closeModal(event) {
-    if (!event || event.target === document.getElementById('imageModal')) {
-        document.getElementById('imageModal').classList.add('hidden');
-    }
-}
-
-// Các biến điều khiển zoom và kéo
-let currentScale = 1;
-let currentOffsetX = 0;
-let currentOffsetY = 0;
-let isDragging = false;
-let pointerDown = false;
-let startX = 0,
-    startY = 0;
-const dragThreshold = 5; // pixel
-
-const modalImage = document.getElementById('modalImage');
-
-// Khi nhấn xuống: chỉ xử lý sự kiện nếu nhấn chuột trái (button === 0)
-modalImage.addEventListener('pointerdown', function(e) {
-    if (e.button !== 0) return; // Chỉ xử lý chuột trái
-    pointerDown = true;
-    isDragging = false;
-    startX = e.clientX;
-    startY = e.clientY;
-    e.preventDefault();
-});
-
-// Khi di chuyển, nếu đã zoom (scale > 1) mới cho kéo
-modalImage.addEventListener('pointermove', function(e) {
-    if (!pointerDown) return;
-    if (currentScale === 1) return; // Nếu chưa zoom thì không cho kéo
-    let dx = e.clientX - startX;
-    let dy = e.clientY - startY;
-    if (!isDragging && (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold)) {
-        isDragging = true;
-    }
-    if (isDragging) {
-        let newOffsetX = currentOffsetX + dx;
-        let newOffsetY = currentOffsetY + dy;
-        updateModalTransform(currentScale, newOffsetX, newOffsetY);
-    }
-    e.preventDefault();
-});
-
-// Khi nhả chuột: nếu chưa zoom thì zoom in, nếu đã zoom mà kéo thì cập nhật offset, còn không thì toggle zoom (zoom out)
-modalImage.addEventListener('pointerup', function(e) {
-    if (!pointerDown) return;
-    if (currentScale === 1) {
-        toggleZoom();
-    } else {
-        if (isDragging) {
-            let dx = e.clientX - startX;
-            let dy = e.clientY - startY;
-            currentOffsetX += dx;
-            currentOffsetY += dy;
-            updateModalTransform(currentScale, currentOffsetX, currentOffsetY);
-        } else {
-            toggleZoom();
-        }
-    }
-    pointerDown = false;
-    isDragging = false;
-});
-
-// Nếu pointer bị hủy
-modalImage.addEventListener('pointercancel', function(e) {
-    pointerDown = false;
-});
-
-// Hàm toggle zoom: nếu chưa zoom (scale=1) thì phóng to, ngược lại thu nhỏ và reset vị trí
-function toggleZoom() {
-    if (currentScale === 1) {
-        currentScale = 1.5;
-        modalImage.style.cursor = 'grab';
-        document.getElementById('modalHint').textContent = 'Giữ chuột trái để di chuyển, chạm vào ảnh để thu nhỏ';
-    } else {
-        currentScale = 1;
-        currentOffsetX = 0;
-        currentOffsetY = 0;
-        modalImage.style.cursor = 'zoom-in';
-        document.getElementById('modalHint').textContent = 'Chạm vào ảnh để phóng to & giữ chuột trái để di chuyển';
-    }
-    updateModalTransform(currentScale, currentOffsetX, currentOffsetY);
-}
-
-// Xử lý phím: chỉ khi modal mở, xử lý Escape, ArrowLeft, ArrowRight và bỏ qua phím "d"
-document.addEventListener('keydown', function(event) {
-    // Chỉ xử lý khi modal đang mở
-    const modal = document.getElementById('imageModal');
-    if (modal.classList.contains('hidden')) return;
-
-    // Nếu nhấn phím "d" (hoặc "D"), ngăn không cho xử lý thêm
-    if (event.key.toLowerCase() === "d" || event.key.toLowerCase() === "a") {
-        event.preventDefault();
-        return;
-    }
-
-    if (event.key === "Escape") {
-        closeModal();
-    } else if (event.key === "ArrowLeft") {
-        showPrevImage();
-    } else if (event.key === "ArrowRight") {
-        showNextImage();
-    }
-});
-
-document.getElementById('prevImage').addEventListener('click', showPrevImage);
-document.getElementById('nextImage').addEventListener('click', showNextImage);
-
-function showPrevImage() {
-    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
-    openModal(images[currentImageIndex].src);
-}
-
-function showNextImage() {
-    currentImageIndex = (currentImageIndex + 1) % images.length;
-    openModal(images[currentImageIndex].src);
-}
-
-// Xử lý tăng giảm số lượng sản phẩm
-const decreaseQty = document.getElementById('decreaseQty');
-const increaseQty = document.getElementById('increaseQty');
-const productQty = document.getElementById('productQty');
-
-decreaseQty.addEventListener('click', () => {
-    let qty = parseInt(productQty.textContent);
-    if (qty > 1) {
-        productQty.textContent = qty - 1;
-    }
-});
-
-increaseQty.addEventListener('click', () => {
-    let qty = parseInt(productQty.textContent);
-    productQty.textContent = qty + 1;
-});
-
-// Xử lý chọn màu
-function selectColor(element) {
-    if (element.classList.contains("out-of-stock")) return; // Không cho chọn màu hết hàng
-
-    const swatches = document.querySelectorAll('.color-swatch');
-    swatches.forEach(el => {
-        el.classList.remove('border-4', 'border-blue-500', 'selected');
-        el.classList.add('border', 'border-gray-400');
-    });
-
-    element.classList.remove('border-gray-400');
-    element.classList.add('border-4', 'border-blue-500', 'selected');
-}
-
-// Tự động chọn màu và ảnh đầu tiên khi trang được tải
-window.onload = function() {
-    const firstSwatch = document.querySelector('.color-swatch:not(.out-of-stock)'); // Chỉ chọn màu còn hàng
-    if (firstSwatch) {
-        selectColor(firstSwatch);
-    }
-
-    const firstImage = document.querySelector('.flex-col img');
-    if (firstImage) {
-        firstImage.classList.remove('opacity-50');
-    }
-};
-
-// Xử lý chọn size
-document.querySelectorAll('.size-button').forEach(function(button) {
-    button.addEventListener('click', function() {
-        if (this.hasAttribute('disabled')) return;
-        document.querySelectorAll('.size-button').forEach(btn => {
-            btn.classList.remove('bg-black', 'text-white');
-            btn.classList.add('hover:bg-gray-200');
-        });
-        this.classList.add('bg-black', 'text-white');
-        this.classList.remove('hover:bg-gray-200');
-    });
-});
-document.getElementById('openSizeGuide').addEventListener('click', function() {
-    document.getElementById('sizeGuideModal').classList.remove('hidden');
-});
-
-document.getElementById('closeSizeGuide').addEventListener('click', function() {
-    document.getElementById('sizeGuideModal').classList.add('hidden');
-});
-
-document.getElementById('sizeGuideModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        this.classList.add('hidden');
-    }
-});
-</script>
 
 <?php include ('../../includes/footer.php'); ?>

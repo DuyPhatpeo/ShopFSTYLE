@@ -1,8 +1,11 @@
     <!-- Nút "Back to Top" -->
     <button id="back-to-top" aria-label="Back to Top"
         class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg hidden transition-transform transform hover:scale-110 focus:outline-none">
-        <img src="<?= USER_URL ?>/assets/icons/chevron-up.svg" alt="Back to Top" class="h-6 w-6" />
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+        </svg>
     </button>
+
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-8">
         <div
