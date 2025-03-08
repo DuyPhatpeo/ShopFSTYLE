@@ -1,5 +1,5 @@
 <!-- Modal Đăng Nhập / Đăng Ký -->
-<div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 hidden">
+<div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[9999] hidden">
     <div id="auth-modal-content" class="bg-white w-full max-w-md rounded-lg p-6 relative">
         <!-- Nút đóng -->
         <button id="close-auth-modal"

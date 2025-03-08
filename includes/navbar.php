@@ -9,9 +9,14 @@
         <div class="flex md:hidden justify-between items-center">
             <!-- Menu & Search -->
             <div class="flex items-center space-x-4">
-                <button id="menu-toggle" class="text-gray-600 hover:text-black focus:outline-none">
-                    <img src="<?= USER_URL ?>/assets/icons/menu.svg" alt="menu" class="w-8 h-8" />
+                <button id="menu-toggle" class="text-blue-500 hover:text-blue-700 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
+
                 <button id="mobile-search-btn" class="text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/search.svg" alt="search" class="w-6 h-6" />
                 </button>
@@ -84,8 +89,15 @@
                    transition-transform duration-300 z-50">
             <button id="close-menu"
                 class="absolute top-4 right-4 text-gray-600 hover:text-black text-2xl focus:outline-none">
-                <img src="<?= USER_URL ?>/assets/icons/close.svg" alt="close" class="w-6 h-6" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
             </button>
+
             <ul class="space-y-4 py-10 px-6">
                 <li>
                     <a href="#" class="block text-gray-800 text-lg hover:bg-gray-800 hover:text-white 
