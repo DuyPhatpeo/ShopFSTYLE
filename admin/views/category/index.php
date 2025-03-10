@@ -20,7 +20,7 @@ $totalCategories = $data['totalCategories'];
     <div class="container mx-auto p-6">
         <!-- Header: Tiêu đề và nút thêm danh mục -->
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Danh sách Danh Mục</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Danh Sách Danh Mục</h1>
             <a href="add.php"
                 class="bg-green-700 hover:bg-green-800 text-white p-2 rounded-lg shadow-md transition flex items-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="white"

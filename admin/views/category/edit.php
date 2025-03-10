@@ -46,7 +46,7 @@ $allCategories = getAllCategories($conn, $category_id);
     <!-- Header: Tiêu đề và nút Quay lại cùng hàng -->
     <div class="flex justify-between items-center mb-4">
         <div>
-            <h1 class="text-3xl font-bold">Chỉnh sửa Danh Mục</h1>
+            <h1 class="text-3xl font-bold">Chỉnh Sửa Danh Mục</h1>
             <p class="text-sm text-gray-500">ID danh mục: <?= htmlspecialchars($category['category_id']) ?></p>
         </div>
         <a href="index.php" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center">
