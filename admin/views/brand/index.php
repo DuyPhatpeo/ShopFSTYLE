@@ -1,7 +1,7 @@
 <?php 
 include("../../includes/header.php");
-require_once('../../../includes/db.php');           // Kết nối CSDL
-require_once('../../controller/brandController.php'); // Controller của brand
+require_once('../../../includes/db.php');               // Kết nối CSDL
+require_once('../../controller/brandController.php');   // Controller của brand
 
 // Lấy giá trị từ URL hoặc gán giá trị mặc định
 $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -18,7 +18,7 @@ $totalBrands  = $data['totalBrands'];
 
 <main>
     <div class="container mx-auto p-6">
-        <!-- Header: Tiêu đề và nút thêm brand -->
+        <!-- Tiêu đề và nút Thêm thương hiệu -->
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Danh Sách Thương Hiệu</h1>
             <a href="add.php"
@@ -49,13 +49,12 @@ $totalBrands  = $data['totalBrands'];
             </form>
         </div>
 
-        <!-- Bảng hiển thị thương hiệu -->
+        <!-- Bảng hiển thị thương hiệu (bỏ cột Mã thương hiệu) -->
         <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
             <table class="w-full border-collapse text-sm sm:text-base">
-                <thead class="sticky top-0 z-10">
-                    <tr class="bg-indigo-500 text-white">
+                <thead class="sticky top-0 z-10 bg-indigo-500 text-white">
+                    <tr>
                         <th class="p-2 sm:p-3 text-left">STT</th>
-                        <th class="p-2 sm:p-3 text-left whitespace-nowrap">Mã thương hiệu</th>
                         <th class="p-2 sm:p-3 text-center">Ảnh</th>
                         <th class="p-2 sm:p-3 text-left">Tên thương hiệu</th>
                         <th class="p-2 sm:p-3 text-left">Trạng thái</th>
@@ -68,14 +67,10 @@ $totalBrands  = $data['totalBrands'];
                             // Tính số thứ tự bắt đầu dựa vào trang hiện tại
                             $stt = ($currentPage - 1) * $limit + 1;
                             while ($brand = $brands->fetch_assoc()) : 
-                                // Màu nền xen kẽ
                                 $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
                         ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
-                        <td class="p-2 sm:p-3 align-middle whitespace-nowrap">
-                            #<?= htmlspecialchars($brand['brand_id']) ?>
-                        </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <?php if (!empty($brand['image_url'])): ?>
                             <img src="../../../<?= htmlspecialchars($brand['image_url']) ?>"
@@ -102,8 +97,9 @@ $totalBrands  = $data['totalBrands'];
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <div class="inline-flex gap-1">
                                 <a href="edit.php?id=<?= urlencode($brand['brand_id']) ?>"
-                                    class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24"
+                                    class="bg-yellow-200 hover:bg-yellow-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
+                                    title="Chỉnh sửa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <path d="M12 20h9"></path>
@@ -112,8 +108,8 @@ $totalBrands  = $data['totalBrands'];
                                 </a>
                                 <a href="delete.php?id=<?= urlencode($brand['brand_id']) ?>"
                                     class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');" title="Xóa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <path d="M3 6h18"></path>
@@ -129,16 +125,14 @@ $totalBrands  = $data['totalBrands'];
                     <?php endwhile; ?>
                     <?php else : ?>
                     <tr>
-                        <td colspan="6" class="p-3 text-center text-gray-500">
-                            Không tìm thấy thương hiệu nào.
-                        </td>
+                        <td colspan="5" class="p-3 text-center text-gray-500">Không tìm thấy thương hiệu nào.</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
 
-        <!-- Phân trang và dropdown chọn số dòng -->
+        <!-- Phân trang và dropdown chọn số dòng hiển thị -->
         <div class="grid grid-cols-1 sm:grid-cols-3 items-center mt-4 gap-4 mb-6">
             <div class="flex justify-start items-center">
                 <form method="GET" id="limitForm" class="flex items-center">
@@ -155,9 +149,7 @@ $totalBrands  = $data['totalBrands'];
             </div>
             <div class="flex justify-center">
                 <?php
-                // Sử dụng chung file phân trang (pagination.php) nếu bạn đã có
                 require_once('../../includes/pagination.php');
-                // Hàm renderPagination($currentPage, $totalPages, $limit, $search) 
                 renderPagination($currentPage, $totalPages, $limit, $search);
                 ?>
             </div>

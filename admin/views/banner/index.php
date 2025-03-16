@@ -1,5 +1,4 @@
 <?php 
-// Giả sử file này nằm trong admin/view/banner/index.php
 include("../../includes/header.php");
 require_once('../../../includes/db.php');               // Kết nối CSDL
 require_once('../../controller/bannerController.php');   // Controller của banner
@@ -50,13 +49,12 @@ $totalBanners  = $data['totalBanners'];
             </form>
         </div>
 
-        <!-- Bảng hiển thị Banner -->
+        <!-- Bảng hiển thị Banner (bỏ cột Mã Banner) -->
         <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
             <table class="w-full border-collapse text-sm sm:text-base">
-                <thead class="sticky top-0 z-10">
-                    <tr class="bg-indigo-500 text-white">
+                <thead class="sticky top-0 z-10 bg-indigo-500 text-white">
+                    <tr>
                         <th class="p-2 sm:p-3 text-left">STT</th>
-                        <th class="p-2 sm:p-3 text-left whitespace-nowrap">Mã Banner</th>
                         <th class="p-2 sm:p-3 text-center">Ảnh</th>
                         <th class="p-2 sm:p-3 text-left">Link</th>
                         <th class="p-2 sm:p-3 text-left">Trạng thái</th>
@@ -69,18 +67,15 @@ $totalBanners  = $data['totalBanners'];
                             // Tính số thứ tự bắt đầu dựa vào trang hiện tại
                             $stt = ($currentPage - 1) * $limit + 1;
                             while ($banner = $banners->fetch_assoc()) : 
-                                // Màu nền xen kẽ
                                 $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
                         ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
-                        <td class="p-2 sm:p-3 align-middle whitespace-nowrap">
-                            #<?= htmlspecialchars($banner['banner_id']) ?>
-                        </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <?php if (!empty($banner['image_url'])): ?>
+                            <!-- Ảnh to hơn: w-32 h-32 -->
                             <img src="../../../<?= htmlspecialchars($banner['image_url']) ?>" alt="Banner"
-                                class="w-20 h-20 object-cover rounded mx-auto">
+                                class="w-32 h-32 object-cover rounded mx-auto">
                             <?php else: ?>
                             <span class="text-gray-500 text-xs">No image</span>
                             <?php endif; ?>
@@ -102,8 +97,9 @@ $totalBanners  = $data['totalBanners'];
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <div class="inline-flex gap-1">
                                 <a href="edit.php?id=<?= urlencode($banner['banner_id']) ?>"
-                                    class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24"
+                                    class="bg-yellow-200 hover:bg-yellow-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
+                                    title="Chỉnh sửa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <path d="M12 20h9"></path>
@@ -112,8 +108,8 @@ $totalBanners  = $data['totalBanners'];
                                 </a>
                                 <a href="delete.php?id=<?= urlencode($banner['banner_id']) ?>"
                                     class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa banner này?');">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa banner này?');" title="Xóa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <path d="M3 6h18"></path>
@@ -129,7 +125,7 @@ $totalBanners  = $data['totalBanners'];
                     <?php endwhile; ?>
                     <?php else : ?>
                     <tr>
-                        <td colspan="6" class="p-3 text-center text-gray-500">
+                        <td colspan="5" class="p-3 text-center text-gray-500">
                             Không tìm thấy banner nào.
                         </td>
                     </tr>
@@ -155,9 +151,7 @@ $totalBanners  = $data['totalBanners'];
             </div>
             <div class="flex justify-center">
                 <?php
-                // Nếu bạn có file pagination.php dùng chung:
                 require_once('../../includes/pagination.php');
-                // Gọi hàm renderPagination($currentPage, $totalPages, $limit, $search)
                 renderPagination($currentPage, $totalPages, $limit, $search);
                 ?>
             </div>

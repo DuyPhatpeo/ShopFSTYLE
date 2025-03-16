@@ -50,16 +50,16 @@ $totalCategories = $data['totalCategories'];
         </div>
 
         <!-- Bảng hiển thị danh mục -->
-        <!-- Không dùng table-fixed, để bảng tự điều chỉnh độ rộng -->
         <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
-            <table class="w-full border-collapse text-sm sm:text-base">
+            <table class="w-full table-fixed border-collapse text-sm sm:text-base">
                 <thead class="sticky top-0 z-10">
                     <tr class="bg-indigo-500 text-white">
-                        <th class="p-2 sm:p-3 text-left">STT</th>
-                        <!-- Thêm whitespace-nowrap để không xuống dòng -->
-                        <th class="p-2 sm:p-3 text-left whitespace-nowrap">Mã danh mục</th>
-                        <th class="p-2 sm:p-3 text-center">Ảnh</th>
+                        <!-- STT: fix width 50px -->
+                        <th class="p-2 sm:p-3 text-left" style="width: 50px;">STT</th>
+                        <!-- Tên danh mục: chiếm phần còn lại -->
                         <th class="p-2 sm:p-3 text-left">Tên danh mục</th>
+                        <!-- Ảnh: fix width 200px -->
+                        <th class="p-2 sm:p-3 text-center" style="width: 200px;">Ảnh</th>
                         <th class="p-2 sm:p-3 text-left">Danh mục cha</th>
                         <th class="p-2 sm:p-3 text-left">Trạng thái</th>
                         <th class="p-2 sm:p-3 text-center">Hành động</th>
@@ -68,47 +68,44 @@ $totalCategories = $data['totalCategories'];
                 <tbody class="text-gray-700">
                     <?php if ($categories->num_rows > 0) : ?>
                     <?php 
-                        // Tính số thứ tự bắt đầu dựa vào trang hiện tại
-                        $stt = ($currentPage - 1) * $limit + 1;
-                        while ($category = $categories->fetch_assoc()) : 
-                            // Màu nền xen kẽ
-                            $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                    ?>
+                            $stt = ($currentPage - 1) * $limit + 1;
+                            while ($category = $categories->fetch_assoc()) : 
+                                $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
+                        ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
-                        <!-- Cột ID cũng thêm whitespace-nowrap -->
-                        <td class="p-2 sm:p-3 align-middle whitespace-nowrap">
-                            #<?= htmlspecialchars($category['category_id']) ?></td>
+                        <td class="p-2 sm:p-3 font-medium align-middle">
+                            <?= htmlspecialchars($category['category_name']) ?>
+                        </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <?php if (!empty($category['image_url'])): ?>
                             <img src="../../../<?= htmlspecialchars($category['image_url']) ?>"
                                 alt="<?= htmlspecialchars($category['category_name']) ?>"
-                                class="w-20 h-20 object-cover rounded mx-auto">
+                                class="w-full h-auto object-cover rounded mx-auto">
                             <?php else: ?>
                             <span class="text-gray-500 text-xs">No image</span>
                             <?php endif; ?>
                         </td>
-                        <td class="p-2 sm:p-3 font-medium align-middle">
-                            <?= htmlspecialchars($category['category_name']) ?></td>
                         <td class="p-2 sm:p-3 align-middle">
                             <?= !empty($category['parent_name']) ? htmlspecialchars($category['parent_name']) : 'None' ?>
                         </td>
                         <td class="p-2 sm:p-3 align-middle">
                             <?php 
-                                if ($category['status'] == 1) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
-                                } elseif ($category['status'] == 2) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
-                                } else {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
-                                }
-                            ?>
+                                    if ($category['status'] == 1) {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
+                                    } elseif ($category['status'] == 2) {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
+                                    } else {
+                                        echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
+                                    }
+                                ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <div class="inline-flex gap-1">
                                 <a href="edit.php?id=<?= urlencode($category['category_id']) ?>"
-                                    class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24"
+                                    class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
+                                    title="Chỉnh sửa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <path d="M12 20h9"></path>
@@ -117,8 +114,8 @@ $totalCategories = $data['totalCategories'];
                                 </a>
                                 <a href="delete.php?id=<?= urlencode($category['category_id']) ?>"
                                     class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');" title="Xóa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round">
                                         <path d="M3 6h18"></path>
@@ -134,7 +131,7 @@ $totalCategories = $data['totalCategories'];
                     <?php endwhile; ?>
                     <?php else : ?>
                     <tr>
-                        <td colspan="7" class="p-3 text-center text-gray-500">Không tìm thấy danh mục nào.</td>
+                        <td colspan="6" class="p-3 text-center text-gray-500">Không tìm thấy danh mục nào.</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
