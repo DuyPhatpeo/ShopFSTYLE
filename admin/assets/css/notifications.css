@@ -1,0 +1,10 @@
+.notification {
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.5s;
+}
+
+.notification.show {
+  transform: translateY(0);
+  opacity: 1;
+}

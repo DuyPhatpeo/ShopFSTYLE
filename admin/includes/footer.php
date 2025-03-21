@@ -7,6 +7,7 @@
 </footer>
 
 <script src="<?= ADMIN_URL ?>/assets/js/main.js"></script>
+<script src="<?= ADMIN_URL ?>/assets/js/notifications.js"></script>
 </body>
 
 </html>

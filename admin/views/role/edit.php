@@ -1,4 +1,4 @@
-<?php
+<?php 
 // admin/views/role/edit.php
 
 ob_start();
@@ -8,18 +8,22 @@ require_once('../../controller/roleController.php');
 
 $role_id = isset($_GET['id']) ? trim($_GET['id']) : '';
 if (empty($role_id)) {
-    die("ID vai trò không hợp lệ.");
+    header("Location: index.php?msg=ID vai trò không hợp lệ.&type=failure");
+    exit;
 }
 
-// Lấy thông tin hiện tại
+// Lấy thông tin hiện tại của vai trò
 $currentRole = getRoleById($conn, $role_id);
 if (!$currentRole) {
-    die("Vai trò không tồn tại.");
+    header("Location: index.php?msg=Vai trò không tồn tại.&type=failure");
+    exit;
 }
 
-// Gọi hàm xử lý cập nhật
-$error = processEditRole($conn, $role_id);
+// Gọi hàm xử lý cập nhật, nếu form được submit hàm sẽ chuyển hướng với thông báo
+processEditRole($conn, $role_id);
 ?>
+<!-- Container thông báo động, sẽ được JS xử lý hiển thị thông báo dựa trên tham số URL -->
+<div id="notificationContainer" class="fixed top-8 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
     <div class="flex justify-between items-center mb-4">
@@ -36,12 +40,8 @@ $error = processEditRole($conn, $role_id);
             <span class="hidden md:inline-block">Quay lại</span>
         </a>
     </div>
-    <?php if ($error): ?>
-    <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
-    </div>
-    <?php endif; ?>
 
+    <!-- Form sửa vai trò -->
     <form method="POST" action="">
         <!-- Tên vai trò -->
         <div class="mb-4">

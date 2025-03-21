@@ -1,5 +1,6 @@
 <?php 
 // admin/views/role/delete.php
+
 ob_start();
 
 include("../../includes/header.php");
@@ -8,25 +9,20 @@ require_once('../../controller/roleController.php'); // File xử lý role
 
 // Kiểm tra sự tồn tại của biến GET id
 if (!isset($_GET['id'])) {
-    header("Location: index.php?msg=invalid_id");
+    header("Location: index.php?msg=ID vai trò không hợp lệ.&type=failure");
     exit;
 }
 
-$role_id = $_GET['id'];
+$role_id = trim($_GET['id']);
 $role = getRoleById($conn, $role_id);
 if (!$role) {
-    header("Location: index.php?msg=role_not_found");
+    header("Location: index.php?msg=Vai trò không tồn tại.&type=failure");
     exit;
 }
 
+// Khi form được submit, gọi hàm xử lý xóa và chuyển hướng
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (deleteRole($conn, $role_id)) {
-        // Sau khi xóa, chuyển hướng về trang danh sách
-        header("Location: index.php?msg=deleted");
-        exit;
-    } else {
-        $error = "Xóa vai trò thất bại. Vui lòng thử lại.";
-    }
+    processDeleteRole($conn, $role_id);
 }
 ?>
 
@@ -40,17 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="index.php" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5 mr-1" fill="currentColor">
                 <path
-                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
+                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32L109.2 224 214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
             </svg>
             <span class="hidden md:inline-block">Quay lại</span>
         </a>
     </div>
-
-    <?php if (isset($error)): ?>
-    <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
-    </div>
-    <?php endif; ?>
 
     <!-- Khung xác nhận xoá -->
     <div class="bg-white shadow rounded p-6">

@@ -1,7 +1,7 @@
 <?php
-// admin/controller/roleController.php
+// File: admin/controller/roleController.php
 
-require_once __DIR__ . '/stringHelper.php';
+require_once __DIR__ . '/stringHelper.php'; // Giả sử file này chứa các hàm hỗ trợ xử lý chuỗi
 
 /**
  * Tạo ID dạng UUID v4 (hoặc bạn có thể dùng generateUCCID() nếu muốn).
@@ -9,7 +9,6 @@ require_once __DIR__ . '/stringHelper.php';
  * @return string
  */
 function generateRoleID() {
-    // Ở đây mình tái sử dụng logic UUID, bạn có thể thay đổi thành logic generateUCCID() nếu thích
     $data = random_bytes(16);
     $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
     $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
@@ -23,7 +22,7 @@ function generateRoleID() {
 }
 
 /**
- * Kiểm tra xem tên role đã tồn tại chưa (có thể loại trừ ID hiện tại khi chỉnh sửa).
+ * Kiểm tra xem tên role đã tồn tại chưa (loại trừ ID hiện tại khi chỉnh sửa).
  *
  * @param mysqli $conn
  * @param string $roleName
@@ -86,10 +85,10 @@ function getRolesWithPagination($conn, $page = 1, $limit = 10, $search = "") {
     $roles = $stmt->get_result();
 
     return [
-        'roles'      => $roles,
-        'totalPages' => $totalPages,
-        'currentPage'=> $page,
-        'totalRoles' => $totalRoles
+        'roles'       => $roles,
+        'totalPages'  => $totalPages,
+        'currentPage' => $page,
+        'totalRoles'  => $totalRoles
     ];
 }
 
@@ -103,47 +102,48 @@ function getRolesWithPagination($conn, $page = 1, $limit = 10, $search = "") {
  */
 function addRole($conn, $roleName, $status) {
     $role_id = generateRoleID();
-    $sql = "INSERT INTO role (role_id, role_name, status)
-            VALUES (?, ?, ?)";
+    $sql = "INSERT INTO role (role_id, role_name, status) VALUES (?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("ssi", $role_id, $roleName, $status);
     return $stmt->execute();
 }
 
 /**
- * Xử lý thêm role từ form.
+ * Xử lý thêm role từ form và chuyển hướng với thông báo.
  *
  * @param mysqli $conn
- * @return string Thông báo lỗi nếu có.
  */
 function processAddRole($conn) {
-    $error = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $roleName = trim($_POST['role_name']);
         $status   = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
         // Kiểm tra dữ liệu
         if (empty($roleName)) {
-            return "Tên vai trò không được để trống.";
+            header("Location: index.php?msg=Tên vai trò không được để trống.&type=failure");
+            exit;
         }
         if (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
-            return "Tên vai trò không được chứa ký tự đặc biệt.";
+            header("Location: index.php?msg=Tên vai trò không được chứa ký tự đặc biệt.&type=failure");
+            exit;
         }
         if (isRoleNameExists($conn, $roleName)) {
-            return "Tên vai trò đã tồn tại.";
+            header("Location: index.php?msg=Tên vai trò đã tồn tại.&type=failure");
+            exit;
         }
         if ($status !== 1 && $status !== 2) {
-            return "Trạng thái không hợp lệ.";
+            header("Location: index.php?msg=Trạng thái không hợp lệ.&type=failure");
+            exit;
         }
 
         if (addRole($conn, $roleName, $status)) {
-            header("Location: index.php?msg=added");
+            header("Location: index.php?msg=Thêm vai trò thành công!&type=success");
             exit;
         } else {
-            return "Thêm vai trò thất bại.";
+            header("Location: index.php?msg=Thêm vai trò thất bại.&type=failure");
+            exit;
         }
     }
-    return $error;
 }
 
 /**
@@ -162,45 +162,45 @@ function getRoleById($conn, $role_id) {
 }
 
 /**
- * Xử lý chỉnh sửa role.
+ * Xử lý chỉnh sửa role từ form và chuyển hướng với thông báo.
  *
  * @param mysqli $conn
  * @param string $role_id
- * @return string Thông báo lỗi nếu có.
  */
 function processEditRole($conn, $role_id) {
-    $error = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $roleName = trim($_POST['role_name']);
         $status   = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
         // Kiểm tra dữ liệu
         if (empty($roleName)) {
-            return "Tên vai trò không được để trống.";
+            header("Location: index.php?msg=Tên vai trò không được để trống.&type=failure");
+            exit;
         }
         if (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
-            return "Tên vai trò không được chứa ký tự đặc biệt.";
+            header("Location: index.php?msg=Tên vai trò không được chứa ký tự đặc biệt.&type=failure");
+            exit;
         }
         if (isRoleNameExists($conn, $roleName, $role_id)) {
-            return "Tên vai trò đã tồn tại.";
+            header("Location: index.php?msg=Tên vai trò đã tồn tại.&type=failure");
+            exit;
         }
         if ($status !== 1 && $status !== 2) {
-            return "Trạng thái không hợp lệ.";
+            header("Location: index.php?msg=Trạng thái không hợp lệ.&type=failure");
+            exit;
         }
 
-        $sql = "UPDATE role
-                SET role_name = ?, status = ?
-                WHERE role_id = ?";
+        $sql = "UPDATE role SET role_name = ?, status = ? WHERE role_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("sis", $roleName, $status, $role_id);
         if ($stmt->execute()) {
-            header("Location: index.php?msg=updated");
+            header("Location: index.php?msg=Cập nhật vai trò thành công!&type=success");
             exit;
         } else {
-            return "Cập nhật vai trò thất bại.";
+            header("Location: index.php?msg=Cập nhật vai trò thất bại.&type=failure");
+            exit;
         }
     }
-    return $error;
 }
 
 /**
@@ -218,17 +218,35 @@ function deleteRole($conn, $role_id) {
 }
 
 /**
- * Lấy chi tiết vai trò theo ID (nếu cần hiển thị detail).
+ * Xử lý xóa role từ form và chuyển hướng với thông báo.
+ *
+ * @param mysqli $conn
+ * @param string $role_id
+ */
+function processDeleteRole($conn, $role_id) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (deleteRole($conn, $role_id)) {
+            header("Location: index.php?msg=Xóa vai trò thành công!&type=success");
+            exit;
+        } else {
+            header("Location: index.php?msg=Xóa vai trò thất bại.&type=failure");
+            exit;
+        }
+    }
+}
+
+/**
+ * Lấy chi tiết vai trò theo ID.
  *
  * @param mysqli $conn
  * @param string $role_id
  * @return array|null
  */
 function getRoleDetail($conn, $role_id) {
-    // Có thể giống hệt getRoleById, nhưng bạn tách riêng nếu muốn
     $sql = "SELECT * FROM role WHERE role_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $role_id);
     $stmt->execute();
     return $stmt->get_result()->fetch_assoc();
 }
+?>

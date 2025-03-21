@@ -16,6 +16,9 @@ $currentPage   = $data['currentPage'];
 $totalRoles    = $data['totalRoles'];
 ?>
 
+<!-- Container thông báo động, đặt cố định ở góc trên bên phải -->
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
+
 <main>
     <div class="container mx-auto p-6">
         <!-- Header: Tiêu đề và nút thêm Role -->
@@ -65,12 +68,11 @@ $totalRoles    = $data['totalRoles'];
                 <tbody class="text-gray-700">
                     <?php if ($roles->num_rows > 0) : ?>
                     <?php 
-                        // Tính số thứ tự bắt đầu dựa vào trang hiện tại
-                        $stt = ($currentPage - 1) * $limit + 1;
-                        while ($role = $roles->fetch_assoc()) : 
-                            // Màu nền xen kẽ
-                            $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                    ?>
+              // Tính số thứ tự bắt đầu dựa vào trang hiện tại
+              $stt = ($currentPage - 1) * $limit + 1;
+              while ($role = $roles->fetch_assoc()) : 
+                $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
+            ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
                         <td class="p-2 sm:p-3 font-medium align-middle">
@@ -78,17 +80,16 @@ $totalRoles    = $data['totalRoles'];
                         </td>
                         <td class="p-2 sm:p-3 align-middle">
                             <?php 
-                                if ($role['status'] == 1) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">Hoạt động</span>';
-                                } elseif ($role['status'] == 2) {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Không hoạt động</span>';
-                                } else {
-                                    echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
-                                }
-                            ?>
+                    if ($role['status'] == 1) {
+                      echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">Hoạt động</span>';
+                    } elseif ($role['status'] == 2) {
+                      echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Không hoạt động</span>';
+                    } else {
+                      echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
+                    }
+                  ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
-                            <!-- Chuyển nút hành động theo dạng dọc trên mobile -->
                             <div class="flex flex-col sm:flex-row gap-1 justify-center items-center">
                                 <!-- Nút xem chi tiết -->
                                 <a href="detail.php?id=<?= urlencode($role['role_id']) ?>"
@@ -157,9 +158,9 @@ $totalRoles    = $data['totalRoles'];
             </div>
             <div class="flex justify-center">
                 <?php
-                require_once('../../includes/pagination.php');
-                renderPagination($currentPage, $totalPages, $limit, $search);
-                ?>
+        require_once('../../includes/pagination.php');
+        renderPagination($currentPage, $totalPages, $limit, $search);
+        ?>
             </div>
         </div>
     </div>
