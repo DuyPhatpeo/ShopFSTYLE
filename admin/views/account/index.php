@@ -1,7 +1,7 @@
 <?php 
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
-require_once('../../controller/adminController.php'); // Hàm phụ trợ tài khoản
+require_once('../../controller/accountController.php'); // Hàm phụ trợ tài khoản
 
 // Lấy giá trị từ URL hoặc gán giá trị mặc định
 $page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -55,62 +55,70 @@ $totalAdmins   = $data['totalAdmins'];
                 <thead class="sticky top-0 z-10">
                     <tr class="bg-indigo-500 text-white">
                         <th class="p-2 sm:p-3 text-left">STT</th>
-                        <th class="p-2 sm:p-3 text-left whitespace-nowrap">Mã tài khoản</th>
                         <th class="p-2 sm:p-3 text-left">Username</th>
                         <th class="p-2 sm:p-3 text-left">Họ tên</th>
-                        <th class="p-2 sm:p-3 text-left">Email</th>
-                        <th class="p-2 sm:p-3 text-left">Vai trò</th>
+                        <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Email</th>
+                        <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Vai trò</th>
                         <th class="p-2 sm:p-3 text-center">Hành động</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
                     <?php if ($admins->num_rows > 0) : ?>
                     <?php 
-                            // Tính số thứ tự bắt đầu dựa vào trang hiện tại
-                            $stt = ($currentPage - 1) * $limit + 1;
-                            while ($admin = $admins->fetch_assoc()) : 
-                                // Màu nền xen kẽ
-                                $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                        ?>
+                        // Tính số thứ tự bắt đầu dựa vào trang hiện tại
+                        $stt = ($currentPage - 1) * $limit + 1;
+                        while ($admin = $admins->fetch_assoc()) : 
+                            // Màu nền xen kẽ
+                            $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
+                    ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
-                        <td class="p-2 sm:p-3 align-middle whitespace-nowrap">
-                            #<?= htmlspecialchars($admin['admin_id']) ?>
-                        </td>
                         <td class="p-2 sm:p-3 align-middle"><?= htmlspecialchars($admin['username']) ?></td>
-                        <td class="p-2 sm:p-3 align-middle"><?= htmlspecialchars($admin['full_name']) ?></td>
-                        <td class="p-2 sm:p-3 align-middle"><?= htmlspecialchars($admin['email']) ?></td>
                         <td class="p-2 sm:p-3 align-middle">
-                            <?= htmlspecialchars($admin['role_name'] ?? 'Chưa xác định') ?></td>
+                            <?= htmlspecialchars($admin['full_name']) ?></td>
+                        <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
+                            <?= htmlspecialchars($admin['email']) ?></td>
+                        <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
+                            <?= htmlspecialchars($admin['role_name'] ?? 'Chưa xác định') ?>
+                        </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
-                            <div class="inline-flex gap-1">
+                            <!-- Chuyển nút hành động theo dạng dọc trên mobile -->
+                            <div class="flex flex-col sm:flex-row gap-1">
+                                <!-- Nút xem chi tiết -->
                                 <a href="detail.php?id=<?= urlencode($admin['admin_id']) ?>"
-                                    class="bg-gray-200 hover:bg-gray-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path
-                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
+                                    title="Xem chi tiết">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="16" x2="12" y2="12" />
+                                        <line x1="12" y1="8" x2="12" y2="8" />
                                     </svg>
                                 </a>
+                                <!-- Nút chỉnh sửa -->
                                 <a href="edit.php?id=<?= urlencode($admin['admin_id']) ?>"
-                                    class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path d="M12 20h9" />
-                                        <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                    class="bg-yellow-200 hover:bg-yellow-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
+                                    title="Chỉnh sửa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M12 20h9"></path>
+                                        <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"></path>
                                     </svg>
                                 </a>
+                                <!-- Nút xóa -->
                                 <a href="delete.php?id=<?= urlencode($admin['admin_id']) ?>"
                                     class="bg-red-200 hover:bg-red-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
-                                    onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản này?');">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path d="M3 6h18" />
-                                        <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                                        <path d="M10 11v6" />
-                                        <path d="M14 11v6" />
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản này?');" title="Xóa">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                                        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
+                                        <path d="M10 11v6"></path>
+                                        <path d="M14 11v6"></path>
                                     </svg>
                                 </a>
                             </div>
@@ -119,7 +127,7 @@ $totalAdmins   = $data['totalAdmins'];
                     <?php endwhile; ?>
                     <?php else : ?>
                     <tr>
-                        <td colspan="7" class="p-3 text-center text-gray-500">Không tìm thấy tài khoản nào.</td>
+                        <td colspan="6" class="p-3 text-center text-gray-500">Không tìm thấy tài khoản nào.</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>

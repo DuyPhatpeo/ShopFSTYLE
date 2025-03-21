@@ -1,5 +1,5 @@
 <?php
-// admin/controller/adminController.php
+// admin/controller/accountController.php
 
 require_once __DIR__ . '/stringHelper.php';
 
@@ -40,6 +40,30 @@ function isUsernameExists($conn, $username, $excludeId = null) {
         $sql = "SELECT COUNT(*) as count FROM admin WHERE username = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $username);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return ((int)$row['count'] > 0);
+}
+
+/**
+ * Kiểm tra xem email đã tồn tại chưa (loại trừ admin hiện tại nếu cần).
+ *
+ * @param mysqli $conn Kết nối CSDL.
+ * @param string $email Địa chỉ email.
+ * @param string|null $excludeId ID cần loại trừ.
+ * @return bool True nếu email đã tồn tại.
+ */
+function isEmailExists($conn, $email, $excludeId = null) {
+    if ($excludeId) {
+        $sql = "SELECT COUNT(*) as count FROM admin WHERE email = ? AND admin_id != ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $email, $excludeId);
+    } else {
+        $sql = "SELECT COUNT(*) as count FROM admin WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
     }
     $stmt->execute();
     $result = $stmt->get_result();
@@ -111,7 +135,7 @@ function addAdmin($conn, $username, $password, $email, $fullName, $roleId) {
     $admin_id = generateAdminID();
     // Mã hóa mật khẩu bằng hàm password_hash
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    // Nếu roleId trống, ta có thể lưu dưới dạng NULL hoặc chuỗi rỗng tùy theo thiết kế CSDL.
+    // Nếu roleId trống, lưu dưới dạng NULL
     $roleId = $roleId !== "" ? $roleId : null;
     $sql = "INSERT INTO admin (admin_id, username, password, email, full_name, role_id)
             VALUES (?, ?, ?, ?, ?, ?)";
@@ -149,6 +173,9 @@ function processAddAdmin($conn) {
         if (isUsernameExists($conn, $username)) {
             return "Tên đăng nhập đã tồn tại.";
         }
+        if (isEmailExists($conn, $email)) {
+            return "Email đã tồn tại.";
+        }
 
         if (addAdmin($conn, $username, $password, $email, $fullName, $roleId)) {
             header("Location: index.php?msg=added");
@@ -177,10 +204,11 @@ function getAdminById($conn, $admin_id) {
 
 /**
  * Cập nhật thông tin admin.
+ * Lưu ý: Tên đăng nhập không được cập nhật, do đó không thay đổi trường username.
  *
  * @param mysqli $conn Kết nối CSDL.
  * @param string $admin_id ID admin cần chỉnh sửa.
- * @param string $username Tên đăng nhập.
+ * @param string $username Tên đăng nhập (giữ nguyên).
  * @param string|null $password Mật khẩu mới (nếu cập nhật, nếu không thì để rỗng).
  * @param string $email Email.
  * @param string $fullName Họ tên.
@@ -188,25 +216,23 @@ function getAdminById($conn, $admin_id) {
  * @return bool True nếu cập nhật thành công.
  */
 function updateAdmin($conn, $admin_id, $username, $password, $email, $fullName, $roleId) {
-    // Nếu có cập nhật mật khẩu thì mã hóa lại, nếu không thì không cập nhật trường này
     $roleId = $roleId !== "" ? $roleId : null;
     if (!empty($password)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $sql = "UPDATE admin SET username = ?, password = ?, email = ?, full_name = ?, role_id = ? WHERE admin_id = ?";
+        $sql = "UPDATE admin SET password = ?, email = ?, full_name = ?, role_id = ? WHERE admin_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssss", $username, $hashedPassword, $email, $fullName, $roleId, $admin_id);
+        $stmt->bind_param("sssss", $hashedPassword, $email, $fullName, $roleId, $admin_id);
     } else {
-        $sql = "UPDATE admin SET username = ?, email = ?, full_name = ?, role_id = ? WHERE admin_id = ?";
+        $sql = "UPDATE admin SET email = ?, full_name = ?, role_id = ? WHERE admin_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssss", $username, $email, $fullName, $roleId, $admin_id);
+        $stmt->bind_param("ssss", $email, $fullName, $roleId, $admin_id);
     }
     return $stmt->execute();
 }
 
 /**
  * Xử lý chỉnh sửa admin thông qua form.
- *
- * Nếu nhập mật khẩu mới, hệ thống sẽ cập nhật mật khẩu.
+ * Tên đăng nhập không được thay đổi, do đó giữ nguyên từ dữ liệu hiện tại.
  *
  * @param mysqli $conn Kết nối CSDL.
  * @param string $admin_id ID admin cần chỉnh sửa.
@@ -215,15 +241,21 @@ function updateAdmin($conn, $admin_id, $username, $password, $email, $fullName, 
 function processEditAdmin($conn, $admin_id) {
     $error = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = trim($_POST['username']);
+        // Lấy thông tin admin hiện tại
+        $adminData = getAdminById($conn, $admin_id);
+        if (!$adminData) {
+            return "Không tìm thấy tài khoản admin.";
+        }
+        // Giữ nguyên username cũ
+        $username = $adminData['username'];
         $password = trim($_POST['password']); // Nếu để rỗng thì không cập nhật mật khẩu
         $confirmPassword = trim($_POST['confirm_password']);
         $email    = trim($_POST['email']);
         $fullName = trim($_POST['full_name']);
         $roleId   = isset($_POST['role_id']) ? trim($_POST['role_id']) : "";
 
-        // Kiểm tra các trường bắt buộc (role_id không bắt buộc)
-        if (empty($username) || empty($email) || empty($fullName)) {
+        // Kiểm tra các trường bắt buộc (username không thay đổi nên chỉ kiểm tra email, fullName)
+        if (empty($email) || empty($fullName)) {
             return "Các trường bắt buộc không được để trống.";
         }
         if (!empty($password) && $password !== $confirmPassword) {
@@ -232,8 +264,8 @@ function processEditAdmin($conn, $admin_id) {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return "Email không hợp lệ.";
         }
-        if (isUsernameExists($conn, $username, $admin_id)) {
-            return "Tên đăng nhập đã tồn tại.";
+        if (isEmailExists($conn, $email, $admin_id)) {
+            return "Email đã tồn tại.";
         }
 
         if (updateAdmin($conn, $admin_id, $username, $password, $email, $fullName, $roleId)) {

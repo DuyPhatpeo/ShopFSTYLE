@@ -154,6 +154,12 @@ $totalRoles    = $data['totalRoles'];
                     </select>
                 </form>
             </div>
+            <div class="flex justify-center">
+                <?php
+                require_once('../../includes/pagination.php');
+                renderPagination($currentPage, $totalPages, $limit, $search);
+                ?>
+            </div>
         </div>
     </div>
 </main>
