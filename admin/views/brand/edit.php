@@ -1,13 +1,13 @@
-<?php
-// Bật output buffering để tránh lỗi "headers already sent"
-ob_start();
+<?php 
+// admin/views/brand/edit.php
 
+ob_start();
 include("../../includes/header.php");
-require_once('../../../includes/db.php');         // Kết nối CSDL
-require_once('../../controller/brandController.php'); // File controller thương hiệu
+require_once('../../../includes/db.php');               // Kết nối CSDL
+require_once('../../controller/brandController.php');   // Controller của brand
 
 // Lấy ID thương hiệu từ URL
-$brand_id = isset($_GET['id']) ? $_GET['id'] : null;
+$brand_id = isset($_GET['id']) ? trim($_GET['id']) : null;
 if (!$brand_id) {
     header("Location: index.php");
     exit;
@@ -16,14 +16,12 @@ if (!$brand_id) {
 // Lấy thông tin thương hiệu cần chỉnh sửa
 $brand = getBrandById($conn, $brand_id);
 if (!$brand) {
-    echo "Thương hiệu không tồn tại.";
-    exit;
+    die("Thương hiệu không tồn tại.");
 }
 
 // Xử lý form chỉnh sửa thương hiệu
 $error = processEditBrand($conn, $brand_id);
 ?>
-
 <main class="container mx-auto p-6">
     <!-- Header: Tiêu đề và nút Quay lại -->
     <div class="flex justify-between items-center mb-4">
@@ -33,47 +31,64 @@ $error = processEditBrand($conn, $brand_id);
         </div>
         <a href="index.php" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5 mr-1" fill="currentColor">
-                <path
-                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
+                <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160
+                         c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288
+                         416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0
+                         L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
             </svg>
             <span class="hidden md:inline-block">Quay lại</span>
         </a>
     </div>
 
-    <?php if ($error): ?>
+    <!-- Hiển thị lỗi chung nếu có (ngoại trừ lỗi "không được để trống" của Tên thương hiệu) -->
+    <?php if ($error && strpos($error, "không được để trống") === false): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
         <?= htmlspecialchars($error) ?>
     </div>
     <?php endif; ?>
 
-    <!-- Form chỉnh sửa thương hiệu có hỗ trợ upload file -->
+    <!-- Form chỉnh sửa thương hiệu -->
     <form method="POST" action="" enctype="multipart/form-data">
-        <!-- Chia form thành 2 cột -->
         <div class="flex flex-wrap -mx-2 mb-4">
-            <!-- Cột trái: các trường thông tin -->
+            <!-- Cột trái: Tên thương hiệu và Trạng thái -->
             <div class="w-full md:w-1/2 px-2">
                 <!-- Tên thương hiệu -->
                 <div class="mb-4">
-                    <label for="brand_name" class="block mb-1 font-medium">Tên thương hiệu:</label>
+                    <label for="brand_name" class="block mb-1 font-medium">
+                        Tên thương hiệu:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                    <?php endif; ?>
+                    <!-- Không sử dụng 'required' để tránh thông báo mặc định của trình duyệt -->
                     <input type="text" name="brand_name" id="brand_name"
                         class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= isset($_POST['brand_name']) ? htmlspecialchars($_POST['brand_name']) : htmlspecialchars($brand['brand_name']) ?>"
-                        required>
+                        value="<?= isset($_POST['brand_name']) ? htmlspecialchars($_POST['brand_name']) : htmlspecialchars($brand['brand_name']) ?>">
                 </div>
+
                 <!-- Trạng thái -->
                 <div class="mb-4">
-                    <label for="status" class="block mb-1 font-medium">Trạng thái:</label>
+                    <label for="status" class="block mb-1 font-medium">
+                        Trạng thái:
+                        <span class="text-red-600">*</span>
+                    </label>
                     <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
                         <option value="1"
                             <?= ((isset($_POST['status']) && $_POST['status'] == 1) || (!isset($_POST['status']) && $brand['status'] == 1)) ? 'selected' : '' ?>>
-                            On</option>
+                            On
+                        </option>
                         <option value="2"
                             <?= ((isset($_POST['status']) && $_POST['status'] == 2) || (!isset($_POST['status']) && $brand['status'] == 2)) ? 'selected' : '' ?>>
-                            Off</option>
+                            Off
+                        </option>
                     </select>
                 </div>
             </div>
-            <!-- Cột phải: phần upload ảnh -->
+
+            <!-- Cột phải: Phần upload ảnh -->
             <div class="w-full md:w-1/2 px-2">
                 <label for="image" class="block mb-1 font-medium">Hình ảnh:</label>
                 <div id="uploadArea"
@@ -107,12 +122,13 @@ $error = processEditBrand($conn, $brand_id);
                 </div>
             </div>
         </div>
-        <!-- Nút thao tác: nút cập nhật thương hiệu -->
-        <div class="flex justify-end items-center">
+
+        <!-- Nút cập nhật thương hiệu -->
+        <div class="flex justify-end">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12 19c-1.66 0-3-1.34-3-3
-                             s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
+                    <path d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12 19c-1.66 0-3-1.34-3-3s1.34-3 3-3 
+                             3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
                 </svg>
                 Cập nhật thương hiệu
             </button>

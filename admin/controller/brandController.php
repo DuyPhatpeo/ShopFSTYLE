@@ -1,5 +1,5 @@
 <?php
-// admin/controller/brandController.php
+// File: admin/controller/brandController.php
 
 require_once __DIR__ . '/stringHelper.php';
 
@@ -24,7 +24,7 @@ function generateUCCID() {
 }
 
 /**
- * Kiểm tra xem tên thương hiệu đã tồn tại chưa (có thể loại trừ ID hiện tại khi chỉnh sửa).
+ * Kiểm tra xem tên thương hiệu đã tồn tại chưa (loại trừ ID hiện tại khi chỉnh sửa).
  *
  * @param mysqli      $conn       Kết nối CSDL.
  * @param string      $brandName  Tên thương hiệu.
@@ -114,52 +114,49 @@ function addBrandWithImage($conn, $brandName, $status, $imageUrl) {
 
 /**
  * Xử lý thêm thương hiệu mới thông qua form.
+ * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu thành công: chuyển hướng về trang danh sách thương hiệu.
  *
  * @param mysqli $conn Kết nối CSDL.
- * @return string Thông báo lỗi nếu có.
+ * @return string|null Thông báo lỗi (nếu có).
  */
 function processAddBrand($conn) {
-    $error = '';
+    $error = null;
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $brandName = trim($_POST['brand_name']);
         $status    = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
         // Kiểm tra dữ liệu đầu vào
         if (empty($brandName)) {
-            return "Tên thương hiệu không được để trống.";
-        }
-        // Chỉ cho phép ký tự chữ, số và khoảng trắng (có hỗ trợ unicode)
-        if (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $brandName)) {
-            return "Tên thương hiệu không được chứa ký tự đặc biệt.";
-        }
-        if (isBrandNameExists($conn, $brandName)) {
-            return "Tên thương hiệu đã tồn tại.";
-        }
-        if ($status !== 1 && $status !== 2) {
-            return "Trạng thái không hợp lệ.";
-        }
-
-        // Xử lý upload ảnh nếu có
-        $imageUrl = null;
-        if (!empty($_FILES['image']['name'])) {
-            $targetDir = __DIR__ . '/../uploads/brands/';
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
-            }
-            // Lấy phần mở rộng của file
-            $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $safeName  = safeString($brandName);
-            $filename  = 'brand_' . $safeName . '.' . $extension;
-            $filePath  = $targetDir . $filename;
-            move_uploaded_file($_FILES['image']['tmp_name'], $filePath);
-            $imageUrl  = 'admin/uploads/brands/' . $filename;
-        }
-
-        if (addBrandWithImage($conn, $brandName, $status, $imageUrl)) {
-            header("Location: index.php?msg=added");
-            exit;
+            $error = "Tên thương hiệu không được để trống.";
+        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $brandName)) {
+            $error = "Tên thương hiệu không được chứa ký tự đặc biệt.";
+        } elseif (isBrandNameExists($conn, $brandName)) {
+            $error = "Tên thương hiệu đã tồn tại.";
+        } elseif ($status !== 1 && $status !== 2) {
+            $error = "Trạng thái không hợp lệ.";
         } else {
-            return "Thêm thương hiệu thất bại.";
+            // Xử lý upload ảnh nếu có
+            $imageUrl = null;
+            if (!empty($_FILES['image']['name'])) {
+                $targetDir = __DIR__ . '/../uploads/brands/';
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+                $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                $safeName  = safeString($brandName);
+                $filename  = 'brand_' . $safeName . '.' . $extension;
+                $filePath  = $targetDir . $filename;
+                move_uploaded_file($_FILES['image']['tmp_name'], $filePath);
+                $imageUrl  = 'admin/uploads/brands/' . $filename;
+            }
+
+            if (addBrandWithImage($conn, $brandName, $status, $imageUrl)) {
+                header("Location: index.php?msg=Thêm thương hiệu thành công!&type=success");
+                exit;
+            } else {
+                $error = "Thêm thương hiệu thất bại.";
+            }
         }
     }
     return $error;
@@ -182,76 +179,71 @@ function getBrandById($conn, $brand_id) {
 
 /**
  * Xử lý chỉnh sửa thương hiệu.
- *
- * Khi có upload ảnh mới, hệ thống sẽ xóa ảnh cũ (nếu tồn tại) rồi lưu ảnh mới.
+ * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu thành công: chuyển hướng về trang danh sách thương hiệu.
  *
  * @param mysqli $conn     Kết nối CSDL.
  * @param string $brand_id ID thương hiệu cần chỉnh sửa.
- * @return string Thông báo lỗi nếu có.
+ * @return string|null Thông báo lỗi (nếu có).
  */
 function processEditBrand($conn, $brand_id) {
-    $error = '';
+    $error = null;
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $brandName = trim($_POST['brand_name']);
         $status    = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
         // Kiểm tra dữ liệu
         if (empty($brandName)) {
-            return "Tên thương hiệu không được để trống.";
-        }
-        if (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $brandName)) {
-            return "Tên thương hiệu không được chứa ký tự đặc biệt.";
-        }
-        if (isBrandNameExists($conn, $brandName, $brand_id)) {
-            return "Tên thương hiệu đã tồn tại.";
-        }
-        if ($status !== 1 && $status !== 2) {
-            return "Trạng thái không hợp lệ.";
-        }
-
-        // Xử lý ảnh: nếu có upload ảnh mới thì xoá ảnh cũ nếu tồn tại
-        $imageUrl = null;
-        if (!empty($_FILES['image']['name'])) {
-            $currentBrand = getBrandById($conn, $brand_id);
-            if ($currentBrand && !empty($currentBrand['image_url'])) {
-                $oldImagePath = __DIR__ . '/../../' . $currentBrand['image_url'];
-                if (file_exists($oldImagePath)) {
-                    unlink($oldImagePath);
+            $error = "Tên thương hiệu không được để trống.";
+        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $brandName)) {
+            $error = "Tên thương hiệu không được chứa ký tự đặc biệt.";
+        } elseif (isBrandNameExists($conn, $brandName, $brand_id)) {
+            $error = "Tên thương hiệu đã tồn tại.";
+        } elseif ($status !== 1 && $status !== 2) {
+            $error = "Trạng thái không hợp lệ.";
+        } else {
+            // Xử lý ảnh: nếu có upload ảnh mới thì xoá ảnh cũ (nếu có) và lưu ảnh mới
+            $imageUrl = null;
+            if (!empty($_FILES['image']['name'])) {
+                $currentBrand = getBrandById($conn, $brand_id);
+                if ($currentBrand && !empty($currentBrand['image_url'])) {
+                    $oldImagePath = __DIR__ . '/../../' . $currentBrand['image_url'];
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
+                $targetDir = __DIR__ . '/../uploads/brands/';
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+                $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                $safeName  = safeString($brandName);
+                $filename  = 'brand_' . $safeName . '.' . $extension;
+                $filePath  = $targetDir . $filename;
+                move_uploaded_file($_FILES['image']['tmp_name'], $filePath);
+                $imageUrl  = 'admin/uploads/brands/' . $filename;
+            } else {
+                // Giữ nguyên ảnh cũ nếu không upload ảnh mới
+                $currentBrand = getBrandById($conn, $brand_id);
+                $imageUrl = $currentBrand['image_url'] ?? null;
             }
-            $targetDir = __DIR__ . '/../uploads/brands/';
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
-            }
-            $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $safeName  = safeString($brandName);
-            $filename  = 'brand_' . $safeName . '.' . $extension;
-            $filePath  = $targetDir . $filename;
-            move_uploaded_file($_FILES['image']['tmp_name'], $filePath);
-            $imageUrl  = 'admin/uploads/brands/' . $filename;
-        } else {
-            // Nếu không upload file mới, giữ nguyên file cũ
-            $currentBrand = getBrandById($conn, $brand_id);
-            $imageUrl = $currentBrand['image_url'] ?? null;
-        }
 
-        $sql = "UPDATE brand
-                SET brand_name = ?, status = ?, image_url = ?
-                WHERE brand_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("siss", $brandName, $status, $imageUrl, $brand_id);
-        if ($stmt->execute()) {
-            header("Location: index.php?msg=updated");
-            exit;
-        } else {
-            return "Cập nhật thương hiệu thất bại.";
+            $sql = "UPDATE brand SET brand_name = ?, status = ?, image_url = ? WHERE brand_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("siss", $brandName, $status, $imageUrl, $brand_id);
+            if ($stmt->execute()) {
+                header("Location: index.php?msg=Cập nhật thương hiệu thành công!&type=success");
+                exit;
+            } else {
+                $error = "Cập nhật thương hiệu thất bại.";
+            }
         }
     }
     return $error;
 }
 
 /**
- * Xóa thương hiệu (kèm file ảnh nếu có).
+ * Xóa thương hiệu (bao gồm cả file ảnh nếu có).
  *
  * @param mysqli $conn     Kết nối CSDL.
  * @param string $brand_id ID thương hiệu cần xóa.
@@ -267,14 +259,36 @@ function deleteBrand($conn, $brand_id) {
         }
     }
 
-    // Xóa brand khỏi DB
+    // Xóa thương hiệu khỏi DB
     $sql = "DELETE FROM brand WHERE brand_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $brand_id);
     return $stmt->execute();
 }
 
-// Nếu bạn cần hàm lấy toàn bộ thương hiệu (không phân trang), bạn có thể thêm:
+/**
+ * Xử lý xóa thương hiệu từ form.
+ * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu thành công: chuyển hướng về trang danh sách thương hiệu.
+ *
+ * @param mysqli $conn     Kết nối CSDL.
+ * @param string $brand_id ID thương hiệu cần xóa.
+ * @return string|null Thông báo lỗi (nếu có).
+ */
+function processDeleteBrand($conn, $brand_id) {
+    $error = null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (deleteBrand($conn, $brand_id)) {
+            header("Location: index.php?msg=Xóa thương hiệu thành công!&type=success");
+            exit;
+        } else {
+            $error = "Xóa thương hiệu thất bại.";
+        }
+    }
+    return $error;
+}
+
+// Nếu cần hàm lấy toàn bộ thương hiệu (ví dụ để hiển thị trong dropdown)
 if (!function_exists('getAllBrands')) {
     /**
      * Lấy danh sách thương hiệu (VD: để hiển thị trong dropdown).
@@ -287,10 +301,11 @@ if (!function_exists('getAllBrands')) {
         $result = $conn->query($sql);
         $brands = [];
         if ($result && $result->num_rows > 0) {
-             while ($row = $result->fetch_assoc()){
-                 $brands[] = $row;
-             }
+            while ($row = $result->fetch_assoc()){
+                $brands[] = $row;
+            }
         }
         return $brands;
     }
 }
+?>
