@@ -4,7 +4,7 @@
     <title>FSTYLE ADMIN</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="assets/images/logo-fstyle.ico">
+    <link rel="icon" type="image/png" href="../../assets/images/logo-fstyle.ico">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
