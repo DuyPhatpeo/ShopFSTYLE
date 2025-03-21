@@ -1,7 +1,7 @@
 <?php
 // File: admin/controller/roleController.php
 
-require_once __DIR__ . '/stringHelper.php'; // Giả sử file này chứa các hàm hỗ trợ xử lý chuỗi
+require_once __DIR__ . '/stringHelper.php';
 
 /**
  * Tạo ID dạng UUID v4 (hoặc bạn có thể dùng generateUCCID() nếu muốn).
@@ -109,41 +109,40 @@ function addRole($conn, $roleName, $status) {
 }
 
 /**
- * Xử lý thêm role từ form và chuyển hướng với thông báo.
+ * Xử lý thêm role từ form.
+ * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu thành công: redirect về trang danh sách role.
  *
  * @param mysqli $conn
+ * @return string|null Lỗi (nếu có)
  */
 function processAddRole($conn) {
+    $error = null;
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $roleName = trim($_POST['role_name']);
         $status   = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
-        // Kiểm tra dữ liệu
+        // Kiểm tra trường tên không được để trống
         if (empty($roleName)) {
-            header("Location: index.php?msg=Tên vai trò không được để trống.&type=failure");
-            exit;
-        }
-        if (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
-            header("Location: index.php?msg=Tên vai trò không được chứa ký tự đặc biệt.&type=failure");
-            exit;
-        }
-        if (isRoleNameExists($conn, $roleName)) {
-            header("Location: index.php?msg=Tên vai trò đã tồn tại.&type=failure");
-            exit;
-        }
-        if ($status !== 1 && $status !== 2) {
-            header("Location: index.php?msg=Trạng thái không hợp lệ.&type=failure");
-            exit;
-        }
-
-        if (addRole($conn, $roleName, $status)) {
-            header("Location: index.php?msg=Thêm vai trò thành công!&type=success");
-            exit;
+            $error = "Tên vai trò không được để trống.";
+        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
+            $error = "Tên vai trò không được chứa ký tự đặc biệt.";
+        } elseif (isRoleNameExists($conn, $roleName)) {
+            $error = "Tên vai trò đã tồn tại.";
+        } elseif ($status !== 1 && $status !== 2) {
+            $error = "Trạng thái không hợp lệ.";
         } else {
-            header("Location: index.php?msg=Thêm vai trò thất bại.&type=failure");
-            exit;
+            if (addRole($conn, $roleName, $status)) {
+                header("Location: index.php?msg=Thêm vai trò thành công!&type=success");
+                exit;
+            } else {
+                $error = "Thêm vai trò thất bại.";
+            }
         }
     }
+
+    return $error;
 }
 
 /**
@@ -162,45 +161,44 @@ function getRoleById($conn, $role_id) {
 }
 
 /**
- * Xử lý chỉnh sửa role từ form và chuyển hướng với thông báo.
+ * Xử lý chỉnh sửa role từ form.
+ * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu thành công: redirect về trang danh sách role.
  *
  * @param mysqli $conn
  * @param string $role_id
+ * @return string|null Lỗi (nếu có)
  */
 function processEditRole($conn, $role_id) {
+    $error = null;
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $roleName = trim($_POST['role_name']);
         $status   = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
-        // Kiểm tra dữ liệu
+        // Kiểm tra trường tên không được để trống
         if (empty($roleName)) {
-            header("Location: index.php?msg=Tên vai trò không được để trống.&type=failure");
-            exit;
-        }
-        if (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
-            header("Location: index.php?msg=Tên vai trò không được chứa ký tự đặc biệt.&type=failure");
-            exit;
-        }
-        if (isRoleNameExists($conn, $roleName, $role_id)) {
-            header("Location: index.php?msg=Tên vai trò đã tồn tại.&type=failure");
-            exit;
-        }
-        if ($status !== 1 && $status !== 2) {
-            header("Location: index.php?msg=Trạng thái không hợp lệ.&type=failure");
-            exit;
-        }
-
-        $sql = "UPDATE role SET role_name = ?, status = ? WHERE role_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sis", $roleName, $status, $role_id);
-        if ($stmt->execute()) {
-            header("Location: index.php?msg=Cập nhật vai trò thành công!&type=success");
-            exit;
+            $error = "Tên vai trò không được để trống.";
+        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
+            $error = "Tên vai trò không được chứa ký tự đặc biệt.";
+        } elseif (isRoleNameExists($conn, $roleName, $role_id)) {
+            $error = "Tên vai trò đã tồn tại.";
+        } elseif ($status !== 1 && $status !== 2) {
+            $error = "Trạng thái không hợp lệ.";
         } else {
-            header("Location: index.php?msg=Cập nhật vai trò thất bại.&type=failure");
-            exit;
+            $sql = "UPDATE role SET role_name = ?, status = ? WHERE role_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sis", $roleName, $status, $role_id);
+            if ($stmt->execute()) {
+                header("Location: index.php?msg=Cập nhật vai trò thành công!&type=success");
+                exit;
+            } else {
+                $error = "Cập nhật vai trò thất bại.";
+            }
         }
     }
+
+    return $error;
 }
 
 /**
@@ -218,21 +216,27 @@ function deleteRole($conn, $role_id) {
 }
 
 /**
- * Xử lý xóa role từ form và chuyển hướng với thông báo.
+ * Xử lý xóa role từ form.
+ * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu thành công: redirect về trang danh sách role.
  *
  * @param mysqli $conn
  * @param string $role_id
+ * @return string|null Lỗi (nếu có)
  */
 function processDeleteRole($conn, $role_id) {
+    $error = null;
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (deleteRole($conn, $role_id)) {
             header("Location: index.php?msg=Xóa vai trò thành công!&type=success");
             exit;
         } else {
-            header("Location: index.php?msg=Xóa vai trò thất bại.&type=failure");
-            exit;
+            $error = "Xóa vai trò thất bại.";
         }
     }
+
+    return $error;
 }
 
 /**

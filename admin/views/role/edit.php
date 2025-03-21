@@ -1,4 +1,4 @@
-<?php 
+<?php
 // admin/views/role/edit.php
 
 ob_start();
@@ -8,21 +8,18 @@ require_once('../../controller/roleController.php');
 
 $role_id = isset($_GET['id']) ? trim($_GET['id']) : '';
 if (empty($role_id)) {
-    header("Location: index.php?msg=ID vai trò không hợp lệ.&type=failure");
-    exit;
+    die("ID vai trò không hợp lệ.");
 }
 
-// Lấy thông tin hiện tại của vai trò
+// Lấy thông tin hiện tại
 $currentRole = getRoleById($conn, $role_id);
 if (!$currentRole) {
-    header("Location: index.php?msg=Vai trò không tồn tại.&type=failure");
-    exit;
+    die("Vai trò không tồn tại.");
 }
 
-// Gọi hàm xử lý cập nhật, nếu form được submit hàm sẽ chuyển hướng với thông báo
-processEditRole($conn, $role_id);
+// Gọi hàm xử lý cập nhật
+$error = processEditRole($conn, $role_id);
 ?>
-<!-- Container thông báo động, sẽ được JS xử lý hiển thị thông báo dựa trên tham số URL -->
 <div id="notificationContainer" class="fixed top-8 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
@@ -41,45 +38,53 @@ processEditRole($conn, $role_id);
         </a>
     </div>
 
-    <!-- Form sửa vai trò chia làm 2 cột -->
+    <!-- Hiển thị lỗi nếu có -->
+    <?php if ($error): ?>
+    <div class="bg-red-200 p-2 mb-4 text-red-800">
+        <?= htmlspecialchars($error) ?>
+    </div>
+    <?php endif; ?>
+
+    <!-- Form chỉnh sửa vai trò, chia thành 2 cột giống giao diện "add" -->
     <form method="POST" action="">
         <div class="flex flex-wrap -mx-2 mb-4">
-            <!-- Cột trái: Tên vai trò và Trạng thái -->
+            <!-- Cột trái: Tên vai trò + Trạng thái -->
             <div class="w-full md:w-1/2 px-2">
                 <!-- Tên vai trò -->
                 <div class="mb-4">
                     <label for="role_name" class="block mb-1 font-medium">Tên Vai Trò:</label>
+                    <!-- Bỏ 'required' để không xuất hiện thông báo mặc định của trình duyệt -->
                     <input type="text" name="role_name" id="role_name" class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= htmlspecialchars($currentRole['role_name']) ?>" required
-                        oninvalid="this.setCustomValidity('Vui lòng nhập tên vai trò.')"
-                        oninput="this.setCustomValidity('')" />
+                        value="<?= htmlspecialchars($currentRole['role_name']) ?>">
                 </div>
-                <!-- Trạng thái -->
+
+                <!-- Trạng Thái -->
                 <div class="mb-4">
                     <label for="status" class="block mb-1 font-medium">Trạng Thái:</label>
                     <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
-                        <option value="1" <?= $currentRole['status'] == 1 ? 'selected' : '' ?>>
-                            Hoạt động
-                        </option>
-                        <option value="2" <?= $currentRole['status'] == 2 ? 'selected' : '' ?>>
-                            Không hoạt động
-                        </option>
+                        <option value="1" <?= $currentRole['status'] == 1 ? 'selected' : '' ?>>Hoạt động</option>
+                        <option value="2" <?= $currentRole['status'] == 2 ? 'selected' : '' ?>>Không hoạt động</option>
                     </select>
                 </div>
             </div>
+
             <!-- Cột phải: Mô tả (tuỳ chọn) -->
             <div class="w-full md:w-1/2 px-2">
                 <div class="mb-4">
                     <label for="description" class="block mb-1 font-medium">Mô tả (tuỳ chọn):</label>
+                    <!-- Ở đây, nếu bạn muốn lưu mô tả vào DB, cần sửa processEditRole và DB cho phù hợp -->
                     <textarea name="description" id="description" rows="5"
-                        class="w-full p-2 border border-gray-300 rounded"
-                        oninvalid="this.setCustomValidity('Vui lòng nhập mô tả (nếu cần).')"
-                        oninput="this.setCustomValidity('')"><?= isset($currentRole['description']) ? htmlspecialchars($currentRole['description']) : '' ?></textarea>
+                        class="w-full p-2 border border-gray-300 rounded"><?php
+                        // Nếu bạn đang lưu mô tả, hãy lấy $currentRole['description'] thay vì chuỗi rỗng
+                        echo isset($currentRole['description'])
+                            ? htmlspecialchars($currentRole['description'])
+                            : '';
+                    ?></textarea>
                 </div>
             </div>
         </div>
 
-        <!-- Nút cập nhật: đặt bên phải -->
+        <!-- Nút cập nhật -->
         <div class="flex justify-end">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
