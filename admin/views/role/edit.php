@@ -38,29 +38,40 @@ $error = processEditRole($conn, $role_id);
         </a>
     </div>
 
-    <!-- Hiển thị lỗi nếu có -->
-    <?php if ($error): ?>
+    <!-- Hiển thị lỗi chung nếu có (ngoại trừ lỗi "không được để trống") -->
+    <?php if ($error && strpos($error, "không được để trống") === false): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
         <?= htmlspecialchars($error) ?>
     </div>
     <?php endif; ?>
 
-    <!-- Form chỉnh sửa vai trò, chia thành 2 cột giống giao diện "add" -->
+    <!-- Form chỉnh sửa vai trò, chia thành 2 cột -->
     <form method="POST" action="">
         <div class="flex flex-wrap -mx-2 mb-4">
-            <!-- Cột trái: Tên vai trò + Trạng thái -->
+            <!-- Cột trái: Tên vai trò và Trạng thái -->
             <div class="w-full md:w-1/2 px-2">
                 <!-- Tên vai trò -->
                 <div class="mb-4">
-                    <label for="role_name" class="block mb-1 font-medium">Tên Vai Trò:</label>
-                    <!-- Bỏ 'required' để không xuất hiện thông báo mặc định của trình duyệt -->
+                    <label for="role_name" class="block mb-1 font-medium">
+                        Tên Vai Trò:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                    <?php endif; ?>
+                    <!-- Không sử dụng 'required' để tránh thông báo mặc định của trình duyệt -->
                     <input type="text" name="role_name" id="role_name" class="w-full p-2 border border-gray-300 rounded"
                         value="<?= htmlspecialchars($currentRole['role_name']) ?>">
                 </div>
 
                 <!-- Trạng Thái -->
                 <div class="mb-4">
-                    <label for="status" class="block mb-1 font-medium">Trạng Thái:</label>
+                    <label for="status" class="block mb-1 font-medium">
+                        Trạng Thái:
+                        <span class="text-red-600">*</span>
+                    </label>
                     <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
                         <option value="1" <?= $currentRole['status'] == 1 ? 'selected' : '' ?>>Hoạt động</option>
                         <option value="2" <?= $currentRole['status'] == 2 ? 'selected' : '' ?>>Không hoạt động</option>
@@ -72,10 +83,8 @@ $error = processEditRole($conn, $role_id);
             <div class="w-full md:w-1/2 px-2">
                 <div class="mb-4">
                     <label for="description" class="block mb-1 font-medium">Mô tả (tuỳ chọn):</label>
-                    <!-- Ở đây, nếu bạn muốn lưu mô tả vào DB, cần sửa processEditRole và DB cho phù hợp -->
                     <textarea name="description" id="description" rows="5"
                         class="w-full p-2 border border-gray-300 rounded"><?php
-                        // Nếu bạn đang lưu mô tả, hãy lấy $currentRole['description'] thay vì chuỗi rỗng
                         echo isset($currentRole['description'])
                             ? htmlspecialchars($currentRole['description'])
                             : '';
@@ -88,7 +97,9 @@ $error = processEditRole($conn, $role_id);
         <div class="flex justify-end">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 4v16m8-8H4" />
+                    <path d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12
+                    19c-1.66 0-3-1.34-3-3s1.34-3 3-3
+                    3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
                 </svg>
                 Cập Nhật Vai Trò
             </button>

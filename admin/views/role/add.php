@@ -29,8 +29,8 @@ $error = processAddRole($conn);
         </a>
     </div>
 
-    <!-- Hiển thị lỗi nếu có -->
-    <?php if ($error): ?>
+    <!-- Hiển thị lỗi chung nếu có (ngoại trừ lỗi "không được để trống") -->
+    <?php if ($error && strpos($error, "không được để trống") === false): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
         <?= htmlspecialchars($error) ?>
     </div>
@@ -40,10 +40,19 @@ $error = processAddRole($conn);
     <form method="POST" action="">
         <!-- Chia form thành 2 cột -->
         <div class="flex flex-wrap -mx-2 mb-4">
-            <!-- Cột trái: Tên vai trò -->
+            <!-- Cột trái: Tên vai trò và Trạng thái -->
             <div class="w-full md:w-1/2 px-2">
+                <!-- Tên vai trò -->
                 <div class="mb-4">
-                    <label for="role_name" class="block mb-1 font-medium">Tên vai trò:</label>
+                    <label for="role_name" class="block mb-1 font-medium">
+                        Tên vai trò:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                    <?php endif; ?>
                     <!-- Bỏ 'required' để không xuất hiện thông báo mặc định của trình duyệt -->
                     <input type="text" name="role_name" id="role_name" class="w-full p-2 border border-gray-300 rounded"
                         value="<?= isset($_POST['role_name']) ? htmlspecialchars($_POST['role_name']) : '' ?>">
@@ -51,7 +60,10 @@ $error = processAddRole($conn);
 
                 <!-- Trạng thái -->
                 <div class="mb-4">
-                    <label for="status" class="block mb-1 font-medium">Trạng thái:</label>
+                    <label for="status" class="block mb-1 font-medium">
+                        Trạng thái:
+                        <span class="text-red-600">*</span>
+                    </label>
                     <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
                         <option value="1" <?= (isset($_POST['status']) && $_POST['status'] == 1) ? 'selected' : '' ?>>
                             Hoạt động
