@@ -1,7 +1,4 @@
-<?php 
-// Bật output buffering để tránh lỗi "headers already sent"
-ob_start();
-
+<?php
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
 require_once('../../controller/roleController.php'); // File controller role
@@ -9,6 +6,7 @@ require_once('../../controller/roleController.php'); // File controller role
 // Gọi hàm xử lý thêm vai trò; nếu có lỗi, controller sẽ chuyển hướng với thông báo
 processAddRole($conn);
 ?>
+
 <!-- Container thông báo động -->
 <div id="notificationContainer" class="fixed top-8 right-4 flex flex-col space-y-2 z-50"></div>
 
@@ -35,16 +33,20 @@ processAddRole($conn);
                 <div class="mb-4">
                     <label for="role_name" class="block mb-1 font-medium">Tên vai trò:</label>
                     <input type="text" name="role_name" id="role_name" class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= isset($_POST['role_name']) ? htmlspecialchars($_POST['role_name']) : '' ?>" required>
+                        value="<?= isset($_POST['role_name']) ? htmlspecialchars($_POST['role_name']) : '' ?>" required
+                        oninvalid="this.setCustomValidity('Vui lòng nhập tên vai trò.')"
+                        oninput="this.setCustomValidity('')" />
                 </div>
                 <!-- Trạng thái -->
                 <div class="mb-4">
                     <label for="status" class="block mb-1 font-medium">Trạng thái:</label>
                     <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
                         <option value="1" <?= (isset($_POST['status']) && $_POST['status'] == 1) ? 'selected' : '' ?>>
-                            Hoạt động</option>
+                            Hoạt động
+                        </option>
                         <option value="2" <?= (isset($_POST['status']) && $_POST['status'] == 2) ? 'selected' : '' ?>>
-                            Không hoạt động</option>
+                            Không hoạt động
+                        </option>
                     </select>
                 </div>
             </div>
@@ -53,7 +55,9 @@ processAddRole($conn);
                 <div class="mb-4">
                     <label for="description" class="block mb-1 font-medium">Mô tả (tuỳ chọn):</label>
                     <textarea name="description" id="description" rows="5"
-                        class="w-full p-2 border border-gray-300 rounded"><?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' ?></textarea>
+                        class="w-full p-2 border border-gray-300 rounded"
+                        oninvalid="this.setCustomValidity('Vui lòng nhập mô tả (nếu cần).')"
+                        oninput="this.setCustomValidity('')"><?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' ?></textarea>
                 </div>
             </div>
         </div>

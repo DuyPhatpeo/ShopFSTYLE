@@ -41,34 +41,53 @@ processEditRole($conn, $role_id);
         </a>
     </div>
 
-    <!-- Form sửa vai trò -->
+    <!-- Form sửa vai trò chia làm 2 cột -->
     <form method="POST" action="">
-        <!-- Tên vai trò -->
-        <div class="mb-4">
-            <label for="role_name" class="block mb-1 font-medium">Tên Vai Trò:</label>
-            <input type="text" name="role_name" id="role_name" class="w-full p-2 border border-gray-300 rounded"
-                value="<?= htmlspecialchars($currentRole['role_name']) ?>" required>
-        </div>
-        <!-- Trạng thái -->
-        <div class="mb-4">
-            <label for="status" class="block mb-1 font-medium">Trạng Thái:</label>
-            <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
-                <option value="1" <?= $currentRole['status'] == 1 ? 'selected' : '' ?>>
-                    Hoạt động
-                </option>
-                <option value="2" <?= $currentRole['status'] == 2 ? 'selected' : '' ?>>
-                    Không hoạt động
-                </option>
-            </select>
+        <div class="flex flex-wrap -mx-2 mb-4">
+            <!-- Cột trái: Tên vai trò và Trạng thái -->
+            <div class="w-full md:w-1/2 px-2">
+                <!-- Tên vai trò -->
+                <div class="mb-4">
+                    <label for="role_name" class="block mb-1 font-medium">Tên Vai Trò:</label>
+                    <input type="text" name="role_name" id="role_name" class="w-full p-2 border border-gray-300 rounded"
+                        value="<?= htmlspecialchars($currentRole['role_name']) ?>" required
+                        oninvalid="this.setCustomValidity('Vui lòng nhập tên vai trò.')"
+                        oninput="this.setCustomValidity('')" />
+                </div>
+                <!-- Trạng thái -->
+                <div class="mb-4">
+                    <label for="status" class="block mb-1 font-medium">Trạng Thái:</label>
+                    <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
+                        <option value="1" <?= $currentRole['status'] == 1 ? 'selected' : '' ?>>
+                            Hoạt động
+                        </option>
+                        <option value="2" <?= $currentRole['status'] == 2 ? 'selected' : '' ?>>
+                            Không hoạt động
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <!-- Cột phải: Mô tả (tuỳ chọn) -->
+            <div class="w-full md:w-1/2 px-2">
+                <div class="mb-4">
+                    <label for="description" class="block mb-1 font-medium">Mô tả (tuỳ chọn):</label>
+                    <textarea name="description" id="description" rows="5"
+                        class="w-full p-2 border border-gray-300 rounded"
+                        oninvalid="this.setCustomValidity('Vui lòng nhập mô tả (nếu cần).')"
+                        oninput="this.setCustomValidity('')"><?= isset($currentRole['description']) ? htmlspecialchars($currentRole['description']) : '' ?></textarea>
+                </div>
+            </div>
         </div>
 
-        <!-- Nút cập nhật -->
-        <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 4v16m8-8H4" />
-            </svg>
-            Cập Nhật Vai Trò
-        </button>
+        <!-- Nút cập nhật: đặt bên phải -->
+        <div class="flex justify-end">
+            <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 4v16m8-8H4" />
+                </svg>
+                Cập Nhật Vai Trò
+            </button>
+        </div>
     </form>
 </main>
 
