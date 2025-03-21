@@ -1,6 +1,6 @@
 <?php 
 include("../../includes/header.php");
-require_once('../../../includes/db.php'); // Kết nối CSDL
+require_once('../../../includes/db.php');               // Kết nối CSDL
 require_once('../../controller/categoryController.php'); // Hàm phụ trợ danh mục
 
 // Lấy giá trị từ URL hoặc gán giá trị mặc định
@@ -52,26 +52,28 @@ $totalCategories = $data['totalCategories'];
         <!-- Bảng hiển thị danh mục -->
         <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
             <table class="w-full table-fixed border-collapse text-sm sm:text-base">
-                <thead class="sticky top-0 z-10">
-                    <tr class="bg-indigo-500 text-white">
+                <thead class="sticky top-0 z-10 bg-indigo-500 text-white">
+                    <tr>
                         <!-- STT: fix width 50px -->
                         <th class="p-2 sm:p-3 text-left" style="width: 50px;">STT</th>
                         <!-- Tên danh mục: chiếm phần còn lại -->
                         <th class="p-2 sm:p-3 text-left">Tên danh mục</th>
                         <!-- Ảnh: fix width 200px -->
                         <th class="p-2 sm:p-3 text-center" style="width: 200px;">Ảnh</th>
-                        <th class="p-2 sm:p-3 text-left">Danh mục cha</th>
-                        <th class="p-2 sm:p-3 text-left">Trạng thái</th>
+                        <!-- Ẩn cột Danh mục cha trên mobile -->
+                        <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Danh mục cha</th>
+                        <!-- Ẩn cột Trạng thái trên mobile -->
+                        <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Trạng thái</th>
                         <th class="p-2 sm:p-3 text-center">Hành động</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
                     <?php if ($categories->num_rows > 0) : ?>
                     <?php 
-                            $stt = ($currentPage - 1) * $limit + 1;
-                            while ($category = $categories->fetch_assoc()) : 
-                                $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                        ?>
+                        $stt = ($currentPage - 1) * $limit + 1;
+                        while ($category = $categories->fetch_assoc()) : 
+                            $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
+                    ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
                         <td class="p-2 sm:p-3 font-medium align-middle">
@@ -86,24 +88,26 @@ $totalCategories = $data['totalCategories'];
                             <span class="text-gray-500 text-xs">No image</span>
                             <?php endif; ?>
                         </td>
-                        <td class="p-2 sm:p-3 align-middle">
+                        <!-- Danh mục cha ẩn trên mobile -->
+                        <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
                             <?= !empty($category['parent_name']) ? htmlspecialchars($category['parent_name']) : 'None' ?>
                         </td>
-                        <td class="p-2 sm:p-3 align-middle">
+                        <!-- Trạng thái ẩn trên mobile -->
+                        <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
                             <?php 
-                                    if ($category['status'] == 1) {
-                                        echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
-                                    } elseif ($category['status'] == 2) {
-                                        echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
-                                    } else {
-                                        echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
-                                    }
-                                ?>
+                                if ($category['status'] == 1) {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
+                                } elseif ($category['status'] == 2) {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
+                                } else {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
+                                }
+                            ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
-                            <div class="inline-flex gap-1">
+                            <div class="flex flex-col sm:flex-row gap-1 justify-center items-center">
                                 <a href="edit.php?id=<?= urlencode($category['category_id']) ?>"
-                                    class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
+                                    class="bg-yellow-200 hover:bg-yellow-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
                                     title="Chỉnh sửa">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24"
                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -127,6 +131,7 @@ $totalCategories = $data['totalCategories'];
                                 </a>
                             </div>
                         </td>
+
                     </tr>
                     <?php endwhile; ?>
                     <?php else : ?>
@@ -138,7 +143,7 @@ $totalCategories = $data['totalCategories'];
             </table>
         </div>
 
-        <!-- Phân trang và dropdown chọn số dòng -->
+        <!-- Phân trang và dropdown chọn số dòng hiển thị -->
         <div class="grid grid-cols-1 sm:grid-cols-3 items-center mt-4 gap-4 mb-6">
             <div class="flex justify-start items-center">
                 <form method="GET" id="limitForm" class="flex items-center">

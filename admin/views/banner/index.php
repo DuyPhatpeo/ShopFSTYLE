@@ -57,23 +57,24 @@ $totalBanners  = $data['totalBanners'];
                         <th class="p-2 sm:p-3 text-left">STT</th>
                         <th class="p-2 sm:p-3 text-center">Ảnh</th>
                         <th class="p-2 sm:p-3 text-left">Link</th>
-                        <th class="p-2 sm:p-3 text-left">Trạng thái</th>
+                        <!-- Ẩn cột Trạng thái trên mobile -->
+                        <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Trạng thái</th>
                         <th class="p-2 sm:p-3 text-center">Hành động</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700">
                     <?php if ($banners->num_rows > 0) : ?>
                     <?php 
-                            // Tính số thứ tự bắt đầu dựa vào trang hiện tại
-                            $stt = ($currentPage - 1) * $limit + 1;
-                            while ($banner = $banners->fetch_assoc()) : 
-                                $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                        ?>
+                        // Tính số thứ tự bắt đầu dựa vào trang hiện tại
+                        $stt = ($currentPage - 1) * $limit + 1;
+                        while ($banner = $banners->fetch_assoc()) : 
+                            $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
+                    ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <?php if (!empty($banner['image_url'])): ?>
-                            <!-- Ảnh to hơn: w-32 h-32 -->
+                            <!-- Ảnh với kích thước: w-32 h-32 -->
                             <img src="../../../<?= htmlspecialchars($banner['image_url']) ?>" alt="Banner"
                                 class="w-32 h-32 object-cover rounded mx-auto">
                             <?php else: ?>
@@ -83,19 +84,21 @@ $totalBanners  = $data['totalBanners'];
                         <td class="p-2 sm:p-3 font-medium align-middle">
                             <?= htmlspecialchars($banner['link']) ?>
                         </td>
-                        <td class="p-2 sm:p-3 align-middle">
+                        <!-- Ẩn cột Trạng thái trên mobile -->
+                        <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
                             <?php 
-                                    if ($banner['status'] == 1) {
-                                        echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
-                                    } elseif ($banner['status'] == 2) {
-                                        echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
-                                    } else {
-                                        echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
-                                    }
-                                ?>
+                                if ($banner['status'] == 1) {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">On</span>';
+                                } elseif ($banner['status'] == 2) {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Off</span>';
+                                } else {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
+                                }
+                            ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
-                            <div class="inline-flex gap-1">
+                            <!-- Nút hành động được sắp xếp theo dạng dọc trên mobile -->
+                            <div class="flex flex-col sm:flex-row gap-1 justify-center items-center">
                                 <a href="edit.php?id=<?= urlencode($banner['banner_id']) ?>"
                                     class="bg-yellow-200 hover:bg-yellow-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
                                     title="Chỉnh sửa">
@@ -142,9 +145,9 @@ $totalBanners  = $data['totalBanners'];
                     <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
                     <select name="limit" id="limit" class="p-2 border rounded cursor-pointer"
                         onchange="this.form.submit()">
-                        <option value="10" <?= $limit == 10  ? 'selected' : '' ?>>10</option>
-                        <option value="20" <?= $limit == 20  ? 'selected' : '' ?>>20</option>
-                        <option value="50" <?= $limit == 50  ? 'selected' : '' ?>>50</option>
+                        <option value="10" <?= $limit == 10 ? 'selected' : '' ?>>10</option>
+                        <option value="20" <?= $limit == 20 ? 'selected' : '' ?>>20</option>
+                        <option value="50" <?= $limit == 50 ? 'selected' : '' ?>>50</option>
                         <option value="100" <?= $limit == 100 ? 'selected' : '' ?>>100</option>
                     </select>
                 </form>

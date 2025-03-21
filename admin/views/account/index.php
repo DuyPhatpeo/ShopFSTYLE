@@ -83,7 +83,7 @@ $totalAdmins   = $data['totalAdmins'];
                         </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <!-- Chuyển nút hành động theo dạng dọc trên mobile -->
-                            <div class="flex flex-col sm:flex-row gap-1">
+                            <div class="flex flex-col sm:flex-row gap-1 justify-center items-center">
                                 <!-- Nút xem chi tiết -->
                                 <a href="detail.php?id=<?= urlencode($admin['admin_id']) ?>"
                                     class="bg-blue-200 hover:bg-blue-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
