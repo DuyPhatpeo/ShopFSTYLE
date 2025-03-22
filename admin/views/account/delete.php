@@ -3,41 +3,41 @@
 ob_start();
 
 include("../../includes/header.php");
-require_once('../../../includes/db.php'); // Kết nối CSDL
+require_once('../../../includes/db.php');         // Kết nối CSDL
 require_once('../../controller/accountController.php'); // File xử lý tài khoản
 
 // Kiểm tra sự tồn tại của biến GET id
 if (!isset($_GET['id'])) {
-    header("Location: index.php?msg=invalid_id");
+    header("Location: index.php?msg=ID tài khoản không hợp lệ.&type=failure");
     exit;
 }
 
 $admin_id = $_GET['id'];
 $admin = getAdminById($conn, $admin_id);
 if (!$admin) {
-    header("Location: index.php?msg=account_not_found");
+    header("Location: index.php?msg=Tài khoản không tồn tại.&type=failure");
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (deleteAdmin($conn, $admin_id)) {
-        // Sau khi xóa, chuyển hướng về trang danh sách
-        header("Location: index.php?msg=deleted");
+        header("Location: index.php?msg=Xóa tài khoản thành công!");
         exit;
     } else {
-        $error = "Xóa tài khoản thất bại. Vui lòng thử lại.";
+        header("Location: index.php?msg=Không thể xóa tài khoản!");
+        exit;
     }
 }
 ?>
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
     <!-- Header: Tiêu đề và nút Quay lại -->
     <div class="flex justify-between items-center mb-4">
         <div>
             <h1 class="text-3xl font-bold">Xóa Tài Khoản</h1>
-            <p class="text-sm text-gray-500">Tên đăng nhập: <?= htmlspecialchars($admin['username']) ?></p>
         </div>
-        <a href="index.php" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center"
+        <a href="index.php?msg=Hủy" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center"
             title="Quay lại">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5 mr-1" fill="currentColor">
                 <path
@@ -47,18 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </a>
     </div>
 
-    <?php if (isset($error)): ?>
-    <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
-    </div>
-    <?php endif; ?>
-
     <!-- Khung xác nhận xoá -->
     <div class="bg-white shadow rounded p-6">
         <p class="mb-4 text-lg">
-            Bạn có chắc chắn muốn xóa tài khoản:
-            <strong><?= htmlspecialchars($admin['username']) ?></strong>?
+            Bạn có chắc chắn muốn xóa tài khoản có các thông tin sau:
         </p>
+        <ul class="mb-4 list-disc pl-5">
+            <li><strong>Tên đăng nhập:</strong> <?= htmlspecialchars($admin['username']) ?></li>
+            <li><strong>Họ và tên:</strong> <?= htmlspecialchars($admin['full_name']) ?></li>
+            <li><strong>Email:</strong> <?= htmlspecialchars($admin['email']) ?></li>
+            <li><strong>Vai trò:</strong> <?= htmlspecialchars($admin['role_name']) ?></li>
+        </ul>
         <form method="POST" action="">
             <div class="flex justify-end items-center space-x-4">
                 <button type="submit" class="bg-red-700 hover:bg-red-800 text-white p-2 rounded flex items-center">

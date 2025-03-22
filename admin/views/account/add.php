@@ -3,15 +3,16 @@
 ob_start();
 
 include("../../includes/header.php");
-require_once('../../../includes/db.php'); // Kết nối CSDL
+require_once('../../../includes/db.php');         // Kết nối CSDL
 require_once('../../controller/accountController.php'); // File controller tài khoản
 
 // Gọi hàm xử lý thêm tài khoản, nếu thêm thành công hàm sẽ chuyển hướng về index.php
-$error = processAddAdmin($conn);
+$errors = processAddAdmin($conn);
 
 // Lấy danh sách các vai trò từ bảng role để hiển thị trong dropdown
 $roles = getAllRoles($conn);
 ?>
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
     <div class="flex justify-between items-center mb-4">
@@ -27,88 +28,111 @@ $roles = getAllRoles($conn);
         </a>
     </div>
 
-    <?php if ($error): ?>
+    <!-- Hiển thị lỗi chung nếu có -->
+    <?php if (!empty($errors['general'])): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
+        <?= htmlspecialchars($errors['general']) ?>
     </div>
     <?php endif; ?>
 
     <!-- Form thêm tài khoản -->
     <form method="POST" action="">
         <div class="flex flex-wrap -mx-2 mb-4">
-            <!-- Cột trái: thông tin đăng nhập và cá nhân -->
+            <!-- Cột trái: Tên đăng nhập, Họ và tên, Email -->
             <div class="w-full md:w-1/2 px-2">
                 <!-- Tên đăng nhập -->
                 <div class="mb-4">
-                    <label for="username" class="block mb-1 font-medium">Tên đăng nhập:</label>
-                    <input type="text" name="username" id="username" class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>" required
-                        oninvalid="this.setCustomValidity('Tên đăng nhập không được để trống!')"
-                        oninput="this.setCustomValidity('')">
+                    <label for="username" class="block mb-1 font-medium">
+                        Tên đăng nhập <span class="text-red-600">*</span>
+                    </label>
+                    <input type="text" name="username" id="username"
+                        class="w-full p-2 border <?= !empty($errors['username']) ? 'border-red-500' : 'border-gray-300'; ?> rounded"
+                        value="<?= isset($_POST['username']) ? htmlspecialchars($_POST['username']) : '' ?>">
+                    <?php if (!empty($errors['username'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['username']) ?></p>
+                    <?php endif; ?>
                 </div>
+
+                <!-- Họ và tên -->
+                <div class="mb-4">
+                    <label for="full_name" class="block mb-1 font-medium">
+                        Họ và tên <span class="text-red-600">*</span>
+                    </label>
+                    <input type="text" name="full_name" id="full_name"
+                        class="w-full p-2 border <?= !empty($errors['full_name']) ? 'border-red-500' : 'border-gray-300'; ?> rounded"
+                        value="<?= isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : '' ?>">
+                    <?php if (!empty($errors['full_name'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['full_name']) ?></p>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-4">
+                    <label for="email" class="block mb-1 font-medium">
+                        Email <span class="text-red-600">*</span>
+                    </label>
+                    <input type="text" name="email" id="email"
+                        class="w-full p-2 border <?= !empty($errors['email']) ? 'border-red-500' : 'border-gray-300'; ?> rounded"
+                        value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>">
+                    <?php if (!empty($errors['email'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['email']) ?></p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Cột phải: Mật khẩu, Nhập lại mật khẩu, Vai trò -->
+            <div class="w-full md:w-1/2 px-2">
                 <!-- Mật khẩu -->
                 <div class="mb-4 relative">
-                    <label for="password" class="block mb-1 font-medium">Mật khẩu:</label>
+                    <label for="password" class="block mb-1 font-medium">
+                        Mật khẩu <span class="text-red-600">*</span>
+                    </label>
                     <input type="password" name="password" id="password"
-                        class="w-full p-2 border border-gray-300 rounded pr-10" required
-                        oninvalid="this.setCustomValidity('Mật khẩu không được để trống!')"
-                        oninput="this.setCustomValidity('')">
+                        class="w-full p-2 border <?= !empty($errors['password']) ? 'border-red-500' : 'border-gray-300'; ?> rounded pr-10">
                     <button type="button" onclick="togglePassword('password', 'icon-password')"
                         class="absolute right-2 top-9 text-gray-600">
                         <svg id="icon-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
-                            <!-- Icon hiển thị: mắt -->
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </button>
+                    <?php if (!empty($errors['password'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['password']) ?></p>
+                    <?php endif; ?>
                 </div>
+
                 <!-- Nhập lại mật khẩu -->
                 <div class="mb-4 relative">
-                    <label for="confirm_password" class="block mb-1 font-medium">Nhập lại mật khẩu:</label>
+                    <label for="confirm_password" class="block mb-1 font-medium">
+                        Nhập lại mật khẩu <span class="text-red-600">*</span>
+                    </label>
                     <input type="password" name="confirm_password" id="confirm_password"
-                        class="w-full p-2 border border-gray-300 rounded pr-10" required
-                        oninvalid="this.setCustomValidity('Vui lòng xác nhận lại mật khẩu!')"
-                        oninput="this.setCustomValidity('')">
+                        class="w-full p-2 border <?= !empty($errors['confirm_password']) ? 'border-red-500' : 'border-gray-300'; ?> rounded pr-10">
                     <button type="button" onclick="togglePassword('confirm_password', 'icon-confirm_password')"
                         class="absolute right-2 top-9 text-gray-600">
                         <svg id="icon-confirm_password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
-                            <!-- Icon hiển thị: mắt -->
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                     </button>
+                    <?php if (!empty($errors['confirm_password'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['confirm_password']) ?></p>
+                    <?php endif; ?>
                 </div>
-                <!-- Email -->
-                <div class="mb-4">
-                    <label for="email" class="block mb-1 font-medium">Email:</label>
-                    <input type="email" name="email" id="email" class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>" required
-                        oninvalid="this.setCustomValidity('Email không được để trống!')"
-                        oninput="this.setCustomValidity('')">
-                </div>
-            </div>
-            <!-- Cột phải: thông tin cá nhân và vai trò -->
-            <div class="w-full md:w-1/2 px-2">
-                <!-- Họ và tên -->
-                <div class="mb-4">
-                    <label for="full_name" class="block mb-1 font-medium">Họ và tên:</label>
-                    <input type="text" name="full_name" id="full_name" class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= isset($_POST['full_name']) ? htmlspecialchars($_POST['full_name']) : '' ?>" required
-                        oninvalid="this.setCustomValidity('Họ và tên không được để trống!')"
-                        oninput="this.setCustomValidity('')">
-                </div>
+
                 <!-- Vai trò -->
                 <div class="mb-4">
-                    <label for="role_id" class="block mb-1 font-medium">Vai trò:</label>
-                    <select name="role_id" id="role_id" class="w-full p-2 border border-gray-300 rounded" required
-                        oninvalid="this.setCustomValidity('Vui lòng chọn vai trò!')"
-                        oninput="this.setCustomValidity('')">
+                    <label for="role_id" class="block mb-1 font-medium">
+                        Vai trò <span class="text-red-600">*</span>
+                    </label>
+                    <select name="role_id" id="role_id"
+                        class="w-full p-2 border <?= !empty($errors['role_id']) ? 'border-red-500' : 'border-gray-300'; ?> rounded">
                         <option value="">-- Chọn vai trò --</option>
                         <?php foreach ($roles as $role): ?>
                         <option value="<?= htmlspecialchars($role['role_id']) ?>"
@@ -117,9 +141,13 @@ $roles = getAllRoles($conn);
                         </option>
                         <?php endforeach; ?>
                     </select>
+                    <?php if (!empty($errors['role_id'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['role_id']) ?></p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
+
         <!-- Nút thao tác -->
         <div class="flex justify-end items-center">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
@@ -140,23 +168,21 @@ function togglePassword(fieldId, iconId) {
     var icon = document.getElementById(iconId);
     if (inputField.type === "password") {
         inputField.type = "text";
-        // Thay đổi icon thành "mắt bị gạch" (đang hiển mật khẩu)
         icon.innerHTML = `
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.418 0-8.21-2.943-9.542-7a10.05 10.05 0 012.05-3.45" />
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.418 0-8.21-2.943-9.542-7a10.05 10.05 0 012.05-3.45" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M2 2l20 20" />`;
+                  d="M2 2l20 20" />`;
     } else {
         inputField.type = "password";
-        // Thay đổi icon thành "mắt" (đang ẩn mật khẩu)
         icon.innerHTML =
             `
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
     }
 }
 </script>

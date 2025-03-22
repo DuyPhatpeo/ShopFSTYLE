@@ -17,6 +17,7 @@ if (!$admin) {
     die("Tài khoản không tồn tại.");
 }
 ?>
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
     <!-- Header với tiêu đề và các nút hành động -->

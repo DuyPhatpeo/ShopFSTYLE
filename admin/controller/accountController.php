@@ -1,7 +1,8 @@
 <?php
-// admin/controller/accountController.php
+// File: admin/controller/accountController.php
 
 require_once __DIR__ . '/stringHelper.php';
+require_once __DIR__ . '/roleController.php'; // Để sử dụng các hàm liên quan đến role
 
 /**
  * Tạo ID dạng UUID v4 cho admin.
@@ -51,9 +52,9 @@ function isUsernameExists($conn, $username, $excludeId = null) {
  * Kiểm tra xem email đã tồn tại chưa (loại trừ admin hiện tại nếu cần).
  *
  * @param mysqli $conn Kết nối CSDL.
- * @param string $email Địa chỉ email.
+ * @param string $email Email.
  * @param string|null $excludeId ID cần loại trừ.
- * @return bool True nếu email đã tồn tại.
+ * @return bool True nếu tồn tại.
  */
 function isEmailExists($conn, $email, $excludeId = null) {
     if ($excludeId) {
@@ -86,7 +87,6 @@ function getAdminsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
     $search = trim($search);
     $searchParam = "%" . $search . "%";
 
-    // Đếm tổng số admin
     $sqlCount = "SELECT COUNT(*) as total FROM admin WHERE username LIKE ? OR full_name LIKE ?";
     $stmtCount = $conn->prepare($sqlCount);
     $stmtCount->bind_param("ss", $searchParam, $searchParam);
@@ -95,12 +95,9 @@ function getAdminsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
     $row = $result->fetch_assoc();
     $totalAdmins = (int)($row['total'] ?? 0);
     $totalPages = max(1, ceil($totalAdmins / $limit));
-
-    // Đảm bảo trang hiện tại không vượt quá tổng số trang
     $page = min($page, $totalPages);
     $offset = ($page - 1) * $limit;
 
-    // Lấy danh sách admin, kết hợp thông tin role (join với bảng role)
     $sql = "SELECT a.*, r.role_name 
             FROM admin a
             LEFT JOIN role r ON a.role_id = r.role_id
@@ -133,9 +130,7 @@ function getAdminsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
  */
 function addAdmin($conn, $username, $password, $email, $fullName, $roleId) {
     $admin_id = generateAdminID();
-    // Mã hóa mật khẩu bằng hàm password_hash
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    // Nếu roleId trống, lưu dưới dạng NULL
     $roleId = $roleId !== "" ? $roleId : null;
     $sql = "INSERT INTO admin (admin_id, username, password, email, full_name, role_id)
             VALUES (?, ?, ?, ?, ?, ?)";
@@ -145,13 +140,13 @@ function addAdmin($conn, $username, $password, $email, $fullName, $roleId) {
 }
 
 /**
- * Xử lý thêm admin mới thông qua form.
+ * Xử lý thêm admin mới qua form.
  *
  * @param mysqli $conn Kết nối CSDL.
- * @return string Thông báo lỗi nếu có.
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processAddAdmin($conn) {
-    $error = '';
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username        = trim($_POST['username']);
         $password        = trim($_POST['password']);
@@ -160,31 +155,52 @@ function processAddAdmin($conn) {
         $fullName        = trim($_POST['full_name']);
         $roleId          = isset($_POST['role_id']) ? trim($_POST['role_id']) : "";
 
-        // Kiểm tra dữ liệu bắt buộc (role_id không bắt buộc)
-        if (empty($username) || empty($password) || empty($confirmPassword) || empty($email) || empty($fullName)) {
-            return "Các trường bắt buộc không được để trống.";
-        }
-        if ($password !== $confirmPassword) {
-            return "Mật khẩu và nhập lại mật khẩu không khớp.";
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return "Email không hợp lệ.";
-        }
-        if (isUsernameExists($conn, $username)) {
-            return "Tên đăng nhập đã tồn tại.";
-        }
-        if (isEmailExists($conn, $email)) {
-            return "Email đã tồn tại.";
-        }
-
-        if (addAdmin($conn, $username, $password, $email, $fullName, $roleId)) {
-            header("Location: index.php?msg=added");
-            exit;
+        if (empty($username)) {
+            $errors['username'] = "Tên đăng nhập không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\p{N}]+$/u", $username)) {
+            $errors['username'] = "Tên đăng nhập chỉ được chứa chữ và số (không khoảng trắng).";
         } else {
-            return "Thêm tài khoản thất bại.";
+            if (isUsernameExists($conn, $username)) {
+                $errors['username'] = "Tên đăng nhập đã tồn tại.";
+            }
+        }
+        if (empty($password)) {
+            $errors['password'] = "Mật khẩu không được để trống.";
+        } elseif (strlen($password) < 6) {
+            $errors['password'] = "Mật khẩu phải có tối thiểu 6 ký tự.";
+        }
+        if (empty($confirmPassword)) {
+            $errors['confirm_password'] = "Vui lòng xác nhận lại mật khẩu.";
+        } elseif ($password !== $confirmPassword) {
+            $errors['confirm_password'] = "Mật khẩu và nhập lại mật khẩu không khớp.";
+        }
+        if (empty($email)) {
+            $errors['email'] = "Email không được để trống.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = "Email không hợp lệ.";
+        } else {
+            if (isEmailExists($conn, $email)) {
+                $errors['email'] = "Email đã tồn tại.";
+            }
+        }
+        if (empty($fullName)) {
+            $errors['full_name'] = "Họ và tên không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\s]+$/u", $fullName)) {
+            $errors['full_name'] = "Họ và tên không được chứa số hoặc ký tự đặc biệt.";
+        }
+        if (empty($roleId)) {
+            $errors['role_id'] = "Vui lòng chọn vai trò.";
+        }
+        if (count($errors) === 0) {
+            if (addAdmin($conn, $username, $password, $email, $fullName, $roleId)) {
+                header("Location: index.php?msg=Thêm tài khoản thành công!");
+                exit;
+            } else {
+                $errors['general'] = "Thêm tài khoản thất bại.";
+            }
         }
     }
-    return $error;
+    return $errors;
 }
 
 /**
@@ -192,7 +208,7 @@ function processAddAdmin($conn) {
  *
  * @param mysqli $conn Kết nối CSDL.
  * @param string $admin_id ID admin.
- * @return array|null Mảng thông tin admin.
+ * @return array|null Mảng thông tin admin hoặc null nếu không tìm thấy.
  */
 function getAdminById($conn, $admin_id) {
     $sql = "SELECT a.*, r.role_name FROM admin a LEFT JOIN role r ON a.role_id = r.role_id WHERE admin_id = ?";
@@ -204,24 +220,23 @@ function getAdminById($conn, $admin_id) {
 
 /**
  * Cập nhật thông tin admin.
- * Lưu ý: Tên đăng nhập không được cập nhật, do đó không thay đổi trường username.
+ * Tại trang edit, không cho phép thay đổi username.
  *
  * @param mysqli $conn Kết nối CSDL.
- * @param string $admin_id ID admin cần chỉnh sửa.
- * @param string $username Tên đăng nhập (giữ nguyên).
- * @param string|null $password Mật khẩu mới (nếu cập nhật, nếu không thì để rỗng).
+ * @param string $admin_id ID admin.
  * @param string $email Email.
  * @param string $fullName Họ tên.
- * @param string $roleId ID vai trò (có thể rỗng).
+ * @param string $roleId ID vai trò.
+ * @param string|null $password Mật khẩu mới (nếu cập nhật).
  * @return bool True nếu cập nhật thành công.
  */
-function updateAdmin($conn, $admin_id, $username, $password, $email, $fullName, $roleId) {
+function updateAdmin($conn, $admin_id, $email, $fullName, $roleId, $password = null) {
     $roleId = $roleId !== "" ? $roleId : null;
     if (!empty($password)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $sql = "UPDATE admin SET password = ?, email = ?, full_name = ?, role_id = ? WHERE admin_id = ?";
+        $sql = "UPDATE admin SET email = ?, full_name = ?, role_id = ?, password = ? WHERE admin_id = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssss", $hashedPassword, $email, $fullName, $roleId, $admin_id);
+        $stmt->bind_param("sssss", $email, $fullName, $roleId, $hashedPassword, $admin_id);
     } else {
         $sql = "UPDATE admin SET email = ?, full_name = ?, role_id = ? WHERE admin_id = ?";
         $stmt = $conn->prepare($sql);
@@ -231,51 +246,72 @@ function updateAdmin($conn, $admin_id, $username, $password, $email, $fullName, 
 }
 
 /**
- * Xử lý chỉnh sửa admin thông qua form.
- * Tên đăng nhập không được thay đổi, do đó giữ nguyên từ dữ liệu hiện tại.
+ * Xử lý chỉnh sửa admin qua form.
+ * Tại trang edit, trường username không được thay đổi.
  *
  * @param mysqli $conn Kết nối CSDL.
  * @param string $admin_id ID admin cần chỉnh sửa.
- * @return string Thông báo lỗi nếu có.
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processEditAdmin($conn, $admin_id) {
-    $error = '';
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Lấy thông tin admin hiện tại
         $adminData = getAdminById($conn, $admin_id);
         if (!$adminData) {
-            return "Không tìm thấy tài khoản admin.";
+            $errors['general'] = "Không tìm thấy tài khoản admin.";
+            return $errors;
         }
-        // Giữ nguyên username cũ
-        $username = $adminData['username'];
-        $password = trim($_POST['password']); // Nếu để rỗng thì không cập nhật mật khẩu
-        $confirmPassword = trim($_POST['confirm_password']);
+        // Username không thay đổi nên không cần kiểm tra.
+        // Lấy dữ liệu từ form (email, full name, role, mật khẩu nếu có cập nhật)
         $email    = trim($_POST['email']);
         $fullName = trim($_POST['full_name']);
         $roleId   = isset($_POST['role_id']) ? trim($_POST['role_id']) : "";
+        $password = trim($_POST['password']);
+        $confirmPassword = trim($_POST['confirm_password']);
 
-        // Kiểm tra các trường bắt buộc (username không thay đổi nên chỉ kiểm tra email, fullName)
-        if (empty($email) || empty($fullName)) {
-            return "Các trường bắt buộc không được để trống.";
-        }
-        if (!empty($password) && $password !== $confirmPassword) {
-            return "Mật khẩu và nhập lại mật khẩu không khớp.";
-        }
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return "Email không hợp lệ.";
-        }
-        if (isEmailExists($conn, $email, $admin_id)) {
-            return "Email đã tồn tại.";
-        }
-
-        if (updateAdmin($conn, $admin_id, $username, $password, $email, $fullName, $roleId)) {
-            header("Location: index.php?msg=updated");
-            exit;
+        // Kiểm tra email
+        if (empty($email)) {
+            $errors['email'] = "Email không được để trống.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = "Email không hợp lệ.";
         } else {
-            return "Cập nhật tài khoản thất bại.";
+            if (isEmailExists($conn, $email, $admin_id)) {
+                $errors['email'] = "Email đã tồn tại.";
+            }
+        }
+        // Kiểm tra họ tên
+        if (empty($fullName)) {
+            $errors['full_name'] = "Họ và tên không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\s]+$/u", $fullName)) {
+            $errors['full_name'] = "Họ và tên không được chứa số hoặc ký tự đặc biệt.";
+        }
+        // Kiểm tra vai trò
+        if (empty($roleId)) {
+            $errors['role_id'] = "Vui lòng chọn vai trò.";
+        }
+        // Kiểm tra mật khẩu nếu có nhập
+        if (!empty($password) || !empty($confirmPassword)) {
+            if (empty($password)) {
+                $errors['password'] = "Mật khẩu không được để trống.";
+            } elseif (strlen($password) < 6) {
+                $errors['password'] = "Mật khẩu phải có tối thiểu 6 ký tự.";
+            }
+            if (empty($confirmPassword)) {
+                $errors['confirm_password'] = "Vui lòng xác nhận lại mật khẩu.";
+            } elseif ($password !== $confirmPassword) {
+                $errors['confirm_password'] = "Mật khẩu và nhập lại mật khẩu không khớp.";
+            }
+        }
+        if (count($errors) === 0) {
+            if (updateAdmin($conn, $admin_id, $email, $fullName, $roleId, $password)) {
+                header("Location: index.php?msg=Cập nhật tài khoản thành công!");
+                exit;
+            } else {
+                $errors['general'] = "Cập nhật tài khoản thất bại.";
+            }
         }
     }
-    return $error;
+    return $errors;
 }
 
 /**
@@ -283,17 +319,43 @@ function processEditAdmin($conn, $admin_id) {
  *
  * @param mysqli $conn Kết nối CSDL.
  * @param string $admin_id ID admin cần xóa.
- * @return bool True nếu xóa thành công.
+ * @return bool True nếu xóa thành công, False nếu có lỗi.
  */
 function deleteAdmin($conn, $admin_id) {
     $sql = "DELETE FROM admin WHERE admin_id = ?";
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        error_log("Lỗi prepare statement: " . $conn->error);
+        return false;
+    }
     $stmt->bind_param("s", $admin_id);
-    return $stmt->execute();
+    if (!$stmt->execute()) {
+        error_log("Lỗi khi xóa admin (ID: $admin_id): " . $stmt->error);
+        return false;
+    }
+    return true;
 }
 
 /**
- * Lấy danh sách vai trò từ bảng role để hiển thị trong dropdown.
+ * Xử lý xóa admin từ URL.
+ *
+ * @param mysqli $conn Kết nối CSDL.
+ */
+function processDeleteAdmin($conn) {
+    if (isset($_GET['delete_admin']) && !empty($_GET['delete_admin'])) {
+        $admin_id = $_GET['delete_admin'];
+        if (deleteAdmin($conn, $admin_id)) {
+            header("Location: index.php?msg=Xóa tài khoản thành công!");
+            exit;
+        } else {
+            header("Location: index.php?msg=Không thể xóa tài khoản!");
+            exit;
+        }
+    }
+}
+
+/**
+ * Lấy danh sách vai trò từ bảng role.
  *
  * @param mysqli $conn Kết nối CSDL.
  * @return array Danh sách vai trò.
