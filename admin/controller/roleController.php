@@ -110,39 +110,40 @@ function addRole($conn, $roleName, $status) {
 
 /**
  * Xử lý thêm role từ form.
- * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu có lỗi: trả về mảng lỗi (không redirect).
  * Nếu thành công: redirect về trang danh sách role.
  *
  * @param mysqli $conn
- * @return string|null Lỗi (nếu có)
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processAddRole($conn) {
-    $error = null;
-
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $roleName = trim($_POST['role_name']);
+        $roleName = trim($_POST['role_name'] ?? '');
         $status   = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
-        // Kiểm tra trường tên không được để trống
+        // Kiểm tra trường tên
         if (empty($roleName)) {
-            $error = "Tên vai trò không được để trống.";
-        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
-            $error = "Tên vai trò không được chứa ký tự đặc biệt.";
+            $errors['role_name'] = "Tên vai trò không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $roleName)) {
+            $errors['role_name'] = "Tên vai trò không được chứa ký tự đặc biệt.";
         } elseif (isRoleNameExists($conn, $roleName)) {
-            $error = "Tên vai trò đã tồn tại.";
-        } elseif ($status !== 1 && $status !== 2) {
-            $error = "Trạng thái không hợp lệ.";
-        } else {
+            $errors['role_name'] = "Tên vai trò đã tồn tại.";
+        }
+        if ($status !== 1 && $status !== 2) {
+            $errors['status'] = "Trạng thái không hợp lệ.";
+        }
+
+        if (empty($errors)) {
             if (addRole($conn, $roleName, $status)) {
                 header("Location: index.php?msg=Thêm vai trò thành công!&type=success");
                 exit;
             } else {
-                $error = "Thêm vai trò thất bại.";
+                $errors['general'] = "Thêm vai trò thất bại.";
             }
         }
     }
-
-    return $error;
+    return $errors;
 }
 
 /**
@@ -162,30 +163,32 @@ function getRoleById($conn, $role_id) {
 
 /**
  * Xử lý chỉnh sửa role từ form.
- * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu có lỗi: trả về mảng lỗi (không redirect).
  * Nếu thành công: redirect về trang danh sách role.
  *
  * @param mysqli $conn
  * @param string $role_id
- * @return string|null Lỗi (nếu có)
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processEditRole($conn, $role_id) {
-    $error = null;
-
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $roleName = trim($_POST['role_name']);
+        $roleName = trim($_POST['role_name'] ?? '');
         $status   = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
-        // Kiểm tra trường tên không được để trống
+        // Kiểm tra trường tên
         if (empty($roleName)) {
-            $error = "Tên vai trò không được để trống.";
-        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $roleName)) {
-            $error = "Tên vai trò không được chứa ký tự đặc biệt.";
+            $errors['role_name'] = "Tên vai trò không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $roleName)) {
+            $errors['role_name'] = "Tên vai trò không được chứa ký tự đặc biệt.";
         } elseif (isRoleNameExists($conn, $roleName, $role_id)) {
-            $error = "Tên vai trò đã tồn tại.";
-        } elseif ($status !== 1 && $status !== 2) {
-            $error = "Trạng thái không hợp lệ.";
-        } else {
+            $errors['role_name'] = "Tên vai trò đã tồn tại.";
+        }
+        if ($status !== 1 && $status !== 2) {
+            $errors['status'] = "Trạng thái không hợp lệ.";
+        }
+
+        if (empty($errors)) {
             $sql = "UPDATE role SET role_name = ?, status = ? WHERE role_id = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("sis", $roleName, $status, $role_id);
@@ -193,12 +196,11 @@ function processEditRole($conn, $role_id) {
                 header("Location: index.php?msg=Cập nhật vai trò thành công!&type=success");
                 exit;
             } else {
-                $error = "Cập nhật vai trò thất bại.";
+                $errors['general'] = "Cập nhật vai trò thất bại.";
             }
         }
     }
-
-    return $error;
+    return $errors;
 }
 
 /**
@@ -217,26 +219,24 @@ function deleteRole($conn, $role_id) {
 
 /**
  * Xử lý xóa role từ form.
- * Nếu có lỗi: trả về thông báo lỗi (không redirect).
+ * Nếu có lỗi: trả về mảng lỗi (không redirect).
  * Nếu thành công: redirect về trang danh sách role.
  *
  * @param mysqli $conn
  * @param string $role_id
- * @return string|null Lỗi (nếu có)
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processDeleteRole($conn, $role_id) {
-    $error = null;
-
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (deleteRole($conn, $role_id)) {
             header("Location: index.php?msg=Xóa vai trò thành công!&type=success");
             exit;
         } else {
-            $error = "Xóa vai trò thất bại.";
+            $errors['general'] = "Xóa vai trò thất bại.";
         }
     }
-
-    return $error;
+    return $errors;
 }
 
 /**

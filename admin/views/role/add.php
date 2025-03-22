@@ -1,13 +1,16 @@
 <?php
+// File: admin/views/role/add.php
+
 // Bật output buffering để tránh lỗi "headers already sent"
 ob_start();
 
 include("../../includes/header.php");
-require_once('../../../includes/db.php'); // Kết nối CSDL
+require_once('../../../includes/db.php');         // Kết nối CSDL
 require_once('../../controller/roleController.php'); // File controller role
 
-// Gọi hàm xử lý thêm vai trò, nếu thêm thành công sẽ chuyển hướng về index.php
-$error = processAddRole($conn);
+// Gọi hàm xử lý thêm vai trò, nếu thêm thành công sẽ chuyển hướng
+// Hàm processAddRole() trả về mảng lỗi (rỗng nếu không có lỗi)
+$errors = processAddRole($conn);
 ?>
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
@@ -18,27 +21,23 @@ $error = processAddRole($conn);
         </div>
         <a href="index.php" class="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5 mr-1" fill="currentColor">
-                <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160
-                    160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8
-                    0-45.3L109.2 288 416 288c17.7 0 32-14.3
-                    32-32s-14.3-32-32-32L109.2 224 214.6
-                    118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3
-                    0l-160 160z" />
+                <path
+                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32L109.2 224 214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
             </svg>
             <span class="hidden md:inline-block">Quay lại</span>
         </a>
     </div>
 
-    <!-- Hiển thị lỗi chung nếu có (ngoại trừ lỗi "không được để trống") -->
-    <?php if ($error && strpos($error, "không được để trống") === false): ?>
+    <!-- Hiển thị lỗi chung nếu có -->
+    <?php if (!empty($errors['general'])): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
+        <?= htmlspecialchars($errors['general']) ?>
     </div>
     <?php endif; ?>
 
     <!-- Form thêm vai trò -->
     <form method="POST" action="">
-        <!-- Chia form thành 2 cột -->
+        <!-- Chia form thành 2 cột (ở đây chỉ có trường mô tả tuỳ chọn bên cột phải) -->
         <div class="flex flex-wrap -mx-2 mb-4">
             <!-- Cột trái: Tên vai trò và Trạng thái -->
             <div class="w-full md:w-1/2 px-2">
@@ -48,14 +47,12 @@ $error = processAddRole($conn);
                         Tên vai trò:
                         <span class="text-red-600">*</span>
                     </label>
-                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
-                    <div class="text-red-500 text-sm mb-1">
-                        <?= htmlspecialchars($error) ?>
-                    </div>
-                    <?php endif; ?>
-                    <!-- Bỏ 'required' để không xuất hiện thông báo mặc định của trình duyệt -->
-                    <input type="text" name="role_name" id="role_name" class="w-full p-2 border border-gray-300 rounded"
+                    <input type="text" name="role_name" id="role_name"
+                        class="w-full p-2 border <?= !empty($errors['role_name']) ? 'border-red-500' : 'border-gray-300'; ?> rounded"
                         value="<?= isset($_POST['role_name']) ? htmlspecialchars($_POST['role_name']) : '' ?>">
+                    <?php if (!empty($errors['role_name'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['role_name']) ?></p>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Trạng thái -->
@@ -64,7 +61,8 @@ $error = processAddRole($conn);
                         Trạng thái:
                         <span class="text-red-600">*</span>
                     </label>
-                    <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
+                    <select name="status" id="status"
+                        class="w-full p-2 border <?= !empty($errors['status']) ? 'border-red-500' : 'border-gray-300'; ?> rounded">
                         <option value="1" <?= (isset($_POST['status']) && $_POST['status'] == 1) ? 'selected' : '' ?>>
                             Hoạt động
                         </option>
@@ -72,6 +70,9 @@ $error = processAddRole($conn);
                             Không hoạt động
                         </option>
                     </select>
+                    <?php if (!empty($errors['status'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['status']) ?></p>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -89,9 +90,8 @@ $error = processAddRole($conn);
         <div class="flex justify-end items-center">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12
-                    19c-1.66 0-3-1.34-3-3s1.34-3 3-3
-                    3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
+                    <path d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12 19c-1.66 0-3-1.34-3-3
+                             s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
                 </svg>
                 Thêm vai trò
             </button>
