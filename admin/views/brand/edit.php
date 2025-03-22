@@ -22,6 +22,8 @@ if (!$brand) {
 // Xử lý form chỉnh sửa thương hiệu
 $error = processEditBrand($conn, $brand_id);
 ?>
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
+
 <main class="container mx-auto p-6">
     <!-- Header: Tiêu đề và nút Quay lại -->
     <div class="flex justify-between items-center mb-4">

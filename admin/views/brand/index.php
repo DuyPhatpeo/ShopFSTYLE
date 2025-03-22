@@ -15,7 +15,7 @@ $totalPages   = $data['totalPages'];
 $currentPage  = $data['currentPage'];
 $totalBrands  = $data['totalBrands'];
 ?>
-
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 <main>
     <div class="container mx-auto p-6">
         <!-- Header: Tiêu đề và nút Thêm thương hiệu -->

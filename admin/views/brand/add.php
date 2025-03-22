@@ -11,6 +11,7 @@ require_once('../../controller/brandController.php'); // File controller thươn
 // Gọi hàm xử lý thêm thương hiệu, nếu thêm thành công sẽ chuyển hướng về index.php
 $error = processAddBrand($conn);
 ?>
+<!-- Hiển thị thông báo -->
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">

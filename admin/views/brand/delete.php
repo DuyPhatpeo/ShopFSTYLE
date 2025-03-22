@@ -8,27 +8,22 @@ require_once('../../controller/brandController.php'); // File xử lý thương 
 
 // Kiểm tra sự tồn tại của biến GET id
 if (!isset($_GET['id'])) {
-    header("Location: index.php?msg=invalid_id");
+    header("Location: index.php?msg=ID thương hiệu không hợp lệ.&type=failure");
     exit;
 }
 
 $brand_id = $_GET['id'];
 $brand = getBrandById($conn, $brand_id);
 if (!$brand) {
-    header("Location: index.php?msg=brand_not_found");
+    header("Location: index.php?msg=Thương hiệu không tồn tại.&type=failure");
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (deleteBrand($conn, $brand_id)) {
-        // Sau khi xóa, chuyển hướng về trang danh sách
-        header("Location: index.php?msg=deleted");
-        exit;
-    } else {
-        $error = "Xóa thương hiệu thất bại. Vui lòng thử lại.";
-    }
+    processDeleteBrand($conn, $role_id);
 }
 ?>
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
     <!-- Header: Tiêu đề và nút Quay lại -->
