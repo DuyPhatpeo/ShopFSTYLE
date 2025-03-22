@@ -2,7 +2,7 @@
 require_once __DIR__ . '/stringHelper.php';
 
 /**
- * Tạo ID dạng UUID v4 (có thể dùng chung với category).
+ * Tạo ID dạng UUID v4.
  *
  * @return string
  */
@@ -22,12 +22,15 @@ function generateUCCID() {
 }
 
 /**
- * Lấy danh sách banner theo phân trang (tùy chọn có thể tìm kiếm theo link hoặc cột khác).
+ * Lấy danh sách banner theo phân trang.
+ *
+ * Nếu có từ khóa tìm kiếm, sẽ dùng điều kiện WHERE link LIKE ?.
+ * Nếu không có từ khóa, sẽ lấy tất cả các banner (bao gồm cả những banner có link NULL).
  *
  * @param mysqli $conn Kết nối CSDL
  * @param int $page Trang hiện tại
  * @param int $limit Số banner trên mỗi trang
- * @param string $search Từ khóa tìm kiếm (ví dụ tìm trong cột link)
+ * @param string $search Từ khóa tìm kiếm
  * @return array
  */
 function getBannersWithPagination($conn, $page = 1, $limit = 10, $search = "") {
@@ -35,28 +38,40 @@ function getBannersWithPagination($conn, $page = 1, $limit = 10, $search = "") {
     $limit  = max(1, (int)$limit);
     $search = trim($search);
 
-    // Đếm tổng số banner
-    $sqlCount = "SELECT COUNT(*) as total FROM banner WHERE link LIKE ?";
-    $stmtCount = $conn->prepare($sqlCount);
-    $searchParam = "%" . $search . "%";
-    $stmtCount->bind_param("s", $searchParam);
-    $stmtCount->execute();
-    $resultCount = $stmtCount->get_result();
-    $rowCount    = $resultCount->fetch_assoc();
-    $totalBanners = (int)($rowCount['total'] ?? 0);
+    if ($search !== "") {
+        $sqlCount = "SELECT COUNT(*) as total FROM banner WHERE link LIKE ?";
+        $searchParam = "%" . $search . "%";
+        $stmtCount = $conn->prepare($sqlCount);
+        $stmtCount->bind_param("s", $searchParam);
+        $stmtCount->execute();
+        $resultCount = $stmtCount->get_result();
+        $rowCount = $resultCount->fetch_assoc();
+        $totalBanners = (int)($rowCount['total'] ?? 0);
+    } else {
+        $sqlCount = "SELECT COUNT(*) as total FROM banner";
+        $resultCount = $conn->query($sqlCount);
+        $rowCount = $resultCount->fetch_assoc();
+        $totalBanners = (int)($rowCount['total'] ?? 0);
+    }
 
     $totalPages = max(1, ceil($totalBanners / $limit));
-    $page       = min($page, $totalPages);
-    $offset     = ($page - 1) * $limit;
+    $page = min($page, $totalPages);
+    $offset = ($page - 1) * $limit;
 
-    // Lấy danh sách banner
-    $sql = "SELECT * 
-            FROM banner
-            WHERE link LIKE ?
-            ORDER BY banner_id DESC
-            LIMIT ? OFFSET ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sii", $searchParam, $limit, $offset);
+    if ($search !== "") {
+        $sql = "SELECT * FROM banner
+                WHERE link LIKE ?
+                ORDER BY banner_id DESC
+                LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sii", $searchParam, $limit, $offset);
+    } else {
+        $sql = "SELECT * FROM banner
+                ORDER BY banner_id DESC
+                LIMIT ? OFFSET ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $limit, $offset);
+    }
     $stmt->execute();
     $banners = $stmt->get_result();
 
@@ -69,27 +84,28 @@ function getBannersWithPagination($conn, $page = 1, $limit = 10, $search = "") {
 }
 
 /**
- * Thêm banner mới.
+ * Thêm banner mới vào DB.
  *
- * @param mysqli $conn
- * @param string|null $imageUrl  Đường dẫn ảnh (sau khi upload)
- * @param string|null $link      Link đích (cho phép để trống)
- * @param int         $status    Trạng thái (1 = hiển thị, 2 = ẩn)
- * @return bool
+ * @param mysqli $conn Kết nối DB.
+ * @param string $bannerName Tên banner.
+ * @param string|null $imageUrl Đường dẫn ảnh.
+ * @param string|null $link Link đích (cho phép rỗng).
+ * @param int $status Trạng thái (1=Hiển thị, 2=Ẩn).
+ * @return bool True nếu thêm thành công.
  */
-function addBanner($conn, $imageUrl, $link, $status) {
+function addBanner($conn, $bannerName, $imageUrl, $link, $status) {
     $banner_id = generateUCCID();
-    $sql = "INSERT INTO banner (banner_id, image_url, link, status)
-            VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO banner (banner_id, banner_name, image_url, link, status)
+            VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssi", $banner_id, $imageUrl, $link, $status);
+    $stmt->bind_param("ssssi", $banner_id, $bannerName, $imageUrl, $link, $status);
     return $stmt->execute();
 }
 
 /**
- * Lấy banner theo ID.
+ * Lấy thông tin banner theo ID.
  *
- * @param mysqli $conn
+ * @param mysqli $conn Kết nối DB.
  * @param string $banner_id
  * @return array|null
  */
@@ -104,21 +120,37 @@ function getBannerById($conn, $banner_id) {
 /**
  * Xử lý thêm banner qua form.
  *
- * @param mysqli $conn
- * @return string Thông báo lỗi (nếu có)
+ * Nếu có lỗi (ví dụ tên hoặc ảnh để trống, hoặc tên chứa ký tự đặc biệt), trả về thông báo lỗi dưới dạng chuỗi.
+ * Nếu thành công, chuyển hướng sang trang index.
+ *
+ * @param mysqli $conn Kết nối DB.
+ * @return string|null Thông báo lỗi nếu có, hoặc null nếu không có lỗi.
  */
 function processAddBanner($conn) {
-    $error = '';
+    $error = null;
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Lấy tên banner, bắt buộc không được để trống và không chứa ký tự đặc biệt như @, #
+        $bannerName = trim($_POST['banner_name'] ?? '');
+        if (empty($bannerName)) {
+            $error = "Tên banner không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $bannerName)) {
+            $error = "Tên banner không được chứa ký tự đặc biệt như @, #, v.v.";
+        }
+        
+        // Kiểm tra xem đã chọn ảnh chưa (không cho phép để trống)
+        if (empty($_FILES['image']['name'])) {
+            $error = "Ảnh banner không được để trống.";
+        }
+        
+        // Lấy link (cho phép rỗng) và trạng thái
         $link = trim($_POST['link'] ?? '');
         if ($link === '') {
-            $link = null; // Cho phép link rỗng, lưu dưới dạng NULL
+            $link = null;
         }
         $status = (int)($_POST['status'] ?? 1);
 
-        // Upload ảnh nếu có
-        $imageUrl = null;
-        if (!empty($_FILES['image']['name'])) {
+        // Chỉ tiến hành upload ảnh nếu không có lỗi
+        if (!$error) {
             $targetDir = __DIR__ . '/../uploads/banners/';
             if (!is_dir($targetDir)) {
                 mkdir($targetDir, 0755, true);
@@ -126,44 +158,56 @@ function processAddBanner($conn) {
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $filename  = 'banner_' . time() . '.' . $extension;
             $filePath  = $targetDir . $filename;
-            move_uploaded_file($_FILES['image']['tmp_name'], $filePath);
-            $imageUrl = 'admin/uploads/banners/' . $filename;
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
+                $imageUrl = 'admin/uploads/banners/' . $filename;
+            } else {
+                $error = "Upload ảnh không thành công.";
+            }
         }
 
-        // Thực hiện thêm banner
-        if (addBanner($conn, $imageUrl, $link, $status)) {
-            header("Location: index.php?msg=added_banner");
-            exit;
-        } else {
-            $error = "Thêm banner thất bại.";
+        if (!$error) {
+            if (addBanner($conn, $bannerName, $imageUrl, $link, $status)) {
+                header("Location: index.php?msg=Thêm banner thành công!&type=success");
+                exit;
+            } else {
+                $error = "Thêm banner thất bại.";
+            }
         }
     }
     return $error;
 }
 
 /**
- * Xử lý cập nhật banner.
+ * Xử lý cập nhật banner qua form.
  *
- * @param mysqli $conn
+ * Nếu có lỗi, trả về thông báo lỗi.
+ * Nếu thành công, chuyển hướng sang trang index.
+ *
+ * @param mysqli $conn Kết nối DB.
  * @param string $banner_id
- * @return string Thông báo lỗi (nếu có)
+ * @return string|null Thông báo lỗi nếu có, hoặc null nếu không có lỗi.
  */
 function processEditBanner($conn, $banner_id) {
-    $error = '';
+    $error = null;
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $bannerName = trim($_POST['banner_name'] ?? '');
+        if (empty($bannerName)) {
+            $error = "Tên banner không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $bannerName)) {
+            $error = "Tên banner không được chứa ký tự đặc biệt như @, #, v.v.";
+        }
+
         $link = trim($_POST['link'] ?? '');
         if ($link === '') {
-            $link = null; // Cho phép link rỗng, lưu dưới dạng NULL
+            $link = null;
         }
         $status = (int)($_POST['status'] ?? 1);
 
-        // Lấy banner hiện tại để xóa ảnh cũ nếu upload mới
         $currentBanner = getBannerById($conn, $banner_id);
         $imageUrl = $currentBanner['image_url'] ?? null;
 
-        // Nếu có upload ảnh mới
+        // Nếu có upload ảnh mới, xoá ảnh cũ và thay thế bằng ảnh mới
         if (!empty($_FILES['image']['name'])) {
-            // Xóa ảnh cũ nếu tồn tại
             if ($currentBanner && !empty($currentBanner['image_url'])) {
                 $oldImagePath = __DIR__ . '/../../' . $currentBanner['image_url'];
                 if (file_exists($oldImagePath)) {
@@ -177,46 +221,74 @@ function processEditBanner($conn, $banner_id) {
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $filename  = 'banner_' . time() . '.' . $extension;
             $filePath  = $targetDir . $filename;
-            move_uploaded_file($_FILES['image']['tmp_name'], $filePath);
-            $imageUrl = 'admin/uploads/banners/' . $filename;
+            if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
+                $imageUrl = 'admin/uploads/banners/' . $filename;
+            } else {
+                $error = "Upload ảnh mới không thành công.";
+            }
+        } else {
+            // Nếu không có ảnh mới và banner hiện tại không có ảnh, báo lỗi
+            if (empty($imageUrl)) {
+                $error = "Ảnh banner không được để trống.";
+            }
         }
 
-        // Thực hiện cập nhật
-        $sql = "UPDATE banner
-                SET image_url = ?, link = ?, status = ?
-                WHERE banner_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssis", $imageUrl, $link, $status, $banner_id);
-        if ($stmt->execute()) {
-            header("Location: index.php?msg=updated_banner");
-            exit;
-        } else {
-            $error = "Cập nhật banner thất bại.";
+        if (!$error) {
+            $sql = "UPDATE banner
+                    SET banner_name = ?, image_url = ?, link = ?, status = ?
+                    WHERE banner_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssis", $bannerName, $imageUrl, $link, $status, $banner_id);
+            if ($stmt->execute()) {
+                header("Location: index.php?msg=Cập nhật banner thành công!&type=success");
+                exit;
+            } else {
+                $error = "Cập nhật banner thất bại.";
+            }
         }
     }
     return $error;
 }
 
 /**
- * Xóa banner (xóa luôn file ảnh nếu có).
+ * Xử lý xóa banner qua form.
  *
- * @param mysqli $conn
+ * @param mysqli $conn Kết nối DB.
  * @param string $banner_id
- * @return bool
+ * @return string|null Thông báo lỗi nếu có, hoặc null nếu thành công.
+ */
+function processDeleteBanner($conn, $banner_id) {
+    $error = null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (deleteBanner($conn, $banner_id)) {
+            header("Location: index.php?msg=Xóa banner thành công!&type=success");
+            exit;
+        } else {
+            $error = "Xóa banner thất bại.";
+        }
+    }
+    return $error;
+}
+
+/**
+ * Xử lý xóa banner (bao gồm cả file ảnh nếu có) từ thư mục uploads/banners.
+ *
+ * @param mysqli $conn Kết nối DB.
+ * @param string $banner_id
+ * @return bool True nếu xóa thành công.
  */
 function deleteBanner($conn, $banner_id) {
-    // Lấy thông tin banner để xóa file ảnh
     $currentBanner = getBannerById($conn, $banner_id);
     if ($currentBanner && !empty($currentBanner['image_url'])) {
-        $physicalPath = __DIR__ . '/../../' . $currentBanner['image_url'];
+        $uploadDir = realpath(__DIR__ . '/../uploads/banners/');
+        $physicalPath = $uploadDir . '/' . basename($currentBanner['image_url']);
         if (file_exists($physicalPath)) {
             unlink($physicalPath);
         }
     }
-
-    // Xóa banner khỏi DB
     $sql = "DELETE FROM banner WHERE banner_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $banner_id);
     return $stmt->execute();
 }
+?>

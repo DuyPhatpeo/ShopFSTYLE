@@ -20,15 +20,10 @@ if (!$banner) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (deleteBanner($conn, $banner_id)) {
-        // Sau khi xóa, chuyển hướng về trang danh sách banner
-        header("Location: index.php?msg=deleted_banner");
-        exit;
-    } else {
-        $error = "Xóa banner thất bại. Vui lòng thử lại.";
-    }
+    processDeleteBanner($conn, $banner_id);
 }
 ?>
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
     <!-- Header: Tiêu đề và nút Quay lại -->

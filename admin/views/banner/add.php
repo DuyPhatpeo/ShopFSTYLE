@@ -27,7 +27,7 @@ $error = processAddBanner($conn);
         </a>
     </div>
 
-    <?php if ($error): ?>
+    <?php if ($error && stripos($error, "không được để trống") === false): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
         <?= htmlspecialchars($error) ?>
     </div>
@@ -45,6 +45,23 @@ $error = processAddBanner($conn);
                         value="<?= isset($_POST['link']) ? htmlspecialchars($_POST['link']) : '' ?>"
                         placeholder="https://example.com/...">
                 </div>
+                <!-- Tên Banner -->
+                <div class="mb-4">
+                    <label for="banner_name" class="block mb-1 font-medium">
+                        Tên Banner:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && stripos($error, "Tên Banner không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                    <?php endif; ?>
+                    <!-- Bỏ 'required' để tránh thông báo mặc định của trình duyệt -->
+                    <input type="text" name="banner_name" id="banner_name"
+                        class="w-full p-2 border border-gray-300 rounded"
+                        value="<?= isset($_POST['banner_name']) ? htmlspecialchars($_POST['banner_name']) : '' ?>"
+                        placeholder="Nhập tên banner">
+                </div>
                 <!-- Trạng thái -->
                 <div class="mb-4">
                     <label for="status" class="block mb-1 font-medium">Trạng thái:</label>
@@ -61,26 +78,39 @@ $error = processAddBanner($conn);
 
             <!-- Cột phải: phần upload ảnh -->
             <div class="w-full md:w-1/2 px-2">
-                <label for="image" class="block mb-1 font-medium">Hình ảnh:</label>
-                <!-- Vùng upload có kích thước cố định, canh giữa -->
-                <div id="uploadArea"
-                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer
-                           hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
-                    style="position: relative;">
-                    <!-- Placeholder ban đầu -->
-                    <div id="uploadPlaceholder"
-                        class="absolute flex flex-col items-center justify-center pointer-events-none">
-                        <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                            <path d="M28 8H20v8H8v20h32V16H28V8z" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-600">Chọn ảnh hoặc kéo thả</p>
+                <div class="mb-4">
+                    <label for="image" class="block mb-1 font-medium">
+                        Hình ảnh Banner:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && stripos($error, "Hình ảnh không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
                     </div>
-                    <!-- Phần preview ảnh, ban đầu ẩn -->
-                    <img id="imagePreview" src="#" alt="Xem trước ảnh" class="hidden object-contain w-full h-full" />
-                    <!-- Input file luôn có mặt -->
-                    <input type="file" name="image" id="image" accept="image/*"
-                        class="absolute inset-0 opacity-0 cursor-pointer">
+                    <?php endif; ?>
+                    <!-- Vùng upload có kích thước cố định, canh giữa -->
+                    <div id="uploadArea"
+                        class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer
+                               hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
+                        style="position: relative;">
+                        <!-- Placeholder ban đầu -->
+                        <div id="uploadPlaceholder"
+                            class="absolute flex flex-col items-center justify-center pointer-events-none">
+                            <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H20v8H8v20h32V16H28V8z" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-600">Chọn ảnh hoặc kéo thả</p>
+                        </div>
+                        <!-- Phần preview ảnh, ban đầu ẩn -->
+                        <img id="imagePreview" src="#" alt="Xem trước ảnh"
+                            class="hidden object-contain w-full h-full" />
+                        <!-- Hiển thị tên ảnh đã chọn -->
+                        <p id="imageName" class="text-sm text-gray-600 mt-2 hidden text-center truncate w-full"></p>
+                        <!-- Input file luôn có mặt -->
+                        <input type="file" name="image" id="image" accept="image/*"
+                            class="absolute inset-0 opacity-0 cursor-pointer">
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,10 +144,15 @@ document.getElementById('image').addEventListener('change', function() {
             document.getElementById('uploadPlaceholder').style.display = 'none';
         }
         reader.readAsDataURL(file);
+        // Hiển thị tên ảnh
+        var imageName = document.getElementById('imageName');
+        imageName.textContent = file.name;
+        imageName.classList.remove('hidden');
     } else {
-        // Nếu không có file nào được chọn, hiện lại placeholder và ẩn preview
+        // Nếu không có file nào được chọn, hiện lại placeholder và ẩn preview, tên ảnh
         document.getElementById('uploadPlaceholder').style.display = 'flex';
         document.getElementById('imagePreview').classList.add('hidden');
+        document.getElementById('imageName').classList.add('hidden');
     }
 });
 
@@ -137,7 +172,7 @@ uploadArea.addEventListener('drop', function(e) {
     var dt = e.dataTransfer;
     var files = dt.files;
     document.getElementById('image').files = files;
-    // Kích hoạt sự kiện change để hiển thị preview
+    // Kích hoạt sự kiện change để hiển thị preview và tên ảnh
     var event = new Event('change');
     document.getElementById('image').dispatchEvent(event);
 });

@@ -16,6 +16,8 @@ $currentPage   = $data['currentPage'];
 $totalBanners  = $data['totalBanners'];
 ?>
 
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
+
 <main>
     <div class="container mx-auto p-6">
         <!-- Tiêu đề và nút Thêm banner -->
@@ -49,13 +51,14 @@ $totalBanners  = $data['totalBanners'];
             </form>
         </div>
 
-        <!-- Bảng hiển thị Banner (bỏ cột Mã Banner) -->
+        <!-- Bảng hiển thị Banner với cột Tên Ảnh (dùng banner_name) -->
         <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
             <table class="w-full border-collapse text-sm sm:text-base">
                 <thead class="sticky top-0 z-10 bg-indigo-500 text-white">
                     <tr>
                         <th class="p-2 sm:p-3 text-left">STT</th>
                         <th class="p-2 sm:p-3 text-center">Ảnh</th>
+                        <th class="p-2 sm:p-3 text-left">Tên Ảnh</th>
                         <th class="p-2 sm:p-3 text-left">Link</th>
                         <!-- Ẩn cột Trạng thái trên mobile -->
                         <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Trạng thái</th>
@@ -65,7 +68,7 @@ $totalBanners  = $data['totalBanners'];
                 <tbody class="text-gray-700">
                     <?php if ($banners->num_rows > 0) : ?>
                     <?php 
-                        // Tính số thứ tự bắt đầu dựa vào trang hiện tại
+                        // Tính số thứ tự dựa vào trang hiện tại
                         $stt = ($currentPage - 1) * $limit + 1;
                         while ($banner = $banners->fetch_assoc()) : 
                             $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
@@ -74,12 +77,15 @@ $totalBanners  = $data['totalBanners'];
                         <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
                         <td class="p-2 sm:p-3 text-center align-middle">
                             <?php if (!empty($banner['image_url'])): ?>
-                            <!-- Ảnh với kích thước: w-32 h-32 -->
+                            <!-- Hiển thị ảnh với kích thước: w-32 h-32 -->
                             <img src="../../../<?= htmlspecialchars($banner['image_url']) ?>" alt="Banner"
                                 class="w-32 h-32 object-cover rounded mx-auto">
                             <?php else: ?>
                             <span class="text-gray-500 text-xs">No image</span>
                             <?php endif; ?>
+                        </td>
+                        <td class="p-2 sm:p-3 align-middle">
+                            <?= htmlspecialchars($banner['banner_name']) ?>
                         </td>
                         <td class="p-2 sm:p-3 font-medium align-middle">
                             <?= htmlspecialchars($banner['link']) ?>
@@ -97,7 +103,6 @@ $totalBanners  = $data['totalBanners'];
                             ?>
                         </td>
                         <td class="p-2 sm:p-3 text-center align-middle">
-                            <!-- Nút hành động được sắp xếp theo dạng dọc trên mobile -->
                             <div class="flex flex-col sm:flex-row gap-1 justify-center items-center">
                                 <a href="edit.php?id=<?= urlencode($banner['banner_id']) ?>"
                                     class="bg-yellow-200 hover:bg-yellow-300 w-10 h-10 flex items-center justify-center rounded-lg shadow-md transition"
@@ -128,7 +133,7 @@ $totalBanners  = $data['totalBanners'];
                     <?php endwhile; ?>
                     <?php else : ?>
                     <tr>
-                        <td colspan="5" class="p-3 text-center text-gray-500">
+                        <td colspan="6" class="p-3 text-center text-gray-500">
                             Không tìm thấy banner nào.
                         </td>
                     </tr>

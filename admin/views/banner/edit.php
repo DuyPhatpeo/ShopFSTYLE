@@ -23,6 +23,7 @@ if (!$banner) {
 // Xử lý form chỉnh sửa banner
 $error = processEditBanner($conn, $banner_id);
 ?>
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
     <!-- Header: Tiêu đề và nút Quay lại -->
@@ -43,7 +44,8 @@ $error = processEditBanner($conn, $banner_id);
         </a>
     </div>
 
-    <?php if ($error): ?>
+    <!-- Nếu lỗi không thuộc trường 'không được để trống' thì hiển thị thông báo lỗi chung -->
+    <?php if ($error && stripos($error, "không được để trống") === false): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
         <?= htmlspecialchars($error) ?>
     </div>
@@ -55,12 +57,29 @@ $error = processEditBanner($conn, $banner_id);
         <div class="flex flex-wrap -mx-2 mb-4">
             <!-- Cột trái: các trường thông tin -->
             <div class="w-full md:w-1/2 px-2">
-                <!-- Link banner -->
+                <!-- Link banner (cho phép để trống) -->
                 <div class="mb-4">
                     <label for="link" class="block mb-1 font-medium">Link Banner:</label>
                     <input type="text" name="link" id="link" class="w-full p-2 border border-gray-300 rounded"
                         value="<?= isset($_POST['link']) ? htmlspecialchars($_POST['link']) : htmlspecialchars($banner['link']) ?>"
-                        required>
+                        placeholder="https://example.com/...">
+                </div>
+                <!-- Tên Banner (bắt buộc, validate qua PHP) -->
+                <div class="mb-4">
+                    <label for="banner_name" class="block mb-1 font-medium">
+                        Tên Banner:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && stripos($error, "Tên Banner không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                    <?php endif; ?>
+                    <!-- Không dùng 'required' để tránh thông báo mặc định của trình duyệt -->
+                    <input type="text" name="banner_name" id="banner_name"
+                        class="w-full p-2 border border-gray-300 rounded"
+                        value="<?= isset($_POST['banner_name']) ? htmlspecialchars($_POST['banner_name']) : htmlspecialchars($banner['banner_name']) ?>"
+                        placeholder="Nhập tên banner">
                 </div>
                 <!-- Trạng thái -->
                 <div class="mb-4">
@@ -75,40 +94,52 @@ $error = processEditBanner($conn, $banner_id);
                     </select>
                 </div>
             </div>
+
             <!-- Cột phải: phần upload ảnh -->
             <div class="w-full md:w-1/2 px-2">
-                <label for="image" class="block mb-1 font-medium">Hình ảnh:</label>
-                <div id="uploadArea"
-                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
-                    style="position: relative;">
-                    <?php if (!empty($banner['image_url'])): ?>
-                    <img id="imagePreview" src="../../../<?= htmlspecialchars($banner['image_url']) ?>" alt="Ảnh banner"
-                        class="object-contain w-full h-full">
-                    <div id="uploadPlaceholder"
-                        class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-                        style="display: none;">
-                        <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                            <path d="M28 8H20v8H8v20h32V16H28V8z" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-600">Chọn ảnh hoặc kéo thả</p>
+                <div class="mb-4">
+                    <label for="image" class="block mb-1 font-medium">
+                        Hình ảnh:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && stripos($error, "ảnh banner không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
                     </div>
-                    <?php else: ?>
-                    <div id="uploadPlaceholder"
-                        class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                            <path d="M28 8H20v8H8v20h32V16H28V8z" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                        <p class="mt-2 text-sm text-gray-600">Chọn ảnh hoặc kéo thả</p>
-                    </div>
-                    <img id="imagePreview" src="#" alt="Xem trước ảnh" class="hidden object-contain w-full h-full">
                     <?php endif; ?>
-                    <input type="file" name="image" id="image" accept="image/*"
-                        class="absolute inset-0 opacity-0 cursor-pointer">
+                    <div id="uploadArea"
+                        class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
+                        style="position: relative;">
+                        <?php if (!empty($banner['image_url'])): ?>
+                        <img id="imagePreview" src="../../../<?= htmlspecialchars($banner['image_url']) ?>"
+                            alt="Ảnh banner" class="object-contain w-full h-full">
+                        <div id="uploadPlaceholder"
+                            class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+                            style="display: none;">
+                            <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H20v8H8v20h32V16H28V8z" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-600">Chọn ảnh hoặc kéo thả</p>
+                        </div>
+                        <?php else: ?>
+                        <div id="uploadPlaceholder"
+                            class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <svg class="h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H20v8H8v20h32V16H28V8z" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                            <p class="mt-2 text-sm text-gray-600">Chọn ảnh hoặc kéo thả</p>
+                        </div>
+                        <img id="imagePreview" src="#" alt="Xem trước ảnh" class="hidden object-contain w-full h-full">
+                        <?php endif; ?>
+                        <input type="file" name="image" id="image" accept="image/*"
+                            class="absolute inset-0 opacity-0 cursor-pointer">
+                    </div>
                 </div>
             </div>
         </div>
+
         <!-- Nút thao tác: nút cập nhật banner -->
         <div class="flex justify-end items-center">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
