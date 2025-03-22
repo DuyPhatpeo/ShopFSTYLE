@@ -117,32 +117,34 @@ function addCategoryWithImage($conn, $categoryName, $parentId, $status, $imageUr
 
 /**
  * Xử lý thêm danh mục mới thông qua form.
- * Nếu có lỗi: trả về thông báo lỗi (không redirect).
- * Nếu thành công: redirect về trang danh sách danh mục.
+ * Nếu có lỗi: trả về mảng lỗi (không redirect).
+ * Nếu thành công: chuyển hướng về trang danh sách danh mục.
  *
  * @param mysqli $conn Kết nối CSDL.
- * @return string|null Lỗi (nếu có)
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processAddCategory($conn) {
-    $error = null;
-
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $categoryName = trim($_POST['category_name']);
+        $categoryName = trim($_POST['category_name'] ?? '');
         $parentId     = (isset($_POST['parent_id']) && $_POST['parent_id'] !== '') ? trim($_POST['parent_id']) : null;
         $status       = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
         // Kiểm tra dữ liệu đầu vào
         if (empty($categoryName)) {
-            $error = "Tên danh mục không được để trống.";
-        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $categoryName)) {
-            $error = "Tên danh mục không được chứa ký tự đặc biệt.";
+            $errors['category_name'] = "Tên danh mục không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $categoryName)) {
+            $errors['category_name'] = "Tên danh mục không được chứa ký tự đặc biệt.";
         } elseif (isCategoryNameExists($conn, $categoryName)) {
-            $error = "Tên danh mục đã tồn tại.";
-        } elseif ($status !== 1 && $status !== 2) {
-            $error = "Trạng thái không hợp lệ.";
-        } else {
-            // Xử lý upload ảnh nếu có
-            $imageUrl = null;
+            $errors['category_name'] = "Tên danh mục đã tồn tại.";
+        }
+        if ($status !== 1 && $status !== 2) {
+            $errors['status'] = "Trạng thái không hợp lệ.";
+        }
+
+        // Xử lý upload ảnh nếu có (chỉ tiến hành nếu không có lỗi từ đầu)
+        $imageUrl = null;
+        if (empty($errors)) {
             if (!empty($_FILES['image']['name'])) {
                 $targetDir = __DIR__ . '/../uploads/categories/';
                 if (!is_dir($targetDir)) {
@@ -156,20 +158,21 @@ function processAddCategory($conn) {
                 if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
                     $imageUrl = 'admin/uploads/categories/' . $filename;
                 } else {
-                    $error = "Tải ảnh lên thất bại.";
+                    $errors['image'] = "Tải ảnh lên thất bại.";
                 }
             }
+        }
 
-            if (!$error && addCategoryWithImage($conn, $categoryName, $parentId, $status, $imageUrl)) {
+        if (empty($errors)) {
+            if (addCategoryWithImage($conn, $categoryName, $parentId, $status, $imageUrl)) {
                 header("Location: index.php?msg=Thêm danh mục thành công!&type=success");
                 exit;
-            } elseif (!$error) {
-                $error = "Thêm danh mục thất bại.";
+            } else {
+                $errors['general'] = "Thêm danh mục thất bại.";
             }
         }
     }
-
-    return $error;
+    return $errors;
 }
 
 /**
@@ -189,33 +192,35 @@ function getCategoryById($conn, $category_id) {
 
 /**
  * Xử lý chỉnh sửa danh mục.
- * Nếu có lỗi: trả về thông báo lỗi (không redirect).
- * Nếu thành công: redirect về trang danh sách danh mục.
+ * Nếu có lỗi: trả về mảng lỗi (không redirect).
+ * Nếu thành công: chuyển hướng về trang danh mục.
  *
  * @param mysqli $conn Kết nối CSDL.
  * @param string $category_id ID danh mục cần chỉnh sửa.
- * @return string|null Lỗi (nếu có)
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processEditCategory($conn, $category_id) {
-    $error = null;
-
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $categoryName = trim($_POST['category_name']);
+        $categoryName = trim($_POST['category_name'] ?? '');
         $parentId     = (isset($_POST['parent_id']) && $_POST['parent_id'] !== '') ? trim($_POST['parent_id']) : null;
         $status       = isset($_POST['status']) ? (int)$_POST['status'] : 1;
 
         // Kiểm tra dữ liệu
         if (empty($categoryName)) {
-            $error = "Tên danh mục không được để trống.";
-        } elseif (!preg_match("/^[\\p{L}\\p{N}\\s]+$/u", $categoryName)) {
-            $error = "Tên danh mục không được chứa ký tự đặc biệt.";
+            $errors['category_name'] = "Tên danh mục không được để trống.";
+        } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $categoryName)) {
+            $errors['category_name'] = "Tên danh mục không được chứa ký tự đặc biệt.";
         } elseif (isCategoryNameExists($conn, $categoryName, $category_id)) {
-            $error = "Tên danh mục đã tồn tại.";
-        } elseif ($status !== 1 && $status !== 2) {
-            $error = "Trạng thái không hợp lệ.";
-        } else {
-            // Xử lý upload ảnh: nếu có ảnh mới, xoá ảnh cũ
-            $imageUrl = null;
+            $errors['category_name'] = "Tên danh mục đã tồn tại.";
+        }
+        if ($status !== 1 && $status !== 2) {
+            $errors['status'] = "Trạng thái không hợp lệ.";
+        }
+
+        // Xử lý upload ảnh: nếu có ảnh mới thì xoá ảnh cũ và cập nhật, ngược lại giữ nguyên ảnh cũ
+        $imageUrl = null;
+        if (empty($errors)) {
             if (!empty($_FILES['image']['name'])) {
                 $currentCategory = getCategoryById($conn, $category_id);
                 if ($currentCategory && !empty($currentCategory['image_url'])) {
@@ -235,31 +240,30 @@ function processEditCategory($conn, $category_id) {
                 if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFile)) {
                     $imageUrl = 'admin/uploads/categories/' . $filename;
                 } else {
-                    $error = "Tải ảnh lên thất bại.";
+                    $errors['image'] = "Tải ảnh lên thất bại.";
                 }
             } else {
                 // Giữ lại ảnh cũ nếu không có ảnh mới
                 $currentCategory = getCategoryById($conn, $category_id);
                 $imageUrl = $currentCategory['image_url'] ?? null;
             }
+        }
 
-            if (!$error) {
-                $sql = "UPDATE category
-                        SET category_name = ?, parent_id = ?, status = ?, image_url = ?
-                        WHERE category_id = ?";
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("ssiss", $categoryName, $parentId, $status, $imageUrl, $category_id);
-                if ($stmt->execute()) {
-                    header("Location: index.php?msg=Cập nhật danh mục thành công!&type=success");
-                    exit;
-                } else {
-                    $error = "Cập nhật danh mục thất bại.";
-                }
+        if (empty($errors)) {
+            $sql = "UPDATE category
+                    SET category_name = ?, parent_id = ?, status = ?, image_url = ?
+                    WHERE category_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ssiss", $categoryName, $parentId, $status, $imageUrl, $category_id);
+            if ($stmt->execute()) {
+                header("Location: index.php?msg=Cập nhật danh mục thành công!&type=success");
+                exit;
+            } else {
+                $errors['general'] = "Cập nhật danh mục thất bại.";
             }
         }
     }
-
-    return $error;
+    return $errors;
 }
 
 /**
@@ -300,32 +304,28 @@ function deleteCategory($conn, $category_id) {
 
 /**
  * Xử lý xóa danh mục thông qua form.
- * Nếu có lỗi: trả về thông báo lỗi (không redirect).
- * Nếu thành công: redirect về trang danh sách danh mục.
+ * Nếu có lỗi: trả về mảng lỗi (không redirect).
+ * Nếu thành công: chuyển hướng về trang danh sách danh mục.
  *
  * @param mysqli $conn Kết nối CSDL.
  * @param string $category_id ID danh mục cần xóa.
- * @return string|null Lỗi (nếu có)
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processDeleteCategory($conn, $category_id) {
-    $error = null;
-
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (deleteCategory($conn, $category_id)) {
             header("Location: index.php?msg=Xóa danh mục thành công!&type=success");
             exit;
         } else {
-            $error = "Xóa danh mục thất bại.";
+            $errors['general'] = "Xóa danh mục thất bại.";
         }
     }
-
-    return $error;
+    return $errors;
 }
 
 /**
  * Nếu hàm getAllCategories chưa được định nghĩa, ta định nghĩa nó ở đây.
- * (Lưu ý: Bạn nên loại bỏ định nghĩa hàm này trong các file view như add.php để tránh trùng lặp.)
- *
  * Lấy danh sách danh mục để hiển thị trong dropdown (loại trừ danh mục hiện tại).
  *
  * @param mysqli $conn Kết nối CSDL.
