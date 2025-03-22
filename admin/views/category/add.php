@@ -24,7 +24,7 @@ function getAllCategories($conn) {
 
 $allCategories = getAllCategories($conn);
 ?>
-
+<div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 <main class="container mx-auto p-6">
     <div class="flex justify-between items-center mb-4">
         <div>
@@ -38,7 +38,8 @@ $allCategories = getAllCategories($conn);
             <span class="hidden md:inline-block">Quay lại</span>
         </a>
     </div>
-    <?php if ($error): ?>
+    <!-- Hiển thị lỗi chung (ngoại trừ lỗi "không được để trống" của trường Tên danh mục) -->
+    <?php if ($error && strpos($error, "không được để trống") === false): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
         <?= htmlspecialchars($error) ?>
     </div>
@@ -51,11 +52,19 @@ $allCategories = getAllCategories($conn);
             <div class="w-full md:w-1/2 px-2">
                 <!-- Tên danh mục -->
                 <div class="mb-4">
-                    <label for="category_name" class="block mb-1 font-medium">Tên danh mục:</label>
+                    <label for="category_name" class="block mb-1 font-medium">
+                        Tên danh mục:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                    <?php endif; ?>
+                    <!-- Bỏ 'required' để không xuất hiện thông báo mặc định của trình duyệt -->
                     <input type="text" name="category_name" id="category_name"
                         class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= isset($_POST['category_name']) ? htmlspecialchars($_POST['category_name']) : '' ?>"
-                        required>
+                        value="<?= isset($_POST['category_name']) ? htmlspecialchars($_POST['category_name']) : '' ?>">
                 </div>
                 <!-- Danh mục cha -->
                 <div class="mb-4">
@@ -98,7 +107,6 @@ $allCategories = getAllCategories($conn);
                         <p class="mt-2 text-sm text-gray-600">Chọn ảnh hoặc kéo thả</p>
                     </div>
                     <!-- Phần preview ảnh, ban đầu ẩn -->
-                    <!-- object-contain để không cắt ảnh, hiển thị toàn bộ ảnh bên trong vùng -->
                     <img id="imagePreview" src="#" alt="Xem trước ảnh" class="hidden object-contain w-full h-full" />
                     <!-- Input file luôn có mặt -->
                     <input type="file" name="image" id="image" accept="image/*"
@@ -130,12 +138,10 @@ document.getElementById('image').addEventListener('change', function() {
             var preview = document.getElementById('imagePreview');
             preview.src = event.target.result;
             preview.classList.remove('hidden');
-            // Ẩn placeholder nếu có
             document.getElementById('uploadPlaceholder').style.display = 'none';
         }
         reader.readAsDataURL(file);
     } else {
-        // Nếu không có file nào được chọn, hiện lại placeholder và ẩn preview
         document.getElementById('uploadPlaceholder').style.display = 'flex';
         document.getElementById('imagePreview').classList.add('hidden');
     }
@@ -157,7 +163,6 @@ uploadArea.addEventListener('drop', function(e) {
     var dt = e.dataTransfer;
     var files = dt.files;
     document.getElementById('image').files = files;
-    // Kích hoạt sự kiện change để hiển thị preview
     var event = new Event('change');
     document.getElementById('image').dispatchEvent(event);
 });

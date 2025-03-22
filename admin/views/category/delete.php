@@ -8,25 +8,19 @@ require_once('../../controller/categoryController.php'); // File xử lý danh m
 
 // Kiểm tra sự tồn tại của biến GET id
 if (!isset($_GET['id'])) {
-    header("Location: index.php?msg=invalid_id");
+    header("Location: index.php?msg=ID danh mục không hợp lệ.&type=failure");
     exit;
 }
 
 $category_id = $_GET['id'];
 $category = getCategoryById($conn, $category_id);
 if (!$category) {
-    header("Location: index.php?msg=category_not_found");
+    header("Location: index.php?msg=Danh mục không tồn tại.&type=failure");
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (deleteCategory($conn, $category_id)) {
-        // Sau khi xóa (bao gồm các danh mục con), chuyển hướng về trang danh sách
-        header("Location: index.php?msg=deleted");
-        exit;
-    } else {
-        $error = "Xóa danh mục thất bại. Vui lòng thử lại.";
-    }
+    processDeleteCategory($conn, $role_id);
 }
 ?>
 

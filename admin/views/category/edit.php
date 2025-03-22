@@ -58,13 +58,14 @@ $allCategories = getAllCategories($conn, $category_id);
         </a>
     </div>
 
-    <?php if ($error): ?>
+    <!-- Hiển thị lỗi chung nếu có (ngoại trừ lỗi "không được để trống") -->
+    <?php if ($error && strpos($error, "không được để trống") === false): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
         <?= htmlspecialchars($error) ?>
     </div>
     <?php endif; ?>
 
-    <!-- Form chỉnh sửa danh mục có hỗ trợ upload file -->
+    <!-- Form chỉnh sửa danh mục (đã bỏ 'required' để tránh popup mặc định) -->
     <form method="POST" action="" enctype="multipart/form-data">
         <!-- Chia form thành 2 cột -->
         <div class="flex flex-wrap -mx-2 mb-4">
@@ -72,11 +73,19 @@ $allCategories = getAllCategories($conn, $category_id);
             <div class="w-full md:w-1/2 px-2">
                 <!-- Tên danh mục -->
                 <div class="mb-4">
-                    <label for="category_name" class="block mb-1 font-medium">Tên danh mục:</label>
+                    <label for="category_name" class="block mb-1 font-medium">
+                        Tên danh mục:
+                        <span class="text-red-600">*</span>
+                    </label>
+                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
+                    <div class="text-red-500 text-sm mb-1">
+                        <?= htmlspecialchars($error) ?>
+                    </div>
+                    <?php endif; ?>
+                    <!-- Bỏ 'required' để tắt thông báo mặc định của trình duyệt -->
                     <input type="text" name="category_name" id="category_name"
                         class="w-full p-2 border border-gray-300 rounded"
-                        value="<?= isset($_POST['category_name']) ? htmlspecialchars($_POST['category_name']) : htmlspecialchars($category['category_name']) ?>"
-                        required>
+                        value="<?= isset($_POST['category_name']) ? htmlspecialchars($_POST['category_name']) : htmlspecialchars($category['category_name']) ?>">
                 </div>
                 <!-- Danh mục cha -->
                 <div class="mb-4">
