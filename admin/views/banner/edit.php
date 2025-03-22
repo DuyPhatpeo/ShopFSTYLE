@@ -3,8 +3,8 @@
 ob_start();
 
 include("../../includes/header.php");
-require_once('../../../includes/db.php');             // Kết nối CSDL
-require_once('../../controller/bannerController.php'); // File controller banner
+require_once('../../../includes/db.php');              // Kết nối CSDL
+require_once('../../controller/bannerController.php');  // File controller banner
 
 // Lấy ID banner từ URL
 $banner_id = isset($_GET['id']) ? $_GET['id'] : null;
@@ -20,8 +20,8 @@ if (!$banner) {
     exit;
 }
 
-// Xử lý form chỉnh sửa banner
-$error = processEditBanner($conn, $banner_id);
+// Xử lý form chỉnh sửa banner; nếu thành công, hàm sẽ chuyển hướng
+$errors = processEditBanner($conn, $banner_id);
 ?>
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
@@ -44,42 +44,37 @@ $error = processEditBanner($conn, $banner_id);
         </a>
     </div>
 
-    <!-- Nếu lỗi không thuộc trường 'không được để trống' thì hiển thị thông báo lỗi chung -->
-    <?php if ($error && stripos($error, "không được để trống") === false): ?>
+    <!-- Hiển thị lỗi chung nếu có -->
+    <?php if (!empty($errors['general'])): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
+        <?= htmlspecialchars($errors['general']) ?>
     </div>
     <?php endif; ?>
 
-    <!-- Form chỉnh sửa banner có hỗ trợ upload file -->
+    <!-- Form chỉnh sửa banner -->
     <form method="POST" action="" enctype="multipart/form-data">
-        <!-- Chia form thành 2 cột -->
         <div class="flex flex-wrap -mx-2 mb-4">
-            <!-- Cột trái: các trường thông tin -->
+            <!-- Cột trái: Các trường thông tin -->
             <div class="w-full md:w-1/2 px-2">
-                <!-- Link banner (cho phép để trống) -->
+                <!-- Link Banner (cho phép để trống) -->
                 <div class="mb-4">
                     <label for="link" class="block mb-1 font-medium">Link Banner:</label>
                     <input type="text" name="link" id="link" class="w-full p-2 border border-gray-300 rounded"
                         value="<?= isset($_POST['link']) ? htmlspecialchars($_POST['link']) : htmlspecialchars($banner['link']) ?>"
                         placeholder="https://example.com/...">
                 </div>
-                <!-- Tên Banner (bắt buộc, validate qua PHP) -->
+                <!-- Tên Banner (bắt buộc) -->
                 <div class="mb-4">
                     <label for="banner_name" class="block mb-1 font-medium">
-                        Tên Banner:
-                        <span class="text-red-600">*</span>
+                        Tên Banner: <span class="text-red-600">*</span>
                     </label>
-                    <?php if ($error && stripos($error, "Tên Banner không được để trống") !== false): ?>
-                    <div class="text-red-500 text-sm mb-1">
-                        <?= htmlspecialchars($error) ?>
-                    </div>
-                    <?php endif; ?>
-                    <!-- Không dùng 'required' để tránh thông báo mặc định của trình duyệt -->
                     <input type="text" name="banner_name" id="banner_name"
-                        class="w-full p-2 border border-gray-300 rounded"
+                        class="w-full p-2 border <?= !empty($errors['banner_name']) ? 'border-red-500' : 'border-gray-300'; ?> rounded"
                         value="<?= isset($_POST['banner_name']) ? htmlspecialchars($_POST['banner_name']) : htmlspecialchars($banner['banner_name']) ?>"
                         placeholder="Nhập tên banner">
+                    <?php if (!empty($errors['banner_name'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['banner_name']) ?></p>
+                    <?php endif; ?>
                 </div>
                 <!-- Trạng thái -->
                 <div class="mb-4">
@@ -87,25 +82,24 @@ $error = processEditBanner($conn, $banner_id);
                     <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
                         <option value="1"
                             <?= ((isset($_POST['status']) && $_POST['status'] == 1) || (!isset($_POST['status']) && $banner['status'] == 1)) ? 'selected' : '' ?>>
-                            On</option>
+                            On
+                        </option>
                         <option value="2"
                             <?= ((isset($_POST['status']) && $_POST['status'] == 2) || (!isset($_POST['status']) && $banner['status'] == 2)) ? 'selected' : '' ?>>
-                            Off</option>
+                            Off
+                        </option>
                     </select>
                 </div>
             </div>
 
-            <!-- Cột phải: phần upload ảnh -->
+            <!-- Cột phải: Phần upload ảnh -->
             <div class="w-full md:w-1/2 px-2">
                 <div class="mb-4">
                     <label for="image" class="block mb-1 font-medium">
-                        Hình ảnh:
-                        <span class="text-red-600">*</span>
+                        Hình ảnh: <span class="text-red-600">*</span>
                     </label>
-                    <?php if ($error && stripos($error, "ảnh banner không được để trống") !== false): ?>
-                    <div class="text-red-500 text-sm mb-1">
-                        <?= htmlspecialchars($error) ?>
-                    </div>
+                    <?php if (!empty($errors['image'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['image']) ?></p>
                     <?php endif; ?>
                     <div id="uploadArea"
                         class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
@@ -140,7 +134,7 @@ $error = processEditBanner($conn, $banner_id);
             </div>
         </div>
 
-        <!-- Nút thao tác: nút cập nhật banner -->
+        <!-- Nút thao tác: Cập nhật banner -->
         <div class="flex justify-end items-center">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">

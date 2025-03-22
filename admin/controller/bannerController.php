@@ -1,10 +1,12 @@
 <?php
+// File: admin/controller/bannerController.php
+
 require_once __DIR__ . '/stringHelper.php';
 
 /**
- * Tạo ID dạng UUID v4.
+ * Tạo ID dạng UUID v4 cho banner.
  *
- * @return string
+ * @return string UUID v4.
  */
 function generateUCCID() {
     $data = random_bytes(16);
@@ -25,7 +27,7 @@ function generateUCCID() {
  * Lấy danh sách banner theo phân trang.
  *
  * Nếu có từ khóa tìm kiếm, sẽ dùng điều kiện WHERE link LIKE ?.
- * Nếu không có từ khóa, sẽ lấy tất cả các banner (bao gồm cả những banner có link NULL).
+ * Nếu không có từ khóa, sẽ lấy tất cả các banner.
  *
  * @param mysqli $conn Kết nối CSDL
  * @param int $page Trang hiện tại
@@ -118,28 +120,58 @@ function getBannerById($conn, $banner_id) {
 }
 
 /**
+ * Kiểm tra xem banner_name đã tồn tại chưa (loại trừ banner hiện tại nếu cần).
+ *
+ * @param mysqli $conn Kết nối CSDL.
+ * @param string $banner_name Tên banner cần kiểm tra.
+ * @param string|null $excludeId ID banner cần loại trừ.
+ * @return bool True nếu tồn tại.
+ */
+function isBannerNameExists($conn, $banner_name, $excludeId = null) {
+    if ($excludeId) {
+        $sql = "SELECT COUNT(*) as count FROM banner WHERE banner_name = ? AND banner_id != ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ss", $banner_name, $excludeId);
+    } else {
+        $sql = "SELECT COUNT(*) as count FROM banner WHERE banner_name = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $banner_name);
+    }
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return ((int)$row['count'] > 0);
+}
+
+/**
  * Xử lý thêm banner qua form.
  *
- * Nếu có lỗi (ví dụ tên hoặc ảnh để trống, hoặc tên chứa ký tự đặc biệt), trả về thông báo lỗi dưới dạng chuỗi.
+ * Nếu có lỗi (ví dụ tên hoặc ảnh để trống, hoặc tên chứa ký tự đặc biệt), 
+ * trả về mảng lỗi với các thông báo tương ứng.
  * Nếu thành công, chuyển hướng sang trang index.
  *
  * @param mysqli $conn Kết nối DB.
- * @return string|null Thông báo lỗi nếu có, hoặc null nếu không có lỗi.
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processAddBanner($conn) {
-    $error = null;
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Lấy tên banner, bắt buộc không được để trống và không chứa ký tự đặc biệt như @, #
         $bannerName = trim($_POST['banner_name'] ?? '');
         if (empty($bannerName)) {
-            $error = "Tên banner không được để trống.";
+            $errors['banner_name'] = "Tên banner không được để trống.";
         } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $bannerName)) {
-            $error = "Tên banner không được chứa ký tự đặc biệt như @, #, v.v.";
+            $errors['banner_name'] = "Tên banner không được chứa ký tự đặc biệt như @, #, v.v.";
+        } else {
+            // Kiểm tra tính duy nhất của banner_name
+            if (isBannerNameExists($conn, $bannerName)) {
+                $errors['banner_name'] = "Tên banner đã tồn tại.";
+            }
         }
         
-        // Kiểm tra xem đã chọn ảnh chưa (không cho phép để trống)
+        // Kiểm tra xem đã chọn ảnh chưa (bắt buộc không được để trống)
         if (empty($_FILES['image']['name'])) {
-            $error = "Ảnh banner không được để trống.";
+            $errors['image'] = "Ảnh banner không được để trống.";
         }
         
         // Lấy link (cho phép rỗng) và trạng thái
@@ -148,53 +180,60 @@ function processAddBanner($conn) {
             $link = null;
         }
         $status = (int)($_POST['status'] ?? 1);
+        $imageUrl = null;
 
         // Chỉ tiến hành upload ảnh nếu không có lỗi
-        if (!$error) {
+        if (empty($errors)) {
             $targetDir = __DIR__ . '/../uploads/banners/';
             if (!is_dir($targetDir)) {
                 mkdir($targetDir, 0755, true);
             }
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $filename  = 'banner_' . time() . '.' . $extension;
+            // Sử dụng time() + uniqid() để tạo tên file duy nhất
+            $filename  = 'banner_' . time() . '_' . uniqid() . '.' . $extension;
             $filePath  = $targetDir . $filename;
             if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
                 $imageUrl = 'admin/uploads/banners/' . $filename;
             } else {
-                $error = "Upload ảnh không thành công.";
+                $errors['image'] = "Upload ảnh không thành công.";
             }
         }
 
-        if (!$error) {
+        if (empty($errors)) {
             if (addBanner($conn, $bannerName, $imageUrl, $link, $status)) {
                 header("Location: index.php?msg=Thêm banner thành công!&type=success");
                 exit;
             } else {
-                $error = "Thêm banner thất bại.";
+                $errors['general'] = "Thêm banner thất bại.";
             }
         }
     }
-    return $error;
+    return $errors;
 }
 
 /**
  * Xử lý cập nhật banner qua form.
  *
- * Nếu có lỗi, trả về thông báo lỗi.
+ * Nếu có lỗi, trả về mảng lỗi.
  * Nếu thành công, chuyển hướng sang trang index.
  *
  * @param mysqli $conn Kết nối DB.
  * @param string $banner_id
- * @return string|null Thông báo lỗi nếu có, hoặc null nếu không có lỗi.
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processEditBanner($conn, $banner_id) {
-    $error = null;
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $bannerName = trim($_POST['banner_name'] ?? '');
         if (empty($bannerName)) {
-            $error = "Tên banner không được để trống.";
+            $errors['banner_name'] = "Tên banner không được để trống.";
         } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $bannerName)) {
-            $error = "Tên banner không được chứa ký tự đặc biệt như @, #, v.v.";
+            $errors['banner_name'] = "Tên banner không được chứa ký tự đặc biệt như @, #, v.v.";
+        } else {
+            // Kiểm tra tính duy nhất của banner_name, loại trừ banner hiện tại
+            if (isBannerNameExists($conn, $bannerName, $banner_id)) {
+                $errors['banner_name'] = "Tên banner đã tồn tại.";
+            }
         }
 
         $link = trim($_POST['link'] ?? '');
@@ -219,21 +258,22 @@ function processEditBanner($conn, $banner_id) {
                 mkdir($targetDir, 0755, true);
             }
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $filename  = 'banner_' . time() . '.' . $extension;
+            // Sử dụng time() + uniqid() để tạo tên file duy nhất
+            $filename  = 'banner_' . time() . '_' . uniqid() . '.' . $extension;
             $filePath  = $targetDir . $filename;
             if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
                 $imageUrl = 'admin/uploads/banners/' . $filename;
             } else {
-                $error = "Upload ảnh mới không thành công.";
+                $errors['image'] = "Upload ảnh mới không thành công.";
             }
         } else {
             // Nếu không có ảnh mới và banner hiện tại không có ảnh, báo lỗi
             if (empty($imageUrl)) {
-                $error = "Ảnh banner không được để trống.";
+                $errors['image'] = "Ảnh banner không được để trống.";
             }
         }
 
-        if (!$error) {
+        if (empty($errors)) {
             $sql = "UPDATE banner
                     SET banner_name = ?, image_url = ?, link = ?, status = ?
                     WHERE banner_id = ?";
@@ -243,11 +283,11 @@ function processEditBanner($conn, $banner_id) {
                 header("Location: index.php?msg=Cập nhật banner thành công!&type=success");
                 exit;
             } else {
-                $error = "Cập nhật banner thất bại.";
+                $errors['general'] = "Cập nhật banner thất bại.";
             }
         }
     }
-    return $error;
+    return $errors;
 }
 
 /**
@@ -255,19 +295,19 @@ function processEditBanner($conn, $banner_id) {
  *
  * @param mysqli $conn Kết nối DB.
  * @param string $banner_id
- * @return string|null Thông báo lỗi nếu có, hoặc null nếu thành công.
+ * @return array Mảng lỗi (rỗng nếu thành công).
  */
 function processDeleteBanner($conn, $banner_id) {
-    $error = null;
+    $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (deleteBanner($conn, $banner_id)) {
             header("Location: index.php?msg=Xóa banner thành công!&type=success");
             exit;
         } else {
-            $error = "Xóa banner thất bại.";
+            $errors['general'] = "Xóa banner thất bại.";
         }
     }
-    return $error;
+    return $errors;
 }
 
 /**
