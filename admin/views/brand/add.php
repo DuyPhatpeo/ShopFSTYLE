@@ -8,10 +8,10 @@ include("../../includes/header.php");
 require_once('../../../includes/db.php');         // Kết nối CSDL
 require_once('../../controller/brandController.php'); // File controller thương hiệu
 
-// Gọi hàm xử lý thêm thương hiệu, nếu thêm thành công sẽ chuyển hướng về index.php
-$error = processAddBrand($conn);
+// Gọi hàm xử lý thêm thương hiệu, nếu thành công sẽ chuyển hướng về index.php
+$errors = processAddBrand($conn);
 ?>
-<!-- Hiển thị thông báo -->
+<!-- Hiển thị thông báo (ví dụ lỗi chung) -->
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
@@ -31,10 +31,10 @@ $error = processAddBrand($conn);
         </a>
     </div>
 
-    <!-- Hiển thị lỗi chung nếu có (ngoại trừ lỗi "không được để trống" của tên thương hiệu) -->
-    <?php if ($error && strpos($error, "không được để trống") === false): ?>
+    <!-- Hiển thị lỗi chung nếu có -->
+    <?php if (!empty($errors['general'])): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
+        <?= htmlspecialchars($errors['general']) ?>
     </div>
     <?php endif; ?>
 
@@ -49,15 +49,12 @@ $error = processAddBrand($conn);
                         Tên thương hiệu:
                         <span class="text-red-600">*</span>
                     </label>
-                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
-                    <div class="text-red-500 text-sm mb-1">
-                        <?= htmlspecialchars($error) ?>
-                    </div>
-                    <?php endif; ?>
-                    <!-- Bỏ 'required' để tránh thông báo mặc định của trình duyệt -->
                     <input type="text" name="brand_name" id="brand_name"
-                        class="w-full p-2 border border-gray-300 rounded"
+                        class="w-full p-2 border <?= !empty($errors['brand_name']) ? 'border-red-500' : 'border-gray-300'; ?> rounded"
                         value="<?= isset($_POST['brand_name']) ? htmlspecialchars($_POST['brand_name']) : '' ?>">
+                    <?php if (!empty($errors['brand_name'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['brand_name']) ?></p>
+                    <?php endif; ?>
                 </div>
                 <!-- Trạng thái -->
                 <div class="mb-4">
@@ -65,20 +62,23 @@ $error = processAddBrand($conn);
                         Trạng thái:
                         <span class="text-red-600">*</span>
                     </label>
-                    <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
+                    <select name="status" id="status"
+                        class="w-full p-2 border <?= !empty($errors['status']) ? 'border-red-500' : 'border-gray-300'; ?> rounded">
                         <option value="1" <?= (isset($_POST['status']) && $_POST['status'] == 1) ? 'selected' : '' ?>>On
                         </option>
                         <option value="2" <?= (isset($_POST['status']) && $_POST['status'] == 2) ? 'selected' : '' ?>>
                             Off</option>
                     </select>
+                    <?php if (!empty($errors['status'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['status']) ?></p>
+                    <?php endif; ?>
                 </div>
             </div>
             <!-- Cột phải: Upload hình ảnh -->
             <div class="w-full md:w-1/2 px-2">
                 <label for="image" class="block mb-1 font-medium">Hình ảnh:</label>
                 <div id="uploadArea"
-                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer
-                            hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
+                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
                     style="position: relative;">
                     <!-- Placeholder ban đầu -->
                     <div id="uploadPlaceholder"
@@ -95,6 +95,9 @@ $error = processAddBrand($conn);
                     <input type="file" name="image" id="image" accept="image/*"
                         class="absolute inset-0 opacity-0 cursor-pointer">
                 </div>
+                <?php if (!empty($errors['image'])): ?>
+                <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['image']) ?></p>
+                <?php endif; ?>
             </div>
         </div>
 

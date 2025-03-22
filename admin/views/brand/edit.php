@@ -1,5 +1,5 @@
 <?php 
-// admin/views/brand/edit.php
+// File: admin/views/brand/edit.php
 
 ob_start();
 include("../../includes/header.php");
@@ -20,7 +20,7 @@ if (!$brand) {
 }
 
 // Xử lý form chỉnh sửa thương hiệu
-$error = processEditBrand($conn, $brand_id);
+$errors = processEditBrand($conn, $brand_id);
 ?>
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
@@ -42,10 +42,10 @@ $error = processEditBrand($conn, $brand_id);
         </a>
     </div>
 
-    <!-- Hiển thị lỗi chung nếu có (ngoại trừ lỗi "không được để trống" của Tên thương hiệu) -->
-    <?php if ($error && strpos($error, "không được để trống") === false): ?>
+    <!-- Hiển thị lỗi chung nếu có -->
+    <?php if (!empty($errors['general'])): ?>
     <div class="bg-red-200 p-2 mb-4 text-red-800">
-        <?= htmlspecialchars($error) ?>
+        <?= htmlspecialchars($errors['general']) ?>
     </div>
     <?php endif; ?>
 
@@ -60,15 +60,12 @@ $error = processEditBrand($conn, $brand_id);
                         Tên thương hiệu:
                         <span class="text-red-600">*</span>
                     </label>
-                    <?php if ($error && strpos($error, "không được để trống") !== false): ?>
-                    <div class="text-red-500 text-sm mb-1">
-                        <?= htmlspecialchars($error) ?>
-                    </div>
-                    <?php endif; ?>
-                    <!-- Không sử dụng 'required' để tránh thông báo mặc định của trình duyệt -->
                     <input type="text" name="brand_name" id="brand_name"
-                        class="w-full p-2 border border-gray-300 rounded"
+                        class="w-full p-2 border <?= !empty($errors['brand_name']) ? 'border-red-500' : 'border-gray-300'; ?> rounded"
                         value="<?= isset($_POST['brand_name']) ? htmlspecialchars($_POST['brand_name']) : htmlspecialchars($brand['brand_name']) ?>">
+                    <?php if (!empty($errors['brand_name'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['brand_name']) ?></p>
+                    <?php endif; ?>
                 </div>
 
                 <!-- Trạng thái -->
@@ -77,7 +74,8 @@ $error = processEditBrand($conn, $brand_id);
                         Trạng thái:
                         <span class="text-red-600">*</span>
                     </label>
-                    <select name="status" id="status" class="w-full p-2 border border-gray-300 rounded">
+                    <select name="status" id="status"
+                        class="w-full p-2 border <?= !empty($errors['status']) ? 'border-red-500' : 'border-gray-300'; ?> rounded">
                         <option value="1"
                             <?= ((isset($_POST['status']) && $_POST['status'] == 1) || (!isset($_POST['status']) && $brand['status'] == 1)) ? 'selected' : '' ?>>
                             On
@@ -87,6 +85,9 @@ $error = processEditBrand($conn, $brand_id);
                             Off
                         </option>
                     </select>
+                    <?php if (!empty($errors['status'])): ?>
+                    <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['status']) ?></p>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -122,6 +123,9 @@ $error = processEditBrand($conn, $brand_id);
                     <input type="file" name="image" id="image" accept="image/*"
                         class="absolute inset-0 opacity-0 cursor-pointer">
                 </div>
+                <?php if (!empty($errors['image'])): ?>
+                <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['image']) ?></p>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -129,8 +133,8 @@ $error = processEditBrand($conn, $brand_id);
         <div class="flex justify-end">
             <button type="submit" class="bg-green-700 hover:bg-green-800 text-white p-2 rounded flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12 19c-1.66 0-3-1.34-3-3s1.34-3 3-3 
-                             3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
+                    <path d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12 19c-1.66 0-3-1.34-3-3
+                             s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
                 </svg>
                 Cập nhật thương hiệu
             </button>

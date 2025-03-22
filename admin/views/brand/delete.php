@@ -20,7 +20,7 @@ if (!$brand) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    processDeleteBrand($conn, $role_id);
+    processDeleteBrand($conn, $brand_id);
 }
 ?>
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
