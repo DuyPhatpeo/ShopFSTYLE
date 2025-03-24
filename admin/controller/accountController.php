@@ -371,4 +371,30 @@ function getAllRoles($conn) {
     }
     return $roles;
 }
+
+
+/**
+ * Kiểm tra thông tin đăng nhập admin dựa trên email hoặc username.
+ * 
+ * @param mysqli $conn Kết nối CSDL.
+ * @param string $identifier Email hoặc username.
+ * @param string $password Mật khẩu người dùng nhập.
+ * @return array|false Trả về mảng thông tin admin nếu đăng nhập thành công, ngược lại trả về false.
+ */
+function loginAdmin($conn, $identifier, $password) {
+    $sql = "SELECT * FROM admin WHERE email = ? OR username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ss", $identifier, $identifier);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Nếu tồn tại bản ghi
+    if ($admin = $result->fetch_assoc()) {
+        // So sánh mật khẩu đã mã hóa trong DB với mật khẩu người dùng nhập
+        if (password_verify($password, $admin['password'])) {
+            return $admin; // Thành công
+        }
+    }
+    return false; // Thất bại
+}
 ?>
