@@ -1,5 +1,7 @@
 <?php
-// File: admin/views/role/add.php
+$pageTitle = "Trang thêm vai trò";
+
+include("../../includes/session_check.php");
 
 // Bật output buffering để tránh lỗi "headers already sent"
 ob_start();

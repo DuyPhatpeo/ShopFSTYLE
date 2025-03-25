@@ -1,4 +1,8 @@
 <?php 
+$pageTitle = "Trang quản lý danh mục";
+
+include("../../includes/session_check.php");
+
 include("../../includes/header.php");
 require_once('../../../includes/db.php');               // Kết nối CSDL
 require_once('../../controller/categoryController.php'); // Hàm phụ trợ danh mục

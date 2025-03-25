@@ -1,4 +1,8 @@
 <?php
+$pageTitle = "Trang thêm danh mục";
+
+include("../../includes/session_check.php");
+
 // File: admin/views/brand/add.php
 
 // Bật output buffering để tránh lỗi "headers already sent"

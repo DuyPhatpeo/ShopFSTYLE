@@ -1,6 +1,7 @@
 <?php 
-// File: admin/views/brand/edit.php
+$pageTitle = "Trang chỉnh sửa thương hiệu";
 
+include("../../includes/session_check.php");
 ob_start();
 include("../../includes/header.php");
 require_once('../../../includes/db.php');               // Kết nối CSDL

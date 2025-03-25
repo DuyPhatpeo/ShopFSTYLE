@@ -1,4 +1,8 @@
 <?php
+$pageTitle = "Trang chỉnh sửa khách hàng";
+
+include("../../includes/session_check.php");
+
 // admin/views/customer/edit.php
 
 ob_start();

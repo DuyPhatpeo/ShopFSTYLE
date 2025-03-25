@@ -1,4 +1,8 @@
 <?php
+$pageTitle = "Trang xoá thương hiệu";
+
+include("../../includes/session_check.php");
+
 // admin/views/brand/delete.php
 ob_start();
 

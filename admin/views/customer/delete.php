@@ -1,4 +1,8 @@
 <?php 
+$pageTitle = "Trang xoá khách hàng";
+
+include("../../includes/session_check.php");
+
 // admin/views/customer/delete.php
 ob_start();
 

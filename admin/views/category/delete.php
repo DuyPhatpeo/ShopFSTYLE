@@ -1,4 +1,8 @@
 <?php
+$pageTitle = "Trang xoá danh mục";
+
+include("../../includes/session_check.php");
+
 // admin/views/category/delete.php
 ob_start();
 

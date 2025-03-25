@@ -1,6 +1,15 @@
 <?php
-// admin/views/role/detail.php
+$pageTitle = "Trang chi tiết vai trò";
 
+include("../../includes/session_check.php");
+
+$_SESSION['LAST_ACTIVITY'] = time(); // Cập nhật thời gian hoạt động cuối cùng
+
+// Kiểm tra đăng nhập
+if (!isset($_SESSION['admin'])) {
+    header("Location: ../auth/login.php");
+exit;
+}
 ob_start();
 include("../../includes/header.php");
 require_once('../../../includes/db.php');

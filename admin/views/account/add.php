@@ -1,4 +1,6 @@
 <?php
+$pageTitle = "Trang thêm tài khoản";
+include("../../includes/session_check.php");
 // Bật output buffering để tránh lỗi "headers already sent"
 ob_start();
 

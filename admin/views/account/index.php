@@ -1,19 +1,21 @@
 <?php 
+$pageTitle = "Trang quản lý tài khoản";
+include("../../includes/session_check.php");
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
 require_once('../../controller/accountController.php'); // Hàm phụ trợ tài khoản
 
 // Lấy giá trị từ URL hoặc gán giá trị mặc định
-$page   = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$limit  = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
 $search = isset($_GET['search']) ? trim($_GET['search']) : "";
 
 // Gọi hàm lấy dữ liệu danh sách tài khoản có phân trang
 $data = getAdminsWithPagination($conn, $page, $limit, $search);
-$admins        = $data['admins'];
-$totalPages    = $data['totalPages'];
-$currentPage   = $data['currentPage'];
-$totalAdmins   = $data['totalAdmins'];
+$admins = $data['admins'];
+$totalPages = $data['totalPages'];
+$currentPage = $data['currentPage'];
+$totalAdmins = $data['totalAdmins'];
 ?>
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 <main>

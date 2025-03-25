@@ -1,4 +1,8 @@
 <?php
+$pageTitle = "Trang chỉnh sửa danh mục";
+
+include("../../includes/session_check.php");
+
 // File: admin/views/category/edit.php
 
 ob_start();

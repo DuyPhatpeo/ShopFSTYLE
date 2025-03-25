@@ -1,5 +1,7 @@
 <?php
-// File: admin/views/role/edit.php
+$pageTitle = "Trang chỉnh sửa vai trò";
+
+include("../../includes/session_check.php");
 
 ob_start();
 include("../../includes/header.php");

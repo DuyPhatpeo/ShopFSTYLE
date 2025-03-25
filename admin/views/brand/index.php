@@ -1,4 +1,7 @@
 <?php 
+$pageTitle = "Trang quản lý thương hiệu";
+
+include("../../includes/session_check.php");
 include("../../includes/header.php");
 require_once('../../../includes/db.php');               // Kết nối CSDL
 require_once('../../controller/brandController.php');   // Controller của brand

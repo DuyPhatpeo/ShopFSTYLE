@@ -6,9 +6,14 @@
     <!-- Overlay khi mở menu trên mobile -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30"></div>
 
-    <div class="flex">
-        <?php include ('sidebar.php'); ?>
+    <div class="flex min-h-screen">
         <!-- Gọi sidebar -->
-        <div class="flex-1 flex flex-col min-h-screen">
-            <?php include ('navbar.php'); ?>
+        <?php include('sidebar.php'); ?>
+
+        <!-- Khối nội dung chính, chừa chỗ cho sidebar khi >= lg -->
+        <div class="flex-1 ml-0 lg:ml-72">
             <!-- Gọi navbar -->
+            <?php include('navbar.php'); ?>
+
+            <!-- Nội dung trang chính -->
+            <div class="mt-20">

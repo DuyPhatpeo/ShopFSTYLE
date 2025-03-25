@@ -1,4 +1,7 @@
 <?php 
+$pageTitle = "Trang xoá tài khoản";
+include("../../includes/session_check.php");
+
 // admin/views/account/delete.php
 ob_start();
 

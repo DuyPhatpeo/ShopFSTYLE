@@ -1,4 +1,7 @@
 <?php
+$pageTitle = "Trang chi tiết tài khoản";
+include("../../includes/session_check.php");
+
 // admin/views/account/detail.php
 
 ob_start();

@@ -1,4 +1,7 @@
 <?php
+$pageTitle = "Trang thêm banner";
+include("../../includes/session_check.php");
+
 // Bật output buffering để tránh lỗi "headers already sent"
 ob_start();
 

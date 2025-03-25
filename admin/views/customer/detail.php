@@ -1,4 +1,8 @@
 <?php
+$pageTitle = "Trang chi tiết khách hàng";
+
+include("../../includes/session_check.php");
+
 // admin/views/customer/detail.php
 
 ob_start();

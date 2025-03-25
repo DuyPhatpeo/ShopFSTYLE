@@ -1,4 +1,8 @@
 <?php
+$pageTitle = "Trang xoá banner";
+
+include("../../includes/session_check.php");
+
 // admin/views/banner/delete.php
 ob_start();
 

@@ -1,5 +1,7 @@
 <?php 
-// admin/views/role/delete.php
+$pageTitle = "Trang xoá vai trò";
+
+include("../../includes/session_check.php");
 
 ob_start();
 

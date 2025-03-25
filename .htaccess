@@ -1,1 +1,13 @@
+Options -Indexes
+RewriteEngine On
+RewriteBase /ShopFSTYLE/
+
+# Mặc định vào trang chủ mở views/home/index.php
 DirectoryIndex views/home/index.php
+
+# Chuyển hướng khi truy cập /admin
+RewriteRule ^admin/?$ admin/views/index.php [L]
+
+# Tự động mở index.php trong các thư mục con
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^(.+)/$ $1/index.php [L]
