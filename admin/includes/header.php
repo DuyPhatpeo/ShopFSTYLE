@@ -16,4 +16,4 @@
             <?php include('navbar.php'); ?>
 
             <!-- Nội dung trang chính -->
-            <div class="mt-20">
+            <div class="mt-20 container mx-auto">
