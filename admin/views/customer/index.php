@@ -2,7 +2,6 @@
 $pageTitle = "Trang quản lý khách hàng";
 
 include("../../includes/session_check.php");
-
 include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Kết nối CSDL
 require_once('../../controller/customerController.php'); // Controller cho Customer
@@ -19,29 +18,19 @@ $totalPages     = $data['totalPages'];
 $currentPage    = $data['currentPage'];
 $totalCustomers = $data['totalCustomers'];
 ?>
+
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 <main>
     <div class="container mx-auto p-6">
         <!-- Header: Tiêu đề và nút thêm khách hàng -->
         <div class="flex justify-between items-center mb-4">
             <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Danh Sách Khách Hàng</h1>
-            <!-- <a href="add.php"
-                class="bg-green-700 hover:bg-green-800 text-white p-2 rounded-lg shadow-md transition flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="white"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span class="hidden sm:inline">Thêm khách hàng</span>
-            </a> -->
+            <!-- Nút thêm khách hàng nếu cần -->
         </div>
 
         <!-- Thanh tìm kiếm -->
         <div class="flex justify-end mb-4">
             <form method="GET" class="flex">
-                <!-- Giữ lại controller/action nếu bạn đang sử dụng hệ thống route -->
-                <!-- <input type="hidden" name="controller" value="customer">
-                     <input type="hidden" name="action" value="index"> -->
                 <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
                     class="p-2 border border-gray-300 rounded-l-lg focus:outline-none" placeholder="Tìm khách hàng...">
                 <input type="hidden" name="limit" value="<?= $limit ?>">
@@ -56,17 +45,18 @@ $totalCustomers = $data['totalCustomers'];
             </form>
         </div>
 
-        <!-- Bảng hiển thị danh sách khách hàng -->
-        <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
+        <!-- Bảng hiển thị danh sách khách hàng với khả năng kéo ngang -->
+        <div class="rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto transition-all duration-300">
             <table class="w-full border-collapse text-sm sm:text-base">
                 <thead class="sticky top-0 z-10">
                     <tr class="bg-indigo-500 text-white">
-                        <th class="p-2 sm:p-3 text-left">STT</th>
+                        <!-- Ẩn cột STT, Điện thoại, Địa chỉ, Trạng thái trên mobile -->
+                        <th class="p-2 sm:p-3 text-left hidden sm:table-cell">STT</th>
                         <th class="p-2 sm:p-3 text-left">Email</th>
                         <th class="p-2 sm:p-3 text-left">Họ tên</th>
                         <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Điện thoại</th>
                         <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Địa chỉ</th>
-                        <th class="p-2 sm:p-3 text-left">Trạng thái</th>
+                        <th class="p-2 sm:p-3 text-left hidden sm:table-cell">Trạng thái</th>
                         <th class="p-2 sm:p-3 text-center">Hành động</th>
                     </tr>
                 </thead>
@@ -80,20 +70,25 @@ $totalCustomers = $data['totalCustomers'];
                                 $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
                         ?>
                     <tr class="border-b <?= $rowClass ?> hover:bg-gray-200 transition">
-                        <td class="p-2 sm:p-3 align-middle"><?= $stt++ ?></td>
+                        <!-- Cột STT chỉ hiển thị trên desktop -->
+                        <td class="p-2 sm:p-3 align-middle hidden sm:table-cell"><?= $stt++ ?></td>
+                        <!-- Email và Họ tên hiển thị trên mọi kích thước -->
                         <td class="p-2 sm:p-3 align-middle"><?= htmlspecialchars($customer['email']) ?></td>
                         <td class="p-2 sm:p-3 align-middle"><?= htmlspecialchars($customer['full_name']) ?></td>
+                        <!-- Ẩn cột Điện thoại -->
                         <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
                             <?= htmlspecialchars($customer['phone']) ?>
                         </td>
+                        <!-- Ẩn cột Địa chỉ -->
                         <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
                             <?= htmlspecialchars($customer['address']) ?>
                         </td>
-                        <td class="p-2 sm:p-3 align-middle">
+                        <!-- Ẩn cột Trạng thái -->
+                        <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
                             <?= (int)$customer['status'] === 1 ? 'Hoạt động' : 'Khóa' ?>
                         </td>
+                        <!-- Cột Hành động luôn hiển thị -->
                         <td class="p-2 sm:p-3 text-center align-middle">
-                            <!-- Chuyển nút hành động theo dạng dọc trên mobile -->
                             <div class="flex flex-col sm:flex-row gap-1 justify-center items-center">
                                 <!-- Nút xem chi tiết -->
                                 <a href="detail.php?id=<?= urlencode($customer['customer_id']) ?>"
@@ -149,7 +144,6 @@ $totalCustomers = $data['totalCustomers'];
         <div class="grid grid-cols-1 sm:grid-cols-3 items-center mt-4 gap-4 mb-6">
             <div class="flex justify-start items-center">
                 <form method="GET" id="limitForm" class="flex items-center">
-                    <!-- Nếu bạn có các param khác, hãy giữ lại -->
                     <input type="hidden" name="page" value="<?= $currentPage ?>">
                     <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
                     <select name="limit" id="limit" class="p-2 border rounded cursor-pointer"
@@ -163,7 +157,6 @@ $totalCustomers = $data['totalCustomers'];
             </div>
             <div class="flex justify-center">
                 <?php
-                // Gọi hàm renderPagination (tương tự như bạn đang dùng cho admin)
                 require_once('../../includes/pagination.php');
                 renderPagination($currentPage, $totalPages, $limit, $search);
                 ?>
