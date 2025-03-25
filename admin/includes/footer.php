@@ -5,8 +5,8 @@
 <!-- Footer -->
 <!-- Footer -->
 <!-- Footer -->
-<footer
-    class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm text-center py-3 shadow-lg backdrop-blur-md">
+<footer class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 
+               text-white text-sm text-center py-3 shadow-lg backdrop-blur-md">
     <p>© 2025 FSTYLE ADMIN. Được phát triển bởi <span class="font-semibold">Trần Duy Phát</span>.</p>
 </footer>
 
