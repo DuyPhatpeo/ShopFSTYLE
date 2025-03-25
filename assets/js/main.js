@@ -77,116 +77,6 @@ document.addEventListener("DOMContentLoaded", function () {
     closeSearchModalBtn.addEventListener("click", hideSearchModal);
   }
 });
-//.......................................... hộp thoại đăng nhập đăng ký ...............................................
-
-// JavaScript để mở và đóng modal đăng nhập
-const profileButtons = document.querySelectorAll(".profile-btn");
-const authModal = document.getElementById("auth-modal");
-const closeAuthModal = document.getElementById("close-auth-modal");
-
-// Mở modal khi nhấn vào icon profile
-profileButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    authModal.classList.remove("hidden");
-  });
-});
-
-// Đóng modal khi nhấn vào nút đóng
-closeAuthModal.addEventListener("click", () => {
-  authModal.classList.add("hidden");
-});
-
-// Đóng modal khi nhấn ra ngoài modal
-window.addEventListener("click", (event) => {
-  if (event.target === authModal) {
-    authModal.classList.add("hidden");
-  }
-});
-
-// --- Toggle mật khẩu cho form đăng nhập ---
-const togglePassword = document.getElementById("toggle-password");
-const passwordInput = document.getElementById("password-input");
-const eyeIcon = document.getElementById("eye-icon");
-
-const eyeOpenSVG = `
-<!-- eye-open.svg -->
-<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-</svg>
-`;
-
-const eyeClosedSVG = `
-<!-- eye-closed.svg -->
-<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.05 10.05 0 011.658-3.07m2.2-2.2A9.977 9.977 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.658 3.07m-2.2 2.2A9.977 9.977 0 0112 19c-1.657 0-3.205-.407-4.575-1.125" />
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-  <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`;
-
-togglePassword.addEventListener("click", () => {
-  if (passwordInput.type === "password") {
-    passwordInput.type = "text";
-    eyeIcon.innerHTML = eyeClosedSVG;
-  } else {
-    passwordInput.type = "password";
-    eyeIcon.innerHTML = eyeOpenSVG;
-  }
-});
-
-// --- Toggle mật khẩu cho form đăng ký (Mật khẩu) ---
-const toggleSignupPassword = document.getElementById("toggle-signup-password");
-const signupPasswordInput = document.getElementById("signup-password-input");
-const signupEyeIcon = document.getElementById("signup-eye-icon");
-
-toggleSignupPassword.addEventListener("click", () => {
-  if (signupPasswordInput.type === "password") {
-    signupPasswordInput.type = "text";
-    signupEyeIcon.innerHTML = eyeClosedSVG;
-  } else {
-    signupPasswordInput.type = "password";
-    signupEyeIcon.innerHTML = eyeOpenSVG;
-  }
-});
-
-// --- Toggle mật khẩu cho form đăng ký (Xác nhận mật khẩu) ---
-const toggleSignupConfirmPassword = document.getElementById(
-  "toggle-signup-confirm-password"
-);
-const signupConfirmPasswordInput = document.getElementById(
-  "signup-confirm-password-input"
-);
-const signupConfirmEyeIcon = document.getElementById("signup-confirm-eye-icon");
-
-toggleSignupConfirmPassword.addEventListener("click", () => {
-  if (signupConfirmPasswordInput.type === "password") {
-    signupConfirmPasswordInput.type = "text";
-    signupConfirmEyeIcon.innerHTML = eyeClosedSVG;
-  } else {
-    signupConfirmPasswordInput.type = "password";
-    signupConfirmEyeIcon.innerHTML = eyeOpenSVG;
-  }
-});
-
-// --- Chuyển đổi giữa form Đăng nhập và Đăng ký ---
-const loginContainer = document.getElementById("login-container");
-const signupContainer = document.getElementById("signup-container");
-const showSignup = document.getElementById("show-signup");
-const showLogin = document.getElementById("show-login");
-const modalTitle = document.getElementById("modal-title");
-
-showSignup.addEventListener("click", () => {
-  loginContainer.classList.add("hidden");
-  signupContainer.classList.remove("hidden");
-  modalTitle.innerHTML = `FYSYLE <span class="text-blue-800">CLUB</span> - Đăng ký`;
-});
-
-showLogin.addEventListener("click", () => {
-  signupContainer.classList.add("hidden");
-  loginContainer.classList.remove("hidden");
-  modalTitle.innerHTML = `FYSYLE <span class="text-blue-800">CLUB</span> - Đăng nhập`;
-});
 
 // .......................................... hiệu ứng product details ...............................................
 // Các biến toàn cục dùng cho modal ảnh
@@ -424,3 +314,151 @@ document
       this.classList.add("hidden");
     }
   });
+// ...........................................Modal đang nhập, đăng ký...............................................
+document.querySelectorAll(".profile-btn").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    showAuthModal();
+  });
+});
+
+// Khi modal được load, mặc định hiển thị form đăng nhập
+function showLoginForm() {
+  document.getElementById("modal-title").textContent =
+    "FYSYLE CLUB - Đăng nhập";
+  document.getElementById("login-container").classList.remove("hidden");
+  document.getElementById("signup-container").classList.add("hidden");
+}
+// Chuyển sang form đăng ký
+function showSignupForm() {
+  document.getElementById("modal-title").textContent = "FYSYLE CLUB - Đăng ký";
+  document.getElementById("login-container").classList.add("hidden");
+  document.getElementById("signup-container").classList.remove("hidden");
+}
+
+// Hàm hiển thị modal: loại bỏ lớp "modal-hidden"
+function showAuthModal() {
+  document.getElementById("auth-modal").classList.remove("modal-hidden");
+  // Khi modal hiện, mặc định hiển thị form đăng nhập
+  showLoginForm();
+}
+// Hàm ẩn modal: thêm lớp "modal-hidden"
+function hideAuthModal() {
+  document.getElementById("auth-modal").classList.add("modal-hidden");
+}
+
+// Toggle mật khẩu cho form đăng nhập
+const togglePassword = document.getElementById("toggle-password");
+const passwordInput = document.getElementById("password-input");
+const eyeIcon = document.getElementById("eye-icon");
+
+const eyeOpenSVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+       viewBox="0 0 24 24" stroke="currentColor">
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  </svg>
+`;
+const eyeClosedSVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none"
+       viewBox="0 0 24 24" stroke="currentColor">
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+             d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a10.05 10.05 0 011.658-3.07m2.2-2.2A9.977 9.977 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.05 10.05 0 01-1.658 3.07m-2.2 2.2A9.977 9.977 0 0112 19c-1.657 0-3.205-.407-4.575-1.125" />
+       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+       <line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+`;
+
+togglePassword.addEventListener("click", () => {
+  if (passwordInput.type === "password") {
+    passwordInput.type = "text";
+    eyeIcon.innerHTML = eyeClosedSVG;
+  } else {
+    passwordInput.type = "password";
+    eyeIcon.innerHTML = eyeOpenSVG;
+  }
+});
+
+// Toggle mật khẩu cho form đăng ký (nếu có)
+const toggleSignupPassword = document.getElementById("toggle-signup-password");
+const signupPasswordInput = document.getElementById("signup-password-input");
+const signupEyeIcon = document.getElementById("signup-eye-icon");
+
+const toggleSignupConfirmPassword = document.getElementById(
+  "toggle-signup-confirm-password"
+);
+const signupConfirmPasswordInput = document.getElementById(
+  "signup-confirm-password-input"
+);
+const signupConfirmEyeIcon = document.getElementById("signup-confirm-eye-icon");
+
+if (toggleSignupPassword) {
+  toggleSignupPassword.addEventListener("click", () => {
+    if (signupPasswordInput.type === "password") {
+      signupPasswordInput.type = "text";
+      signupEyeIcon.innerHTML = eyeClosedSVG;
+    } else {
+      signupPasswordInput.type = "password";
+      signupEyeIcon.innerHTML = eyeOpenSVG;
+    }
+  });
+}
+if (toggleSignupConfirmPassword) {
+  toggleSignupConfirmPassword.addEventListener("click", () => {
+    if (signupConfirmPasswordInput.type === "password") {
+      signupConfirmPasswordInput.type = "text";
+      signupConfirmEyeIcon.innerHTML = eyeClosedSVG;
+    } else {
+      signupConfirmPasswordInput.type = "password";
+      signupConfirmEyeIcon.innerHTML = eyeOpenSVG;
+    }
+  });
+}
+
+// Nút đóng modal: chỉ ẩn modal, không chuyển hướng trang
+const closeAuthModal = document.getElementById("close-auth-modal");
+closeAuthModal.addEventListener("click", () => {
+  hideAuthModal();
+});
+
+// Sự kiện chuyển đổi giữa form đăng nhập và đăng ký trong modal
+document.getElementById("switch-to-signup").addEventListener("click", () => {
+  showSignupForm();
+});
+document.getElementById("switch-to-login").addEventListener("click", () => {
+  showLoginForm();
+});
+
+// Hàm hiển thị toast thông báo (nếu cần)
+function showNotification(message, type = "info", duration = 3000) {
+  const notification = document.createElement("div");
+  let bgColor;
+  switch (type) {
+    case "success":
+      bgColor = "bg-green-500";
+      break;
+    case "error":
+      bgColor = "bg-red-500";
+      break;
+    default:
+      bgColor = "bg-blue-500";
+      break;
+  }
+  notification.className = `${bgColor} text-white px-4 py-2 rounded shadow-lg opacity-0 transform -translate-y-2 transition-all duration-300`;
+  notification.textContent = message;
+  const container = document.getElementById("notificationContainer");
+  container.appendChild(notification);
+  requestAnimationFrame(() => {
+    notification.classList.remove("opacity-0", "-translate-y-2");
+  });
+  setTimeout(() => {
+    notification.classList.add("opacity-0", "-translate-y-2");
+    setTimeout(() => {
+      notification.remove();
+    }, 300);
+  }, duration);
+}

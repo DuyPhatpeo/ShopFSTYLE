@@ -1,47 +1,3 @@
-/* Mặc định (desktop) */
-#auth-modal {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  animation: fade-in 0.3s ease-out;
-}
-
-#auth-modal.hidden {
-  display: none !important; /* Đảm bảo ẩn modal */
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  #auth-modal {
-    align-items: flex-end;
-    animation: none;
-  }
-  #auth-modal-content {
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    animation: slide-up 0.3s ease-out;
-  }
-  @keyframes slide-up {
-    from {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-}
-
 /* Product details */
 
 .out-of-stock {
@@ -85,4 +41,89 @@
   background: rgba(0, 0, 0, 0.5);
   padding: 4px 8px;
   border-radius: 4px;
+}
+/* Modal đăng nhập đăng ký */
+/* Lớp ẩn dành riêng cho modal */
+.modal-hidden {
+  display: none !important;
+}
+
+/* Modal overlay chung */
+#auth-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 900;
+  /* Điều chỉnh z-index sao cho modal không che khuất navbar khi ẩn */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Mặc định: modal căn giữa màn hình */
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile: Modal xuất hiện từ dưới lên và sát với lề dưới */
+@media (max-width: 767px) {
+  #auth-modal {
+    align-items: flex-end;
+    /* Modal sát lề dưới */
+    padding: 0;
+  }
+
+  #auth-modal-content {
+    width: 100%;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    margin: 0;
+    animation: slide-up 0.3s ease-out;
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+/* Desktop (và các thiết bị khác): Modal căn giữa */
+@media (min-width: 768px) {
+  #auth-modal {
+    align-items: center;
+    /* Nếu bạn muốn modal nằm ở vị trí trung tâm, không cần padding-top */
+  }
+}
+
+/* Style cho nội dung modal */
+#auth-modal-content {
+  background: #fff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 8px;
+  padding: 1.5rem;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style chung cho form */
+.form-container p {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
 }

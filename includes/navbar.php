@@ -1,7 +1,6 @@
 <?php
     include_once __DIR__ . "/../includes/config.php";
 ?>
-
 <!-- Header -->
 <header class="bg-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -30,17 +29,16 @@
                 </a>
             </div>
 
-
             <!-- Cart & Profile -->
             <div class="flex items-center space-x-4">
                 <a href="<?= USER_URL ?>/views/user/shopping-card.php" class="text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/bag-shopping.svg" alt="bag-shopping" class="w-8 h-8" />
                 </a>
+                <!-- Icon profile: khi bấm vào sẽ hiển thị modal đăng nhập -->
                 <button class="text-gray-600 hover:text-black profile-btn">
                     <img src="<?= USER_URL ?>/assets/icons/user.svg" alt="user" class="w-8 h-8" />
                 </button>
             </div>
-
         </div>
 
         <!-- Desktop Header -->
@@ -62,7 +60,6 @@
             </nav>
             <!-- Search & Icons -->
             <div class="flex items-center space-x-4">
-                <!-- Ô input tìm kiếm desktop: Bấm vào để mở modal -->
                 <form class="relative hidden lg:block" onsubmit="return false;">
                     <input id="desktop-search-input" type="text" placeholder="Tìm kiếm..." class="px-4 py-2 w-48 lg:w-64 rounded-full border border-gray-300 
                                focus:outline-none focus:border-gray-500 cursor-pointer" />
@@ -71,7 +68,6 @@
                         <img src="<?= USER_URL ?>/assets/icons/search.svg" alt="search" class="w-6 h-6" />
                     </button>
                 </form>
-                <!-- Icon tìm kiếm cho md trở xuống -->
                 <button id="desktop-search-btn" class="block lg:hidden text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/search.svg" alt="search" class="w-6 h-6" />
                 </button>
@@ -133,3 +129,11 @@
         </nav>
     </div>
 </header>
+<script>
+document.querySelectorAll('.profile-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+        e.preventDefault();
+        showAuthModal();
+    });
+});
+</script>

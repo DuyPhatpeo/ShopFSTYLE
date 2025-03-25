@@ -9,7 +9,11 @@ if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) >
     // Phiên đã hết hạn
     session_unset();
     session_destroy();
-    header("Location: ../auth/login.php?msg=" . urlencode("Phiên đăng nhập của bạn đã hết hạn!") . "&type=failure");
+    // In ra mã HTML/JS để hiển thị thông báo và chuyển hướng
+    echo "<script>
+            alert('Phiên đăng nhập của bạn đã hết hạn!');
+            window.location.href = '../auth/login.php';
+          </script>";
     exit;
 }
 $_SESSION['LAST_ACTIVITY'] = time(); // Cập nhật thời gian hoạt động cuối cùng
