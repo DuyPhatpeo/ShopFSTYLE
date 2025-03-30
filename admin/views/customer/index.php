@@ -83,9 +83,17 @@ $totalCustomers = $data['totalCustomers'];
                         <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
                             <?= htmlspecialchars($customer['address']) ?>
                         </td>
-                        <!-- Ẩn cột Trạng thái -->
+                        <!-- Trạng thái ẩn trên mobile -->
                         <td class="p-2 sm:p-3 align-middle hidden sm:table-cell">
-                            <?= (int)$customer['status'] === 1 ? 'Hoạt động' : 'Khóa' ?>
+                            <?php 
+                                if ($customer['status'] == 1) {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-green-200 text-green-800 font-semibold rounded-lg shadow-md">Hoạt động</span>';
+                                } elseif ($customer['status'] == 0) {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-red-200 text-red-800 font-semibold rounded-lg shadow-md">Khóa</span>';
+                                } else {
+                                    echo '<span class="px-1 sm:px-2 py-1 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-md">Unknown</span>';
+                                }
+                            ?>
                         </td>
                         <!-- Cột Hành động luôn hiển thị -->
                         <td class="p-2 sm:p-3 text-center align-middle">
