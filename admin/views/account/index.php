@@ -41,13 +41,15 @@ $totalAdmins = $data['totalAdmins'];
                     class="p-2 border border-gray-300 rounded-l-lg focus:outline-none" placeholder="Tìm tài khoản...">
                 <input type="hidden" name="limit" value="<?= $limit ?>">
                 <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white p-2 border border-gray-300 rounded-r-lg">
+                    class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-gray-300 rounded-r-lg transition duration-150 ease-in-out">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" stroke="white" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
+                    <span class="hidden sm:inline">Tìm kiếm</span>
                 </button>
+
             </form>
         </div>
 
