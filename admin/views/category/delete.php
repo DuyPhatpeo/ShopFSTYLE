@@ -24,7 +24,8 @@ if (!$category) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    processDeleteCategory($conn, $role_id);
+    // Sửa lỗi: truyền $category_id thay vì $role_id
+    processDeleteCategory($conn, $category_id);
 }
 ?>
 

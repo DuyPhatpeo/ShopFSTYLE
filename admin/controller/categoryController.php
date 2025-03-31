@@ -267,40 +267,63 @@ function processEditCategory($conn, $category_id) {
 }
 
 /**
- * Xóa danh mục (bao gồm cả danh mục con và file ảnh nếu có).
+ * Xoá danh mục và tất cả các danh mục con của nó.
+ * Đồng thời, xoá file ảnh vật lý nếu danh mục có ảnh.
  *
  * @param mysqli $conn Kết nối CSDL.
- * @param string $category_id ID danh mục cần xóa.
- * @return bool True nếu xóa thành công.
+ * @param string $category_id ID danh mục cần xoá.
+ * @return bool True nếu xoá thành công, false nếu thất bại.
  */
 function deleteCategory($conn, $category_id) {
-    // Lấy danh sách danh mục con
+    // 1. Xoá danh mục con (đệ quy)
     $sql = "SELECT category_id FROM category WHERE parent_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $category_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    // Đệ quy xóa danh mục con
-    while ($child = $result->fetch_assoc()) {
-        deleteCategory($conn, $child['category_id']);
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("s", $category_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($child = $result->fetch_assoc()) {
+            if (!deleteCategory($conn, $child['category_id'])) {
+                error_log("Không thể xoá danh mục con: " . $child['category_id']);
+                return false;
+            }
+        }
+        $stmt->close();
+    } else {
+        error_log("Prepare failed (child categories): " . $conn->error);
+        return false;
     }
-
-    // Xoá file ảnh vật lý nếu có
+    
+    // 2. Xoá file ảnh vật lý (nếu có)
     $currentCategory = getCategoryById($conn, $category_id);
     if ($currentCategory && !empty($currentCategory['image_url'])) {
         $physicalPath = __DIR__ . '/../../' . $currentCategory['image_url'];
         if (file_exists($physicalPath)) {
-            unlink($physicalPath);
+            if (!unlink($physicalPath)) {
+                error_log("Không thể xoá file ảnh: " . $physicalPath);
+                // Tiếp tục xoá danh mục mặc dù không xoá được file ảnh
+            }
         }
     }
-
-    // Xóa danh mục khỏi DB
+    
+    // 3. Xoá bản ghi danh mục khỏi DB
     $sql = "DELETE FROM category WHERE category_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $category_id);
-    return $stmt->execute();
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("s", $category_id);
+        if (!$stmt->execute()) {
+            error_log("Lỗi xoá danh mục: " . $category_id . " Error: " . $stmt->error);
+            $stmt->close();
+            return false;
+        }
+        $stmt->close();
+    } else {
+        error_log("Prepare failed (delete category): " . $conn->error);
+        return false;
+    }
+    
+    return true;
 }
+
+
 
 /**
  * Xử lý xóa danh mục thông qua form.
