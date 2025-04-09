@@ -17,10 +17,11 @@ if (!isset($_GET['id'])) {
 }
 
 $brand_id = $_GET['id'];
-$brand = getBrandById($conn, $brand_id);
+// Xử lý và lấy dữ liệu từ controller
+list($errors, $brand) = processEditBrand($conn, $brand_id);
+
 if (!$brand) {
-    header("Location: index.php?msg=Thương hiệu không tồn tại.&type=failure");
-    exit;
+    die("Thương hiệu không tồn tại.");
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

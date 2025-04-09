@@ -106,7 +106,7 @@ $errors = processEditBanner($conn, $banner_id);
                     <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['image']) ?></p>
                     <?php endif; ?>
                     <div id="uploadArea"
-                        class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
+                        class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-full max-w-md h-[300px] mx-auto overflow-hidden"
                         style="position: relative;">
                         <?php if (!empty($banner['image_url'])): ?>
                         <img id="imagePreview" src="../../../<?= htmlspecialchars($banner['image_url']) ?>"

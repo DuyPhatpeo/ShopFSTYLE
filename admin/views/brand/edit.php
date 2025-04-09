@@ -14,11 +14,13 @@ if (!$brand_id) {
     exit;
 }
 
-// Lấy thông tin thương hiệu cần chỉnh sửa
-$brand = getBrandById($conn, $brand_id);
+// Xử lý và lấy dữ liệu từ controller
+list($errors, $brand) = processEditBrand($conn, $brand_id);
+
 if (!$brand) {
     die("Thương hiệu không tồn tại.");
 }
+
 
 // Xử lý form chỉnh sửa thương hiệu
 $errors = processEditBrand($conn, $brand_id);
@@ -96,7 +98,7 @@ $errors = processEditBrand($conn, $brand_id);
             <div class="w-full md:w-1/2 px-2">
                 <label for="image" class="block mb-1 font-medium">Hình ảnh:</label>
                 <div id="uploadArea"
-                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
+                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-full max-w-md h-[300px] mx-auto overflow-hidden"
                     style="position: relative;">
                     <?php if (!empty($brand['image_url'])): ?>
                     <img id="imagePreview" src="../../../<?= htmlspecialchars($brand['image_url']) ?>"

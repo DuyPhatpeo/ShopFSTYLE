@@ -84,7 +84,7 @@ $errors = processAddBanner($conn);
                     <?php endif; ?>
                     <!-- Khu vực upload ảnh -->
                     <div id="uploadArea"
-                        class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
+                        class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-full max-w-md h-[300px] mx-auto overflow-hidden"
                         style="position: relative;">
                         <div id="uploadPlaceholder"
                             class="absolute flex flex-col items-center justify-center pointer-events-none">
