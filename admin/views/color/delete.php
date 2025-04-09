@@ -2,10 +2,9 @@
 $pageTitle = "Trang xoá màu";
 
 include("../../includes/session_check.php");
-
 ob_start();
-
 include("../../includes/header.php");
+
 require_once('../../../includes/db.php');           // Kết nối CSDL
 require_once('../../controller/colorController.php'); // File xử lý màu
 
@@ -48,10 +47,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Khung xác nhận xoá -->
     <div class="bg-white shadow rounded p-6">
-        <p class="mb-4 text-lg">
-            Bạn có chắc chắn muốn xóa màu:
-            <strong><?= htmlspecialchars($color['color_name']) ?></strong>?
-        </p>
+        <!-- Hiển thị thông tin màu -->
+        <div class="mb-4">
+            <p class="text-lg">
+                Bạn có chắc chắn muốn xóa màu:
+                <strong><?= htmlspecialchars($color['color_name']) ?></strong>?
+            </p>
+            <div class="flex items-center space-x-4 mt-2">
+                <div>
+                    <p class="text-sm text-gray-600">Mã màu:</p>
+                    <p class="font-mono"><?= htmlspecialchars($color['color_code']) ?></p>
+                </div>
+                <div class="w-12 h-8 rounded border"
+                    style="background-color: <?= htmlspecialchars($color['color_code']) ?>"></div>
+            </div>
+        </div>
+
+        <!-- Form xác nhận xoá -->
         <form method="POST" action="">
             <div class="flex justify-end items-center space-x-4">
                 <button type="submit" class="bg-red-700 hover:bg-red-800 text-white p-2 rounded flex items-center">
