@@ -124,7 +124,7 @@ $allCategories = getAllCategories($conn, $category_id);
             <div class="w-full md:w-1/2 px-2">
                 <label for="image" class="block mb-1 font-medium">Hình ảnh:</label>
                 <div id="uploadArea"
-                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-[400px] h-[300px] mx-auto overflow-hidden"
+                    class="group relative border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:border-blue-400 flex items-center justify-center w-full max-w-md h-[300px] mx-auto overflow-hidden"
                     style="position: relative;">
                     <?php if (!empty($category['image_url'])): ?>
                     <img id="imagePreview" src="../../../<?= htmlspecialchars($category['image_url']) ?>"
