@@ -1,12 +1,13 @@
 <?php
 // File: admin/controller/brandController.php
-require_once __DIR__ . '/../model/BrandModel.php';
-require_once __DIR__ . '/stringHelper.php';
 
+require_once __DIR__ . '/../model/brandModel.php';
+
+/**
+ * Xử lý thêm thương hiệu mới thông qua form.
+ */
 function processAddBrand($conn) {
     $errors = [];
-    $model = new BrandModel($conn);
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $brandName = trim($_POST['brand_name'] ?? '');
         $status    = isset($_POST['status']) ? (int)$_POST['status'] : 1;
@@ -15,10 +16,9 @@ function processAddBrand($conn) {
             $errors['brand_name'] = "Tên thương hiệu không được để trống.";
         } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $brandName)) {
             $errors['brand_name'] = "Tên thương hiệu không được chứa ký tự đặc biệt.";
-        } elseif ($model->isBrandNameExists($brandName)) {
+        } elseif (isBrandNameExists($conn, $brandName)) {
             $errors['brand_name'] = "Tên thương hiệu đã tồn tại.";
         }
-
         if ($status !== 1 && $status !== 2) {
             $errors['status'] = "Trạng thái không hợp lệ.";
         }
@@ -26,9 +26,7 @@ function processAddBrand($conn) {
         $imageUrl = null;
         if (!empty($_FILES['image']['name'])) {
             $targetDir = __DIR__ . '/../uploads/brands/';
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
-            }
+            if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $safeName  = safeString($brandName);
             $filename  = 'brand_' . $safeName . '_' . time() . '_' . uniqid() . '.' . $extension;
@@ -41,7 +39,7 @@ function processAddBrand($conn) {
         }
 
         if (empty($errors)) {
-            if ($model->addBrand($brandName, $status, $imageUrl)) {
+            if (addBrandWithImage($conn, $brandName, $status, $imageUrl)) {
                 header("Location: index.php?msg=Thêm thương hiệu thành công!&type=success");
                 exit;
             } else {
@@ -49,20 +47,11 @@ function processAddBrand($conn) {
             }
         }
     }
-
     return $errors;
 }
 
 function processEditBrand($conn, $brand_id) {
     $errors = [];
-    $model = new BrandModel($conn);
-    $brand = $model->getBrandById($brand_id);
-
-    if (!$brand) {
-        header("Location: index.php?msg=Thương hiệu không tồn tại&type=danger");
-        exit;
-    }
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $brandName = trim($_POST['brand_name'] ?? '');
         $status    = isset($_POST['status']) ? (int)$_POST['status'] : 1;
@@ -71,36 +60,38 @@ function processEditBrand($conn, $brand_id) {
             $errors['brand_name'] = "Tên thương hiệu không được để trống.";
         } elseif (!preg_match("/^[\p{L}\p{N}\s]+$/u", $brandName)) {
             $errors['brand_name'] = "Tên thương hiệu không được chứa ký tự đặc biệt.";
-        } elseif ($model->isBrandNameExists($brandName, $brand_id)) {
+        } elseif (isBrandNameExists($conn, $brandName, $brand_id)) {
             $errors['brand_name'] = "Tên thương hiệu đã tồn tại.";
         }
-
         if ($status !== 1 && $status !== 2) {
             $errors['status'] = "Trạng thái không hợp lệ.";
         }
 
-        $imageUrl = $brand['image_url'];
+        $imageUrl = null;
         if (!empty($_FILES['image']['name'])) {
-            $targetDir = __DIR__ . '/../uploads/brands/';
-            if (!is_dir($targetDir)) {
-                mkdir($targetDir, 0755, true);
+            $currentBrand = getBrandById($conn, $brand_id);
+            if ($currentBrand && !empty($currentBrand['image_url'])) {
+                $oldImagePath = __DIR__ . '/../../' . $currentBrand['image_url'];
+                if (file_exists($oldImagePath)) unlink($oldImagePath);
             }
+            $targetDir = __DIR__ . '/../uploads/brands/';
+            if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $safeName  = safeString($brandName);
             $filename  = 'brand_' . $safeName . '_' . time() . '_' . uniqid() . '.' . $extension;
             $filePath  = $targetDir . $filename;
             if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
-                if (!empty($brand['image_url']) && file_exists(__DIR__ . '/../../' . $brand['image_url'])) {
-                    unlink(__DIR__ . '/../../' . $brand['image_url']);
-                }
                 $imageUrl = 'admin/uploads/brands/' . $filename;
             } else {
-                $errors['image'] = "Upload ảnh không thành công.";
+                $errors['image'] = "Upload ảnh mới không thành công.";
             }
+        } else {
+            $currentBrand = getBrandById($conn, $brand_id);
+            $imageUrl = $currentBrand['image_url'] ?? null;
         }
 
         if (empty($errors)) {
-            if ($model->updateBrand($brand_id, $brandName, $status, $imageUrl)) {
+            if (updateBrand($conn, $brandName, $status, $imageUrl, $brand_id)) {
                 header("Location: index.php?msg=Cập nhật thương hiệu thành công!&type=success");
                 exit;
             } else {
@@ -108,21 +99,18 @@ function processEditBrand($conn, $brand_id) {
             }
         }
     }
-
-    return [$errors, $brand];
+    return $errors;
 }
 
 function processDeleteBrand($conn, $brand_id) {
-    $model = new BrandModel($conn);
-    if ($model->deleteBrand($brand_id)) {
-        header("Location: index.php?msg=Xóa thương hiệu thành công!&type=success");
-    } else {
-        header("Location: index.php?msg=Xóa thương hiệu thất bại.&type=danger");
+    $errors = [];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (deleteBrand($conn, $brand_id)) {
+            header("Location: index.php?msg=Xóa thương hiệu thành công!&type=success");
+            exit;
+        } else {
+            $errors['general'] = "Xóa thương hiệu thất bại.";
+        }
     }
-    exit;
-}
-
-function getBrandsWithPagination($conn, $page, $limit, $search) {
-    $model = new BrandModel($conn);
-    return $model->getBrandsWithPagination($page, $limit, $search);
+    return $errors;
 }
