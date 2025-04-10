@@ -1,5 +1,5 @@
 <?php
-require_once 'models/sizeModel.php';
+require_once __DIR__ . '/../model/sizeModel.php';
 
 function processAddSize($conn) {
     $errors = [];
