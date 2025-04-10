@@ -1,6 +1,6 @@
 <?php
 // controllers/customerController.php
-require_once 'models/customerModel.php';
+require_once __DIR__ . '/../model/customerModel.php';
 
 function processEditCustomer($conn, $customer_id) {
     $errors = [];
