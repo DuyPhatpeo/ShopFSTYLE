@@ -1,4 +1,6 @@
 <?php
+// File: views/auth/login.php
+
 session_start();
 $errors = $_SESSION['errors'] ?? [];
 $old = $_SESSION['old'] ?? [];
@@ -6,7 +8,7 @@ unset($_SESSION['errors'], $_SESSION['old']);
 $pageTitle = "Đăng nhập - FStyle";
 include("../../includes/header.php");
 
-// Kiểm tra cookie và điền email, mật khẩu nếu có
+// Nếu có cookie "email" và "password", lấy giá trị gán vào dữ liệu cũ
 if (isset($_COOKIE['email']) && isset($_COOKIE['password'])) {
     $old['email'] = $_COOKIE['email'];
     $old['password'] = $_COOKIE['password'];
@@ -24,6 +26,7 @@ if (isset($_COOKIE['email']) && isset($_COOKIE['password'])) {
         <?php endif; ?>
 
         <form action="../../controller/authController.php?action=login" method="post" class="space-y-5">
+            <!-- Ẩn input action nếu cần -->
             <input type="hidden" name="action" value="login">
 
             <!-- Email -->
@@ -47,6 +50,7 @@ if (isset($_COOKIE['email']) && isset($_COOKIE['password'])) {
                 <input type="password" name="password" id="password" placeholder="••••••••"
                     value="<?= htmlspecialchars($old['password'] ?? '') ?>"
                     class="w-full px-4 py-3 border rounded-lg pr-10 text-sm focus:outline-none <?= isset($errors['password']) ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-primary' ?>">
+                <!-- Nút toggle để hiển thị hoặc ẩn mật khẩu -->
                 <button type="button" onclick="togglePassword('password','icon-password')"
                     class="absolute right-3 top-9 text-gray-600">
                     <svg id="icon-password" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"

@@ -8,18 +8,14 @@ include("../../includes/header.php");
 ?>
 <div class="flex flex-col min-h-screen justify-center">
     <div class="max-w-lg mx-auto bg-white p-6 rounded-3xl shadow-lg mt-12 mb-12 w-full sm:w-96">
-
         <h2 class="text-2xl sm:text-3xl font-bold text-center text-primary mb-6">Tạo tài khoản FStyle</h2>
-
         <?php if (!empty($errors['general'])): ?>
         <div class="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4">
             <?= htmlspecialchars($errors['general']) ?>
         </div>
         <?php endif; ?>
-
         <form action="../../controller/authController.php?action=register" method="post" class="space-y-5">
             <input type="hidden" name="action" value="register">
-
             <!-- Họ và tên -->
             <div>
                 <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">
@@ -32,7 +28,6 @@ include("../../includes/header.php");
                 <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['full_name']) ?></p>
                 <?php endif; ?>
             </div>
-
             <!-- Email -->
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
@@ -45,7 +40,6 @@ include("../../includes/header.php");
                 <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['email']) ?></p>
                 <?php endif; ?>
             </div>
-
             <!-- Mật khẩu -->
             <div class="relative">
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
@@ -67,7 +61,6 @@ include("../../includes/header.php");
                 <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['password']) ?></p>
                 <?php endif; ?>
             </div>
-
             <!-- Nhập lại mật khẩu -->
             <div class="relative">
                 <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">
@@ -89,7 +82,6 @@ include("../../includes/header.php");
                 <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['confirm_password']) ?></p>
                 <?php endif; ?>
             </div>
-
             <!-- Số điện thoại -->
             <div>
                 <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
@@ -102,7 +94,6 @@ include("../../includes/header.php");
                 <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['phone']) ?></p>
                 <?php endif; ?>
             </div>
-
             <!-- Địa chỉ -->
             <div>
                 <label for="address" class="block text-sm font-medium text-gray-700 mb-1">
@@ -115,13 +106,11 @@ include("../../includes/header.php");
                 <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['address']) ?></p>
                 <?php endif; ?>
             </div>
-
             <button type="submit"
                 class="w-full bg-blue-400 text-white py-3 rounded-lg hover:bg-blue-500 transition font-semibold text-lg">
                 Đăng ký
             </button>
         </form>
-
         <p class="text-sm text-center mt-4">
             Đã có tài khoản? <a href="login.php" class="text-blue-500 underline">Đăng nhập</a>
         </p>
@@ -140,5 +129,4 @@ function togglePassword(fieldId, iconId) {
     }
 }
 </script>
-
 <?php include("../../includes/footer.php"); ?>
