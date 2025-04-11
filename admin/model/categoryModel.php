@@ -90,3 +90,25 @@ function deleteCategory($conn, $category_id) {
     $stmt->bind_param("s", $category_id);
     return $stmt->execute();
 }
+function getAllCategories($conn) {
+    $sql = "SELECT * FROM category ORDER BY category_name ASC";
+    $stmt = $conn->prepare($sql);
+
+    if (!$stmt) {
+        die("Lỗi prepare: " . $conn->error);
+    }
+
+    $stmt->execute();
+
+    $result = $stmt->get_result(); // Lấy kết quả dạng MySQLi Result
+
+    $categories = [];
+
+    while ($row = $result->fetch_assoc()) {
+        $categories[] = $row;
+    }
+
+    $stmt->close();
+
+    return $categories;
+}
