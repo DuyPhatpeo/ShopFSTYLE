@@ -1,18 +1,6 @@
 <?php
 require_once __DIR__ . '/../controller/stringHelper.php';
 
-function generateColorID() {
-    $data = random_bytes(16);
-    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
-    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
-    return sprintf('%s-%s-%s-%s-%s',
-        bin2hex(substr($data, 0, 4)),
-        bin2hex(substr($data, 4, 2)),
-        bin2hex(substr($data, 6, 2)),
-        bin2hex(substr($data, 8, 2)),
-        bin2hex(substr($data, 10, 6))
-    );
-}
 
 function isColorNameExists($conn, $colorName, $excludeId = null) {
     if ($excludeId) {
@@ -61,7 +49,7 @@ function getColorsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
 }
 
 function addColor($conn, $colorName, $colorCode, $status) {
-    $color_id = generateColorID();
+    $color_id = generateUCCID();
     $sql = "INSERT INTO color (color_id, color_name, color_code, status) VALUES (?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("sssi", $color_id, $colorName, $colorCode, $status);

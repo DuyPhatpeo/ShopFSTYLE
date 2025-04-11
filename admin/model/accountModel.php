@@ -3,18 +3,6 @@
 
 require_once __DIR__ . '/../controller/stringHelper.php';
 
-function generateAdminID() {
-    $data = random_bytes(16);
-    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
-    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
-    return sprintf('%s-%s-%s-%s-%s',
-        bin2hex(substr($data, 0, 4)),
-        bin2hex(substr($data, 4, 2)),
-        bin2hex(substr($data, 6, 2)),
-        bin2hex(substr($data, 8, 2)),
-        bin2hex(substr($data, 10, 6))
-    );
-}
 
 function isUsernameExists($conn, $username, $excludeId = null) {
     $sql = $excludeId 
@@ -67,7 +55,7 @@ function getAdminsWithPagination($conn, $page = 1, $limit = 10, $search = "") {
 }
 
 function addAdmin($conn, $username, $password, $email, $fullName, $roleId) {
-    $admin_id = generateAdminID();
+    $admin_id = generateUCCID();
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $roleId = $roleId !== "" ? $roleId : null;
     $stmt = $conn->prepare("

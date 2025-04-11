@@ -3,19 +3,6 @@
 
 require_once __DIR__ . '/../controller/stringHelper.php';
 
-function generateUCCID() {
-    $data = random_bytes(16);
-    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
-    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
-    return sprintf('%s-%s-%s-%s-%s',
-        bin2hex(substr($data, 0, 4)),
-        bin2hex(substr($data, 4, 2)),
-        bin2hex(substr($data, 6, 2)),
-        bin2hex(substr($data, 8, 2)),
-        bin2hex(substr($data, 10, 6))
-    );
-}
-
 function isCategoryNameExists($conn, $categoryName, $excludeId = null) {
     $sql = $excludeId 
         ? "SELECT COUNT(*) as count FROM category WHERE category_name = ? AND category_id != ?"

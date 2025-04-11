@@ -1,12 +1,8 @@
 <?php
 // File: admin/model/promotionModel.php
 
-function generatePromotionID() {
-    $data = random_bytes(16);
-    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
-    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
-    return vsprintf('%s-%s-%s-%s-%s', str_split(bin2hex($data), 4));
-}
+require_once __DIR__ . '/../controller/stringHelper.php';
+
 
 function isPromotionNameExists($conn, $promotionName, $excludeId = null) {
     $sql = "SELECT COUNT(*) as count FROM promotion WHERE promotion_name = ?" . ($excludeId ? " AND promotion_id != ?" : "");
@@ -53,7 +49,7 @@ function getPromotionsWithPagination($conn, $page = 1, $limit = 10, $search = ""
 }
 
 function addPromotion($conn, $promotionName, $promotionCode, $description, $discountValue, $startDate, $endDate) {
-    $promotion_id = generatePromotionID();
+    $promotion_id = generateUCCID();
     $stmt = $conn->prepare("INSERT INTO promotion (promotion_id, promotion_name, promotion_code, description, discount_value, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("ssssdss", $promotion_id, $promotionName, $promotionCode, $description, $discountValue, $startDate, $endDate);
     return $stmt->execute();
