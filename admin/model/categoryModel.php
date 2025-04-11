@@ -91,7 +91,7 @@ function deleteCategory($conn, $category_id) {
     return $stmt->execute();
 }
 function getAllCategories($conn) {
-    $sql = "SELECT * FROM category ORDER BY category_name ASC";
+    $sql = "SELECT * FROM category WHERE status = 1 ORDER BY category_name ASC";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
@@ -99,8 +99,7 @@ function getAllCategories($conn) {
     }
 
     $stmt->execute();
-
-    $result = $stmt->get_result(); // Lấy kết quả dạng MySQLi Result
+    $result = $stmt->get_result();
 
     $categories = [];
 

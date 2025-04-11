@@ -27,21 +27,6 @@ if (!$category) {
 // Xử lý form chỉnh sửa danh mục; hàm này trả về mảng lỗi ($errors)
 $errors = processEditCategory($conn, $category_id);
 
-// Hàm lấy danh sách danh mục để hiển thị trong dropdown (loại trừ danh mục hiện tại)
-function getAllCategories($conn, $excludeId) {
-    $sql = "SELECT category_id, category_name FROM category WHERE category_id != ? ORDER BY category_name ASC";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $excludeId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $categories = [];
-    if ($result && $result->num_rows > 0) {
-         while ($row = $result->fetch_assoc()){
-             $categories[] = $row;
-         }
-    }
-    return $categories;
-}
 
 $allCategories = getAllCategories($conn, $category_id);
 ?>

@@ -93,11 +93,11 @@ function deleteBrand($conn, $brand_id) {
 }
 
 function getAllBrands($conn) {
-    $sql = "SELECT brand_id, brand_name FROM brand ORDER BY brand_name ASC";
+    $sql = "SELECT brand_id, brand_name FROM brand WHERE status = 1 ORDER BY brand_name ASC";
     $result = $conn->query($sql);
     $brands = [];
     if ($result && $result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()){
+        while ($row = $result->fetch_assoc()) {
             $brands[] = $row;
         }
     }

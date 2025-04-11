@@ -14,17 +14,22 @@ if (!$brand_id) {
     exit;
 }
 
-// Xử lý và lấy dữ liệu từ controller
-list($errors, $brand) = processEditBrand($conn, $brand_id);
-
+// Lấy dữ liệu hiện tại của thương hiệu (không xử lý form ở bước này)
+$brand = getBrandById($conn, $brand_id);
 if (!$brand) {
     die("Thương hiệu không tồn tại.");
 }
 
-
-// Xử lý form chỉnh sửa thương hiệu
-$errors = processEditBrand($conn, $brand_id);
+// Xử lý form nếu có submit POST
+$errors = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $errors = processEditBrand($conn, $brand_id);
+    // Sau khi cập nhật thành công, processEditBrand đã redirect rồi (header + exit)
+    // Nếu có lỗi, ta cần cập nhật lại dữ liệu brand (vì ảnh có thể đã thay đổi)
+    $brand = getBrandById($conn, $brand_id);
+}
 ?>
+
 <div id="notificationContainer" class="fixed top-10 right-4 flex flex-col space-y-2 z-50"></div>
 
 <main class="container mx-auto p-6">
