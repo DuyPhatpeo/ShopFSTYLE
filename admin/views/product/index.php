@@ -114,8 +114,8 @@ $allCategories = getAllCategories($conn);
         </form>
 
         <!-- Bảng hiển thị sản phẩm -->
-        <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
-            <table class="w-full table-auto border-collapse">
+        <div class="rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto transition-all duration-300">
+            <table class="w-full table-auto border-collapse text-sm sm:text-base">
                 <thead class="bg-indigo-500 text-white">
                     <tr>
                         <th class="p-3 text-left">STT</th>
@@ -132,19 +132,21 @@ $allCategories = getAllCategories($conn);
                 <tbody>
                     <?php if (!empty($products)) : ?>
                     <?php 
-                            $stt = ($currentPage - 1) * $limit + 1;
-                            foreach ($products as $product) : 
-                                $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
-                        ?>
+                $stt = ($currentPage - 1) * $limit + 1;
+                foreach ($products as $product) : 
+                    $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
+            ?>
                     <tr class="<?= $rowClass ?> hover:bg-gray-200 transition">
                         <td class="p-3"><?= $stt++ ?></td>
                         <td class="p-3"><?= htmlspecialchars($product['product_name']) ?></td>
-                        <td class="p-3">
-                            <?php if (!empty($product['image_path'])): ?>
-                            <img src="../../../uploads/products/<?= htmlspecialchars($product['image_path']) ?>"
-                                alt="Ảnh sản phẩm" class="w-16 h-16 object-cover rounded shadow">
+                        <td class="p-3 sm:p-3 text-center align-middle">
+                            <?php if (!empty($product['main_image'])): ?>
+                            <img src="../../../<?= htmlspecialchars($product['main_image']) ?>"
+                                alt="<?= htmlspecialchars($product['product_name']) ?>"
+                                class="w-[80px] h-[80px] object-cover rounded-lg mx-auto sm:w-[100px] sm:h-[100px]">
+
                             <?php else: ?>
-                            <span class="text-gray-400 italic">Không có ảnh</span>
+                            <span class="text-gray-500 text-xs">No image</span>
                             <?php endif; ?>
                         </td>
                         <td class="p-3 hidden sm:table-cell">
@@ -179,7 +181,7 @@ $allCategories = getAllCategories($conn);
                         <td class="p-3 text-center">
                             <div class="flex flex-col sm:flex-row items-center gap-1">
                                 <a href="detail.php?id=<?= urlencode($product['product_id']) ?>"
-                                    class="bg-blue-200 hover:bg-blue-300 p-2 rounded shadow" title="Xem chi tiết">
+                                    class="bg-blue-200 hover:bg-blue-300 p-2 rounded-lg shadow" title="Xem chi tiết">
                                     <!-- Icon chi tiết -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -190,7 +192,7 @@ $allCategories = getAllCategories($conn);
                                     </svg>
                                 </a>
                                 <a href="edit.php?id=<?= urlencode($product['product_id']) ?>"
-                                    class="bg-yellow-200 hover:bg-yellow-300 p-2 rounded shadow" title="Chỉnh sửa">
+                                    class="bg-yellow-200 hover:bg-yellow-300 p-2 rounded-lg shadow" title="Chỉnh sửa">
                                     <!-- Icon chỉnh sửa -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -200,7 +202,7 @@ $allCategories = getAllCategories($conn);
                                     </svg>
                                 </a>
                                 <a href="delete.php?id=<?= urlencode($product['product_id']) ?>"
-                                    class="bg-red-200 hover:bg-red-300 p-2 rounded shadow"
+                                    class="bg-red-200 hover:bg-red-300 p-2 rounded-lg-lg shadow"
                                     onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');" title="Xóa">
                                     <!-- Icon xóa -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
@@ -214,7 +216,7 @@ $allCategories = getAllCategories($conn);
                                     </svg>
                                 </a>
                                 <a href="update_quantity.php?id=<?= urlencode($product['product_id']) ?>"
-                                    class="bg-purple-200 hover:bg-purple-300 p-2 rounded shadow"
+                                    class="bg-purple-200 hover:bg-purple-300 p-2 rounded-lg shadow "
                                     title="Cập nhật số lượng">
                                     <!-- Icon cập nhật số lượng -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
