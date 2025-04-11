@@ -85,3 +85,7 @@ function deleteRole($conn, $role_id) {
 function getRoleDetail($conn, $role_id) {
     return getRoleById($conn, $role_id);
 }
+function getAllColors($conn) {
+    $result = $conn->query("SELECT * FROM color WHERE status = 1 ORDER BY color_name ASC");
+    return $result->fetch_all(MYSQLI_ASSOC);
+}

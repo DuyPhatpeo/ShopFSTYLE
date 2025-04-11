@@ -66,3 +66,7 @@ function deleteSize($conn, $size_id) {
     $stmt->bind_param("s", $size_id);
     return $stmt->execute();
 }
+function getAllSizes($conn) {
+    $result = $conn->query("SELECT * FROM sizes WHERE status = 1 ORDER BY size_name ASC");
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
