@@ -40,8 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h1 class="text-4xl font-bold text-red-700">Xoá Sản Phẩm</h1>
             <p class="text-lg text-gray-500">ID: <?= htmlspecialchars($product['product_id']) ?></p>
         </div>
-        <a href="index.php?msg=Hủy"
-            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center">
+        <a href="index.php" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 448 512">
                 <path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 
                 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32L109.2 224 214.6 118.6c12.5-12.5 12.5-32.8 
@@ -61,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="space-y-3 text-lg text-gray-700">
                 <p><strong>Tên sản phẩm:</strong> <?= htmlspecialchars($product['product_name']) ?></p>
-                <p><strong>Mô tả:</strong> <?= nl2br(htmlspecialchars($product['description'])) ?></p>
                 <p><strong>Giá gốc:</strong> <?= number_format($product['original_price'], 0, ',', '.') ?>₫</p>
                 <p><strong>Giá giảm:</strong> <?= number_format($product['discount_price'], 0, ',', '.') ?>₫</p>
                 <p><strong>Thương hiệu:</strong> <?= htmlspecialchars($product['brand_name']) ?></p>
@@ -70,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?= $product['status'] == 1 ? '<span class="text-green-600">Hiển thị</span>' : '<span class="text-gray-500">Ẩn</span>' ?>
                 </p>
                 <p><strong>Ngày tạo:</strong> <?= htmlspecialchars($product['created_at']) ?></p>
+                <p><strong>Mô tả:</strong> <?= nl2br(htmlspecialchars($product['description'])) ?></p>
             </div>
 
             <div class="flex justify-center items-center">
@@ -86,9 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Nút xác nhận xoá -->
         <form method="POST" action="">
             <div class="flex justify-end items-center space-x-4">
-                <a href="index.php" class="px-4 py-2 rounded border border-gray-400 text-gray-700 hover:bg-gray-100">
-                    Huỷ
-                </a>
                 <button type="submit"
                     class="bg-red-700 hover:bg-red-800 text-white px-4 py-2 rounded flex items-center shadow">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24"
