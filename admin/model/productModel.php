@@ -69,6 +69,24 @@ function getProductsWithPagination($conn, $page = 1, $limit = 10, $search = "", 
         'totalProducts' => $totalProducts
     ];
 }
+function isProductNameExists($conn, $product_name, $exclude_id = null) {
+    $sql = "SELECT COUNT(*) FROM product WHERE product_name = ?";
+    $params = [$product_name];
+
+    if ($exclude_id !== null) {
+        $sql .= " AND product_id != ?";
+        $params[] = $exclude_id;
+    }
+
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", ...$params); // Đảm bảo truyền tham số đúng kiểu
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+
+    return $row['COUNT(*)'] > 0; // Kiểm tra số lượng kết quả
+}
+
 
 /**
  * Thêm sản phẩm mới.
@@ -79,11 +97,14 @@ function addProduct($conn, $product_name, $description, $original_price, $discou
     $product_id = generateUCCID();
     $stmt = $conn->prepare("INSERT INTO product (product_id, product_name, description, original_price, discount_price, brand_id, category_id, status, main_image, created_at)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-    // Các kiểu: s(product_id), s(product_name), s(description), d(original_price), d(discount_price),
-    // s(brand_id), s(category_id), i(status), s(main_image)
     $stmt->bind_param("sssddssis", $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image);
-    return $stmt->execute();
+
+    if ($stmt->execute()) {
+        return $product_id; // ✅ Trả về ID để redirect qua trang thêm biến thể
+    }
+    return false;
 }
+
 
 /**
  * Lấy chi tiết sản phẩm theo product_id.
@@ -131,3 +152,4 @@ function deleteProduct($conn, $product_id) {
     $stmt->bind_param("s", $product_id);
     return $stmt->execute();
 }
+?>

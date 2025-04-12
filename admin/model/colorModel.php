@@ -77,4 +77,16 @@ function deleteColor($conn, $color_id) {
     $stmt->bind_param("s", $color_id);
     return $stmt->execute();
 }
+function getAllColors($conn) {
+    $sql = "SELECT * FROM color ORDER BY color_name ASC";
+    $result = $conn->query($sql);
+    $colors = [];
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $colors[] = $row;
+        }
+    }
+    return $colors;
+}
+
 ?>

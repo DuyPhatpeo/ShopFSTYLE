@@ -1,127 +1,152 @@
-<?php 
-$pageTitle = "Thêm biến thể sản phẩm";
-
-include("../../includes/session_check.php");
+<?php
 ob_start();
-
+$pageTitle = "Trang thêm biến thể cho sản phẩm";
+include("../../includes/session_check.php");
 include("../../includes/header.php");
 require_once('../../../includes/db.php');
-require_once('../../controller/productController.php');
+require_once('../../controller/variantController.php');
+require_once('../../model/colorModel.php');
+require_once('../../model/sizeModel.php');
 
-// Kiểm tra GET parameter 'pid'
-if (!isset($_GET['pid'])) {
-    header("Location: index.php?msg=ID sản phẩm không hợp lệ.&type=failure");
-    exit;
-}
-
-$product_id = $_GET['pid'];
-$product = getProductById($conn, $product_id);
-if (!$product) {
-    header("Location: index.php?msg=Sản phẩm không tồn tại.&type=failure");
-    exit;
-}
-
-// Lấy danh sách màu và kích cỡ từ cơ sở dữ liệu
+$product_id = $_GET['product_id'] ?? '';
 $allColors = getAllColors($conn);
 $allSizes = getAllSizes($conn);
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    processAddVariantsStep2($conn, $product_id, $_POST, $_FILES, $errors);
-    if (empty($errors)) {
-        // Sau khi thêm biến thể xong, chuyển sang trang thêm ảnh cho từng biến thể theo màu
-        header("Location: add_variant_images.php?pid=" . urlencode($product_id));
+    $result = processAddVariant($conn);
+    if (is_array($result)) {
+        $errors = $result;
+    } else {
+        header("Location: ../product/index.php");
         exit;
     }
 }
 ?>
 
-<main class="container mx-auto p-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">Thêm Biến Thể Cho Sản Phẩm</h1>
+<div class="container mx-auto p-6">
+    <!-- Tiêu đề và nút "Quay lại danh sách" ở góc trên bên phải -->
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-semibold">Thêm biến thể cho sản phẩm</h2>
         <a href="index.php"
-            class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded shadow transition duration-150">
-            Quay lại danh sách sản phẩm
+            class="flex items-center gap-2 bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4 h-4 fill-current">
+                <path
+                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
+            </svg>
+            Quay lại danh sách
         </a>
     </div>
 
-    <div class="mb-6 p-4 bg-gray-100 rounded">
-        <p class="text-lg">Sản phẩm: <strong><?= htmlspecialchars($product['product_name']) ?></strong></p>
-    </div>
-
     <?php if (!empty($errors)): ?>
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-        <?php foreach ($errors as $error): ?>
-        <p><?= htmlspecialchars($error) ?></p>
-        <?php endforeach; ?>
+    <div class="bg-red-100 text-red-600 p-4 rounded mb-6">
+        <ul>
+            <?php foreach ($errors as $error): ?>
+            <li><?= htmlspecialchars($error) ?></li>
+            <?php endforeach; ?>
+        </ul>
     </div>
     <?php endif; ?>
 
-    <form method="POST" action="" enctype="multipart/form-data" class="bg-white shadow-lg rounded p-6">
+    <form action="" method="POST">
+        <input type="hidden" name="product_id" value="<?= htmlspecialchars($product_id) ?>">
+
         <!-- Chọn màu sắc -->
         <div class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-2">Chọn màu sắc</h2>
-            <div class="flex flex-wrap gap-4">
+            <label class="block mb-2 font-medium text-lg">Chọn màu sắc</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <?php foreach ($allColors as $color): ?>
-                <label class="flex items-center gap-2 bg-white p-2 rounded shadow transition duration-150">
-                    <input type="checkbox" class="colorCheckbox" value="<?= htmlspecialchars($color['color_id']) ?>">
-                    <span><?= htmlspecialchars($color['color_name']) ?></span>
+                <?php
+                        // Nếu color_code có nhiều mã màu, tách chúng
+                        $colorCodes = explode(',', $color['color_code']);
+
+                        // Chuẩn bị chuỗi gradient: chia đều phần trăm cho từng màu.
+                        $gradientParts = [];
+                        $count = count($colorCodes);
+                        $percent = floor(100 / $count);
+                        $start = 0;
+                        foreach ($colorCodes as $i => $code) {
+                            $code = trim($code);
+                            $end = $start + $percent;
+                            if ($i === $count - 1) {
+                                $end = 100; // đảm bảo 100%
+                            }
+                            $gradientParts[] = "$code $start% $end%";
+                            $start = $end;
+                        }
+                        $gradient = implode(', ', $gradientParts);
+                    ?>
+                <label
+                    class="flex items-center gap-2 p-2 border rounded cursor-pointer hover:bg-gray-100 transition-colors duration-200">
+                    <input type="checkbox" name="colors[]" value="<?= $color['color_id'] ?>"
+                        class="color-checkbox w-4 h-4 hidden"
+                        data-color="<?= htmlspecialchars($color['color_code']) ?>">
+
+                    <!-- Chấm tròn duy nhất với nền linear-gradient -->
+                    <span class="inline-block w-6 h-6 rounded-full border"
+                        style="background: linear-gradient(90deg, <?= htmlspecialchars($gradient) ?>);"></span>
+
+                    <span class="color-label"><?= htmlspecialchars($color['color_name']) ?></span>
                 </label>
                 <?php endforeach; ?>
             </div>
         </div>
 
-        <!-- Chọn kích cỡ -->
+        <!-- Chọn kích thước -->
         <div class="mb-6">
-            <h2 class="text-xl font-semibold text-gray-700 mb-2">Chọn kích cỡ</h2>
-            <div class="flex flex-wrap gap-4">
+            <label class="block mb-2 font-medium text-lg">Chọn kích thước</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 <?php foreach ($allSizes as $size): ?>
-                <label class="flex items-center gap-2 bg-white p-2 rounded shadow transition duration-150">
-                    <input type="checkbox" class="sizeCheckbox" value="<?= htmlspecialchars($size['size_id']) ?>">
+                <label
+                    class="flex items-center gap-2 p-2 border rounded cursor-pointer hover:bg-gray-100 transition-colors duration-200">
+                    <input type="checkbox" name="sizes[]" value="<?= $size['size_id'] ?>" class="form-checkbox hidden">
                     <span><?= htmlspecialchars($size['size_name']) ?></span>
                 </label>
                 <?php endforeach; ?>
             </div>
         </div>
 
-        <!-- Nút tạo bảng kết hợp biến thể -->
-        <div class="mb-6">
-            <button type="button" id="generateVariants"
-                class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow transition">
-                Tạo các kết hợp biến thể
+        <!-- Nút tạo biến thể -->
+        <div class="mb-6 text-center">
+            <button type="button" onclick="generateVariants()"
+                class="bg-blue-500 text-white px-6 py-3 rounded-lg shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Tạo biến thể
             </button>
         </div>
 
-        <!-- Bảng hiển thị các biến thể được tạo tự động -->
-        <div id="variantsContainer" class="mb-6 hidden">
-            <h2 class="text-xl font-semibold text-gray-700 mb-2">Nhập số lượng cho từng biến thể</h2>
-            <table class="w-full border-collapse">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="p-2 border text-left">Màu</th>
-                        <th class="p-2 border text-left">Kích cỡ</th>
-                        <th class="p-2 border text-left">Số lượng</th>
-                    </tr>
-                </thead>
-                <tbody id="variantTable">
-                    <!-- Các dòng được tạo tự động -->
-                </tbody>
-            </table>
+        <!-- Kết quả biến thể -->
+        <div id="variant-output" class="mb-8">
+            <!-- Các biến thể sẽ được render ở đây -->
         </div>
 
-        <!-- Nút submit -->
-        <div class="flex justify-end">
+        <!-- Các nút điều hướng và lưu -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+            <!-- Quay lại chi tiết -->
+            <a href="show.php?product_id=<?= htmlspecialchars($product_id) ?>"
+                class="flex items-center gap-2 bg-yellow-400 text-black px-6 py-3 rounded-lg hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-600 text-center w-full sm:w-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5 fill-current">
+                    <path
+                        d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z" />
+                </svg>
+                Quay lại chi tiết
+            </a>
+
+            <!-- Lưu biến thể -->
             <button type="submit"
-                class="bg-green-700 hover:bg-green-800 text-white py-2 px-6 rounded shadow transition duration-150">
+                class="flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 w-full sm:w-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-5 h-5 fill-current">
+                    <path
+                        d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-242.7c0-17-6.7-33.3-18.7-45.3L352 50.7C340 38.7 323.7 32 306.7 32L64 32zm0 96c0-17.7 14.3-32 32-32l192 0c17.7 0 32 14.3 32 32l0 64c0 17.7-14.3 32-32 32L96 224c-17.7 0-32-14.3-32-32l0-64zM224 288a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
+                </svg>
                 Lưu biến thể
             </button>
         </div>
     </form>
-</main>
+</div>
 
 <script>
-// Thêm sự kiện đổi màu nền cho checkbox khi chọn/bỏ chọn
-document.querySelectorAll('.colorCheckbox, .sizeCheckbox').forEach(function(checkbox) {
+// Sự kiện cho checkbox: thêm/removing class highlight
+document.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
     checkbox.addEventListener('change', function() {
         if (this.checked) {
             this.parentElement.classList.add('bg-blue-100');
@@ -131,92 +156,63 @@ document.querySelectorAll('.colorCheckbox, .sizeCheckbox').forEach(function(chec
     });
 });
 
-// Hàm tạo bảng kết hợp giữa màu và kích cỡ đã chọn
-document.getElementById('generateVariants').addEventListener('click', function() {
-    var selectedColors = Array.from(document.querySelectorAll('.colorCheckbox:checked')).map(function(cb) {
-        return {
-            id: cb.value,
-            name: cb.parentElement.textContent.trim()
-        };
-    });
-    var selectedSizes = Array.from(document.querySelectorAll('.sizeCheckbox:checked')).map(function(cb) {
-        return {
-            id: cb.value,
-            name: cb.parentElement.textContent.trim()
-        };
-    });
+// Hàm tạo danh sách biến thể kèm nút xóa cho từng dòng
+function generateVariants() {
+    const selectedColors = Array.from(document.querySelectorAll('input[name="colors[]"]:checked')).map(i => i.value);
+    const selectedSizes = Array.from(document.querySelectorAll('input[name="sizes[]"]:checked')).map(i => i.value);
+    const output = document.getElementById('variant-output');
+    output.innerHTML = '';
 
-    // Nếu không có màu nào được chọn, bắt buộc thông báo lỗi
-    if (selectedColors.length === 0) {
-        alert("Vui lòng chọn ít nhất 1 màu sắc!");
+    if (selectedColors.length === 0 || selectedSizes.length === 0) {
+        alert("Bạn phải chọn ít nhất một màu và một kích thước.");
         return;
     }
-    // Nếu không có kích cỡ nào được chọn, tạo một kết hợp với giá trị "Không có kích cỡ"
-    if (selectedSizes.length === 0) {
-        selectedSizes.push({
-            id: null,
-            name: "Không có kích cỡ"
+
+    selectedColors.forEach(colorId => {
+        selectedSizes.forEach(sizeId => {
+            // Lấy nhãn màu và size
+            const colorLabel = document.querySelector(`input[name="colors[]"][value="${colorId}"]`)
+                .parentElement.querySelector('.color-label').textContent;
+            const sizeLabelElement = document.querySelector(`input[name="sizes[]"][value="${sizeId}"]`)
+                .parentElement.querySelector('span:last-child');
+            const sizeLabel = sizeLabelElement ? sizeLabelElement.textContent : '';
+
+            // Tạo div chứa thông tin biến thể và nút xóa
+            const variantDiv = document.createElement('div');
+            variantDiv.setAttribute("role", "variant");
+            variantDiv.className =
+                'grid grid-cols-1 sm:grid-cols-4 items-center gap-4 mb-4 p-4 border rounded-lg bg-gray-50';
+
+            variantDiv.innerHTML = `
+                <div><strong>Màu:</strong> ${colorLabel}</div>
+                <div><strong>Size:</strong> ${sizeLabel}</div>
+                <div>
+                    <label class="block font-medium mb-1">Số lượng</label>
+                    <input type="number" name="variants[${colorId}_${sizeId}][quantity]" required min="1"
+                        class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" value="1">
+                </div>
+                <div class="text-right">
+                    <button type="button" onclick="removeVariant(this)"
+                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500">
+                        Xóa
+                    </button>
+                </div>
+            `;
+            output.appendChild(variantDiv);
         });
+    });
+}
+
+// Hàm xóa một biến thể dựa vào thuộc tính role
+function removeVariant(button) {
+    const variant = button.closest('div[role="variant"]');
+    if (variant) {
+        variant.remove();
     }
-
-    var variants = [];
-    selectedColors.forEach(function(color) {
-        selectedSizes.forEach(function(size) {
-            variants.push({
-                color: color,
-                size: size
-            });
-        });
-    });
-
-    var tableBody = document.getElementById('variantTable');
-    tableBody.innerHTML = "";
-    variants.forEach(function(variant) {
-        var tr = document.createElement('tr');
-        tr.classList.add("border-b");
-
-        // Cột màu
-        var tdColor = document.createElement('td');
-        tdColor.classList.add("p-2", "border");
-        var inputColor = document.createElement('input');
-        inputColor.type = "hidden";
-        inputColor.name = "variant_color[]";
-        inputColor.value = variant.color.id;
-        tdColor.appendChild(inputColor);
-        tdColor.appendChild(document.createTextNode(variant.color.name));
-        tr.appendChild(tdColor);
-
-        // Cột kích cỡ
-        var tdSize = document.createElement('td');
-        tdSize.classList.add("p-2", "border");
-        var inputSize = document.createElement('input');
-        inputSize.type = "hidden";
-        inputSize.name = "variant_size[]";
-        inputSize.value = (variant.size.id !== null) ? variant.size.id : "";
-        tdSize.appendChild(inputSize);
-        tdSize.appendChild(document.createTextNode(variant.size.name));
-        tr.appendChild(tdSize);
-
-        // Cột số lượng
-        var tdQuantity = document.createElement('td');
-        tdQuantity.classList.add("p-2", "border");
-        var inputQty = document.createElement('input');
-        inputQty.type = "number";
-        inputQty.name = "variant_quantity[]";
-        inputQty.placeholder = "Nhập số lượng";
-        inputQty.classList.add("w-full", "p-1", "border", "rounded");
-        inputQty.min = "0";
-        tdQuantity.appendChild(inputQty);
-        tr.appendChild(tdQuantity);
-
-        tableBody.appendChild(tr);
-    });
-
-    document.getElementById('variantsContainer').classList.remove('hidden');
-});
+}
 </script>
 
-<?php
+<?php 
 include('../../includes/footer.php');
 ob_end_flush();
 ?>
