@@ -19,9 +19,47 @@ if (!$product) {
     die("Sản phẩm không tồn tại.");
 }
 
-// Lấy danh sách biến thể của sản phẩm
-// Nếu số biến thể không quá nhiều bạn có thể không dùng phân trang
-// Ví dụ dưới đây có sử dụng phân trang với tham số variant_page để tách riêng phần phân trang của biến thể
+// Xử lý POST từ form (thêm số lượng hoặc xoá biến thể)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Thêm số lượng
+    if (isset($_POST['action']) && $_POST['action'] === 'add_quantity') {
+        $variant_id      = trim($_POST['variant_id']);
+        $quantity_to_add = max(0, intval($_POST['quantity_to_add']));
+        // Lấy thông tin biến thể hiện tại
+        $variant = getVariantById($conn, $variant_id);
+        if ($variant) {
+            $newQuantity = $variant['quantity'] + $quantity_to_add;
+            // Nếu số lượng mới = 0 thì status = 0, ngược lại status = 1
+            $newStatus = ($newQuantity === 0) ? 0 : 1;
+            $stmt = $conn->prepare("UPDATE product_variants SET quantity = ?, status = ? WHERE variant_id = ?");
+            $stmt->bind_param("iis", $newQuantity, $newStatus, $variant_id);
+            if ($stmt->execute()) {
+                $_SESSION['success'] = "Thêm số lượng thành công.";
+            } else {
+                $_SESSION['error'] = "Cập nhật số lượng thất bại.";
+            }
+            $stmt->close();
+        } else {
+            $_SESSION['error'] = "Không tìm thấy biến thể.";
+        }
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
+    }
+    
+    // Xoá biến thể
+    if (isset($_POST['action']) && $_POST['action'] === 'delete_variant') {
+        $variant_id = trim($_POST['variant_id']);
+        if (deleteVariant($conn, $variant_id)) {
+            $_SESSION['success'] = "Đã xoá biến thể thành công.";
+        } else {
+            $_SESSION['error'] = "Xoá biến thể thất bại.";
+        }
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
+    }
+}
+
+// Lấy danh sách biến thể của sản phẩm (sử dụng phân trang riêng cho biến thể)
 $page    = isset($_GET['variant_page']) ? (int)$_GET['variant_page'] : 1;
 $limit   = 10; // Số dòng mỗi trang (điều chỉnh theo nhu cầu)
 $variantsData = getVariantsWithPagination($conn, $product_id, $page, $limit);
@@ -127,23 +165,21 @@ $currentPage  = $variantsData['currentPage'];
         </div>
 
         <?php if ($variants && $variants->num_rows > 0): ?>
-
-        <table class="w-full table-auto border-collapse text-sm sm:text-base">
-            <thead class="bg-indigo-500 text-white">
-                <tr>
-                    <th class="p-3 text-left">Màu Sắc</th>
-                    <th class="p-3 text-left">Kích Thước</th>
-                    <th class="p-3 text-left">Số Lượng</th>
-                    <th class="p-3 text-left">Trạng Thái</th>
-                    <th class="p-3 text-center">Hành động</th>
-                </tr>
-            </thead>
-            <div class="rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto transition-all duration-300">
+        <div class="rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto transition-all duration-300">
+            <table class="w-full table-auto border-collapse text-sm sm:text-base">
+                <thead class="bg-indigo-500 text-white">
+                    <tr>
+                        <th class="p-3 text-left">Màu Sắc</th>
+                        <th class="p-3 text-left">Kích Thước</th>
+                        <th class="p-3 text-left">Số Lượng</th>
+                        <th class="p-3 text-left">Trạng Thái</th>
+                        <th class="p-3 text-center">Hành động</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <?php 
                     $stt = ($currentPage - 1) * $limit + 1;
                     while($variant = $variants->fetch_assoc()):
-                        // Lựa chọn màu cho dòng: xen kẽ giữa bg-gray-100 và bg-white.
                         $rowClass = ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white';
                     ?>
                     <tr class="<?= $rowClass ?> hover:bg-gray-200 transition">
@@ -152,8 +188,7 @@ $currentPage  = $variantsData['currentPage'];
                         <td class="p-3"><?= htmlspecialchars($variant['quantity']) ?></td>
                         <td class="p-3">
                             <?php 
-                            // Nếu status = 1 thì coi như còn hàng, nếu = 0 thì hết hàng
-                            echo $variant['status'] 
+                            echo $variant['status']
                                 ? '<span class="px-2 py-1 bg-green-200 text-green-800 rounded">Còn hàng</span>' 
                                 : '<span class="px-2 py-1 bg-red-200 text-red-800 rounded">Hết hàng</span>'; 
                             ?>
@@ -161,11 +196,10 @@ $currentPage  = $variantsData['currentPage'];
                         <td class="p-3 text-center">
                             <div class="flex flex-col sm:flex-row items-center gap-1">
                                 <!-- Form Thêm số lượng -->
-                                <form method="POST" action="processAddQuantity.php"
-                                    class="flex flex-col sm:flex-row gap-1">
+                                <form method="POST" action="" class="flex flex-col sm:flex-row gap-1">
+                                    <input type="hidden" name="action" value="add_quantity">
                                     <input type="hidden" name="variant_id"
-                                        value="<?= urlencode($variant['variant_id']) ?>">
-                                    <input type="hidden" name="product_id" value="<?= urlencode($product_id) ?>">
+                                        value="<?= htmlspecialchars($variant['variant_id']) ?>">
                                     <input type="number" name="quantity_to_add" placeholder="Nhập số lượng"
                                         class="border p-1 rounded w-24" required>
                                     <button type="submit"
@@ -173,19 +207,24 @@ $currentPage  = $variantsData['currentPage'];
                                         Thêm
                                     </button>
                                 </form>
-                                <!-- Nút Xoá biến thể -->
-                                <a href="processVariantDelete.php?variant_id=<?= urlencode($variant['variant_id']) ?>&product_id=<?= urlencode($product_id) ?>"
-                                    onclick="return confirm('Bạn có chắc muốn xoá biến thể này?');"
-                                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
-                                    Xoá
-                                </a>
+                                <!-- Form Xoá biến thể -->
+                                <form method="POST" action=""
+                                    onsubmit="return confirm('Bạn có chắc muốn xoá biến thể này?');">
+                                    <input type="hidden" name="action" value="delete_variant">
+                                    <input type="hidden" name="variant_id"
+                                        value="<?= htmlspecialchars($variant['variant_id']) ?>">
+                                    <button type="submit"
+                                        class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+                                        Xoá
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
-                    <?php endwhile; ?>
+                    <?php $stt++; endwhile; ?>
                 </tbody>
-            </div>
-        </table>
+            </table>
+        </div>
 
         <!-- Phân trang biến thể -->
         <div class="mt-4">
@@ -194,21 +233,18 @@ $currentPage  = $variantsData['currentPage'];
                     <?php for($i = 1; $i <= $totalPages; $i++): ?>
                     <li
                         class="<?= ($i == $currentPage) ? 'bg-blue-500 text-white' : 'bg-white text-blue-500' ?> border px-3 py-1">
-                        <a href="?id=<?= urlencode($product_id) ?>&page=<?= $i ?>"><?= $i ?></a>
+                        <a href="?id=<?= urlencode($product_id) ?>&variant_page=<?= $i ?>"><?= $i ?></a>
                     </li>
                     <?php endfor; ?>
                 </ul>
             </nav>
         </div>
-
         <?php else: ?>
         <div class="bg-gray-200 p-4 rounded">
             <p class="text-gray-700">Sản phẩm này chưa có biến thể.</p>
         </div>
         <?php endif; ?>
     </div>
-
-
 </main>
 
 <?php
