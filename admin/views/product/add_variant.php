@@ -5,8 +5,6 @@ include("../../includes/session_check.php");
 include("../../includes/header.php");
 require_once('../../../includes/db.php');
 require_once('../../controller/variantController.php');
-require_once('../../model/colorModel.php');
-require_once('../../model/sizeModel.php');
 
 $product_id = $_GET['product_id'] ?? '';
 $allColors = getAllColors($conn);
