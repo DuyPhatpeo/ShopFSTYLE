@@ -79,7 +79,7 @@ function isProductNameExists($conn, $product_name, $exclude_id = null) {
     }
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", ...$params); // Đảm bảo truyền tham số đúng kiểu
+    $stmt->bind_param("ss", ...$params); // Đảm bảo truyền tham số đúng kiểu
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
