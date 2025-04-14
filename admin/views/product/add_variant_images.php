@@ -1,86 +1,90 @@
 <?php 
-$pageTitle = "Thêm ảnh cho biến thể sản phẩm";
+$pageTitle = "Upload Ảnh Biến Thể";
 
+// Kiểm tra session đăng nhập
 include("../../includes/session_check.php");
 ob_start();
 
 include("../../includes/header.php");
 require_once('../../../includes/db.php');
-require_once('../../controller/productController.php');
+require_once('../../controller/variantController.php');
 
-// Kiểm tra GET parameter 'pid'
-if (!isset($_GET['pid'])) {
-    header("Location: index.php?msg=ID sản phẩm không hợp lệ.&type=failure");
-    exit;
-}
 
-$product_id = $_GET['pid'];
-$productDetail = getProductDetail($conn, $product_id);
-if (!$productDetail) {
-    header("Location: index.php?msg=Sản phẩm không tồn tại.&type=failure");
-    exit;
-}
-
-$variants = $productDetail['variants'];
-$errors = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    processAddVariantImagesStep3($conn, $product_id, $_POST, $_FILES, $errors);
-    if (empty($errors)) {
-        header("Location: index.php?msg=Thêm ảnh cho biến thể thành công!&type=success");
-        exit;
-    }
-}
 ?>
 
-<main class="container mx-auto p-6">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">Thêm ảnh cho biến thể</h1>
+<main class="container mx-auto px-4 py-6">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-800"><?= $pageTitle ?></h1>
         <a href="index.php"
-            class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded shadow transition duration-150">
-            Quay lại danh sách sản phẩm
+            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition duration-150">
+            <span>Quay lại</span>
         </a>
     </div>
 
-    <div class="mb-6 p-4 bg-gray-100 rounded">
-        <p class="text-lg">Sản phẩm: <strong><?= htmlspecialchars($productDetail['product']['product_name']) ?></strong>
-        </p>
-    </div>
+    <form action="../../controller/productController.php" method="POST" enctype="multipart/form-data"
+        class="bg-white rounded shadow p-6 space-y-6">
+        <input type="hidden" name="product_id" value="<?= htmlspecialchars($product_id) ?>">
+        <!-- Gửi tên sản phẩm để tạo slug nếu cần -->
+        <input type="hidden" name="product_name" value="<?= htmlspecialchars($product['product_name'] ?? '') ?>">
 
-    <?php if (!empty($errors)): ?>
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-        <?php foreach ($errors as $error): ?>
-        <p><?= htmlspecialchars($error) ?></p>
-        <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-
-    <form method="POST" action="" enctype="multipart/form-data" class="bg-white shadow-lg rounded p-6">
-        <h2 class="text-xl font-semibold text-gray-700 mb-4">Chọn ảnh cho từng biến thể</h2>
-
-        <?php foreach ($variants as $variant): ?>
-        <div class="mb-6 border p-4 rounded">
-            <p class="font-medium mb-2">
-                Biến thể: Màu - <strong><?= htmlspecialchars($variant['color_id']) ?></strong>,
-                Kích cỡ -
-                <strong><?= $variant['size_id'] ? htmlspecialchars($variant['size_id']) : 'Không có kích cỡ' ?></strong>
-            </p>
-            <div class="mb-2">
-                <input type="file" name="variant_images[<?= htmlspecialchars($variant['variant_id']) ?>][]" multiple
-                    accept="image/*" class="w-full">
+        <!-- Mỗi dòng upload ảnh cho một biến thể -->
+        <div id="variantImagesContainer">
+            <div class="variant-image-item mb-4 border p-4 rounded">
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700">Mã màu (variant_color) <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" name="variant_color[]" class="w-full p-2 border rounded"
+                        placeholder="Nhập mã màu tương ứng với biến thể">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700">Tên màu (variant_color_name)</label>
+                    <input type="text" name="variant_color_name[]" class="w-full p-2 border rounded"
+                        placeholder="Nhập tên màu (để hiển thị)">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Ảnh</label>
+                    <input type="file" name="variant_images[]" accept="image/*" class="w-full p-2 border rounded">
+                </div>
             </div>
         </div>
-        <?php endforeach; ?>
-
+        <!-- Nút thêm dòng upload ảnh -->
+        <div class="mb-4">
+            <button type="button" id="addVariantImageBtn" class="bg-green-500 text-white py-2 px-4 rounded">Thêm dòng
+                ảnh</button>
+        </div>
+        <!-- Nút submit -->
         <div class="flex justify-end">
-            <button type="submit"
-                class="bg-green-700 hover:bg-green-800 text-white py-2 px-6 rounded shadow transition duration-150">
-                Lưu ảnh biến thể
-            </button>
+            <input type="hidden" name="action" value="process_add_variant_images">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">Hoàn
+                Thành</button>
         </div>
     </form>
 </main>
 
-<?php
+<script>
+document.getElementById('addVariantImageBtn').addEventListener('click', function() {
+    const container = document.getElementById('variantImagesContainer');
+    const newItem = document.createElement('div');
+    newItem.classList.add('variant-image-item', 'mb-4', 'border', 'p-4', 'rounded');
+    newItem.innerHTML = `
+        <div class="mb-2">
+            <label class="block text-sm font-medium text-gray-700">Mã màu (variant_color) <span class="text-red-500">*</span></label>
+            <input type="text" name="variant_color[]" class="w-full p-2 border rounded" placeholder="Nhập mã màu tương ứng với biến thể">
+        </div>
+        <div class="mb-2">
+            <label class="block text-sm font-medium text-gray-700">Tên màu (variant_color_name)</label>
+            <input type="text" name="variant_color_name[]" class="w-full p-2 border rounded" placeholder="Nhập tên màu (để hiển thị)">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Ảnh</label>
+            <input type="file" name="variant_images[]" accept="image/*" class="w-full p-2 border rounded">
+        </div>
+    `;
+    container.appendChild(newItem);
+});
+</script>
+
+<?php 
 include('../../includes/footer.php');
 ob_end_flush();
 ?>
