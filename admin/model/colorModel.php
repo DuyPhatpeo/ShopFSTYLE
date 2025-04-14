@@ -88,5 +88,21 @@ function getAllColors($conn) {
     }
     return $colors;
 }
+function getColorNameById($conn, $color_id) {
+    // Prepare SQL statement to get color name
+    $query = "SELECT color_name FROM colors WHERE color_id = :color_id LIMIT 1";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(':color_id', $color_id, PDO::PARAM_INT);
+    $stmt->execute();
 
+    // Fetch the result
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Check if color name exists and return it
+    if ($result && isset($result['color_name'])) {
+        return $result['color_name'];
+    } else {
+        return false; // Return false if color name not found
+    }
+}
 ?>
