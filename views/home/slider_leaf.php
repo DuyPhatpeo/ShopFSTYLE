@@ -71,7 +71,7 @@ foreach ($parentCategories as $parent) {
                         alt="<?php echo htmlspecialchars($cat['category_name']); ?>" />
                 </div>
             </a>
-            <a href="views/category/category_products.php?id=<?php echo urlencode($cat['category_id']); ?>">
+            <a href="category_products.php?id=<?php echo urlencode($cat['category_id']); ?>">
                 <h2
                     class="text-lg font-semibold text-gray-800 text-center mt-2 transition-colors duration-300 group-hover:text-blue-600">
                     <?php echo htmlspecialchars($cat['category_name']); ?>

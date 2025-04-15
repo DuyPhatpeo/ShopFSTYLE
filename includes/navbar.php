@@ -40,7 +40,7 @@ include_once __DIR__ . "/../includes/config.php";
                     <img src="<?= USER_URL ?>/assets/icons/search.svg" alt="search" class="w-6 h-6" />
                 </button>
             </div>
-            <a href="<?= USER_URL ?>/views/home/index.php">
+            <a href="<?= USER_URL ?>">
                 <img src="<?= USER_URL ?>/assets/images/logo-fstyle.png" alt="logo" class="w-12 h-12 object-contain" />
             </a>
             <div class="flex items-center space-x-4">
@@ -63,7 +63,7 @@ include_once __DIR__ . "/../includes/config.php";
         <!-- Desktop Header -->
         <div class="hidden md:flex justify-between items-center">
             <div class="flex items-center space-x-3 cursor-pointer">
-                <a href="<?= USER_URL ?>/views/home/index.php">
+                <a href="<?= USER_URL ?>    ">
                     <img src="<?= USER_URL ?>/assets/images/logo-fstyle.png" alt="logo"
                         class="w-20 lg:w-24 object-contain" />
                 </a>
