@@ -27,16 +27,34 @@ function processAddBrand($conn) {
         if (!empty($_FILES['image']['name'])) {
             $targetDir = __DIR__ . '/../uploads/brands/';
             if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
-            $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $safeName  = safeString($brandName);
-            $filename  = 'brand_' . $safeName . '_' . time() . '_' . uniqid() . '.' . $extension;
-            $filePath  = $targetDir . $filename;
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
-                $imageUrl = 'admin/uploads/brands/' . $filename;
-            } else {
-                $errors['image'] = "Upload ảnh không thành công.";
+            
+            // Kiểm tra loại file ảnh
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+            $extension = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+            if (!in_array($extension, $allowedExtensions)) {
+                $errors['image'] = "Ảnh chỉ được phép có định dạng JPG, JPEG, PNG, hoặc GIF.";
+            }
+            
+            // Kiểm tra kích thước file ảnh (max 2MB)
+            if ($_FILES['image']['size'] > 2 * 1024 * 1024) {
+                $errors['image'] = "Ảnh không được lớn hơn 2MB.";
+            }
+        
+            // Nếu không có lỗi, tiếp tục xử lý ảnh
+            if (empty($errors)) {
+                $safeName = safeString($brandName);
+                $filename = 'brand-' . $safeName . '.' . $extension;
+                $filePath = $targetDir . $filename;
+        
+                // Di chuyển ảnh vào thư mục
+                if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
+                    $imageUrl = 'admin/uploads/brands/' . $filename;
+                } else {
+                    $errors['image'] = "Upload ảnh không thành công.";
+                }
             }
         }
+        
 
         if (empty($errors)) {
             if (addBrandWithImage($conn, $brandName, $status, $imageUrl)) {
@@ -78,7 +96,7 @@ function processEditBrand($conn, $brand_id) {
             if (!is_dir($targetDir)) mkdir($targetDir, 0755, true);
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $safeName  = safeString($brandName);
-            $filename  = 'brand_' . $safeName . '_' . time() . '_' . uniqid() . '.' . $extension;
+            $filename  = 'brand-' . $safeName . $extension;
             $filePath  = $targetDir . $filename;
             if (move_uploaded_file($_FILES['image']['tmp_name'], $filePath)) {
                 $imageUrl = 'admin/uploads/brands/' . $filename;

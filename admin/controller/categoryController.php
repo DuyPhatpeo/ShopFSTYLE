@@ -80,24 +80,34 @@ function processDeleteCategory($conn, $category_id) {
     return ['general' => 'Xóa danh mục thất bại.'];
 }
 
-// Hàm xử lý ảnh cho danh mục
 function handleCategoryImageUpload($conn, $currentImageUrl = null) {
     if (!empty($_FILES['image']['name'])) {
         $folder = __DIR__ . '/../uploads/categories/';
         if (!is_dir($folder)) mkdir($folder, 0755, true);
+
+        // Lấy tên danh mục và tạo slug từ đó
+        $categoryName = trim($_POST['category_name'] ?? '');
+        $slug = createSlug($categoryName); // Tạo slug từ tên danh mục
         
-        // Tạo tên file ảnh mới
-        $filename = 'category_' . uniqid() . '.' . pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        // Tạo tên file ảnh mới, thêm slug vào tên file
+        $filename = 'category-' . $slug . '.' . pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        
+        // Nếu có ảnh cũ và ảnh cũ tồn tại, xóa ảnh cũ
+        if ($currentImageUrl && file_exists(__DIR__ . '/../../' . $currentImageUrl)) {
+            unlink(__DIR__ . '/../../' . $currentImageUrl);
+        }
+
+        // Di chuyển ảnh mới vào thư mục
         if (move_uploaded_file($_FILES['image']['tmp_name'], $folder . $filename)) {
-            // Xóa ảnh cũ nếu có
-            if ($currentImageUrl && file_exists(__DIR__ . '/../../' . $currentImageUrl)) {
-                unlink(__DIR__ . '/../../' . $currentImageUrl);
-            }
             return 'admin/uploads/categories/' . $filename;
         } else {
             throw new Exception("Tải ảnh thất bại.");
         }
     }
+
+    // Nếu không có ảnh mới, giữ lại ảnh cũ
     return $currentImageUrl;
 }
+
+
 ?>

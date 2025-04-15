@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../controller/stringHelper.php';
 
+
 function isCategoryNameExists($conn, $categoryName, $excludeId = null) {
     $sql = $excludeId 
         ? "SELECT COUNT(*) as count FROM category WHERE category_name = ? AND category_id != ?"
@@ -50,9 +51,10 @@ function getCategoriesWithPagination($conn, $page = 1, $limit = 10, $search = ""
 
 function addCategoryWithImage($conn, $categoryName, $parentId, $status, $imageUrl) {
     $category_id = generateUCCID();
-    $stmt = $conn->prepare("INSERT INTO category (category_id, category_name, parent_id, status, image_url)
-                            VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssis", $category_id, $categoryName, $parentId, $status, $imageUrl);
+    $category_slug = createSlug($categoryName); // Tạo slug từ tên danh mục
+    $stmt = $conn->prepare("INSERT INTO category (category_id, category_name, category_slug, parent_id, status, image_url)
+                            VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("ssssis", $category_id, $categoryName, $category_slug, $parentId, $status, $imageUrl);
     return $stmt->execute();
 }
 
@@ -63,11 +65,19 @@ function getCategoryById($conn, $category_id) {
     return $stmt->get_result()->fetch_assoc();
 }
 
+function getCategoryBySlug($conn, $slug) {
+    $stmt = $conn->prepare("SELECT * FROM category WHERE category_slug = ?");
+    $stmt->bind_param("s", $slug);
+    $stmt->execute();
+    return $stmt->get_result()->fetch_assoc();
+}
+
 function updateCategory($conn, $category_id, $categoryName, $parentId, $status, $imageUrl) {
+    $category_slug = createSlug($categoryName); // Tạo slug từ tên danh mục
     $stmt = $conn->prepare("UPDATE category
-                            SET category_name = ?, parent_id = ?, status = ?, image_url = ?
+                            SET category_name = ?, category_slug = ?, parent_id = ?, status = ?, image_url = ?
                             WHERE category_id = ?");
-    $stmt->bind_param("ssiss", $categoryName, $parentId, $status, $imageUrl, $category_id);
+    $stmt->bind_param("ssisss", $categoryName, $category_slug, $parentId, $status, $imageUrl, $category_id);
     return $stmt->execute();
 }
 
@@ -90,6 +100,7 @@ function deleteCategory($conn, $category_id) {
     $stmt->bind_param("s", $category_id);
     return $stmt->execute();
 }
+
 function getAllCategories($conn) {
     $sql = "SELECT * FROM category WHERE status = 1 ORDER BY category_name ASC";
     $stmt = $conn->prepare($sql);
