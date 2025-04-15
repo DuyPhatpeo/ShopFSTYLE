@@ -11,4 +11,8 @@ $conn = new mysqli($host, $username, $password, $database);
 if ($conn->connect_error) {
     die("Kết nối CSDL thất bại: " . $conn->connect_error);
 }
+
+// Đặt bộ mã hóa ký tự UTF-8
+$conn->set_charset("utf8");
+
 ?>

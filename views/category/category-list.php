@@ -1,134 +1,98 @@
-<!-- ======================== START: Category List Section ======================== -->
-<section class="w-full py-10 relative">
-    <div class="container mx-auto px-4">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold">DANH MỤC SẢN PHẨM</h2>
-        </div>
+<?php
+// File: slider_leaf.php
 
-        <!-- Swiper Slider for Categories -->
-        <div class="swiper categorySwiper">
-            <div class="swiper-wrapper">
-                <!-- Card Danh mục 1 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category1.png" alt="Danh mục 1"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 1
-                    </p>
+// Kết nối CSDL
+require_once '../../includes/db.php';
+require_once '../../model/categoryModel.php';
+
+// Tạo đối tượng CategoryModel
+$categoryModel = new CategoryModel($conn);
+
+// Lấy danh mục cha
+$parentCategories = $categoryModel->getParentCategories();
+
+// Tập hợp danh mục leaf: gồm các danh mục cha không có con và danh mục con
+$leafCategories = [];
+
+foreach ($parentCategories as $parent) {
+    $children = $categoryModel->getChildCategories($parent['category_id']);
+    if (!$children) {
+        $leafCategories[] = $parent;
+    } else {
+        foreach ($children as $child) {
+            $leafCategories[] = $child;
+        }
+    }
+}
+?>
+<style>
+.scroll-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Hiển thị nút điều hướng ra ngoài viền container */
+.nav-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+</style>
+
+<div class="relative px-2 mt-8 max-w-screen-2xl mx-auto">
+
+    <!-- Nút điều hướng (cách slider xa hơn một chút) -->
+    <button onclick="scrollSlider(-1)"
+        class="nav-btn absolute -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md rounded-full hover:bg-gray-200 transition">
+        &#8592;
+    </button>
+    <button onclick="scrollSlider(1)"
+        class="nav-btn absolute -right-10 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md rounded-full hover:bg-gray-200 transition">
+        &#8594;
+    </button>
+
+
+
+    <!-- Slider -->
+    <div id="leafSlider" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 scroll-hidden scroll-smooth">
+        <?php if ($leafCategories): ?>
+        <?php foreach ($leafCategories as $cat): ?>
+        <div class="snap-start flex-shrink-0 w-[350px] group">
+            <a href="category.php?id=<?php echo urlencode($cat['category_id']); ?>">
+                <div class="w-full h-[500px] mt-2">
+                    <img class="w-full h-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
+                        src="<?php echo htmlspecialchars($cat['image_url']); ?>"
+                        alt="<?php echo htmlspecialchars($cat['category_name']); ?>" />
                 </div>
-                <!-- Card Danh mục 2 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category2.png" alt="Danh mục 2"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 2
-                    </p>
-                </div>
-                <!-- Card Danh mục 3 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category3.png" alt="Danh mục 3"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 3
-                    </p>
-                </div>
-                <!-- Card Danh mục 4 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category4.png" alt="Danh mục 4"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 4
-                    </p>
-                </div>
-                <!-- Card Danh mục 5 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category5.png" alt="Danh mục 5"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 5
-                    </p>
-                </div>
-                <!-- Card Danh mục 6 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category6.png" alt="Danh mục 6"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 6
-                    </p>
-                </div>
-                <!-- Card Danh mục 7 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category7.png" alt="Danh mục 7"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 7
-                    </p>
-                </div>
-                <!-- Card Danh mục 8 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category8.png" alt="Danh mục 8"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 8
-                    </p>
-                </div>
-                <!-- Card Danh mục 9 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category1.png" alt="Danh mục 9"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 9
-                    </p>
-                </div>
-                <!-- Card Danh mục 10 -->
-                <div class="swiper-slide flex flex-col items-center cursor-pointer"
-                    onclick="location.href='views/category/category-detail.php'">
-                    <img src="<?= USER_URL ?>/assets/images/public/category/category2.png" alt="Danh mục 10"
-                        class="w-full h-[350px] object-cover rounded-lg mb-3" />
-                    <p class="text-lg font-semibold hover:text-blue-500 transition-colors duration-200">
-                        Danh mục 10
-                    </p>
-                </div>
-            </div>
+            </a>
+            <a href="category.php?id=<?php echo urlencode($cat['category_id']); ?>">
+                <h2
+                    class="text-lg font-semibold text-gray-800 text-center mt-2 transition-colors duration-300 group-hover:text-blue-600">
+                    <?php echo htmlspecialchars($cat['category_name']); ?>
+                </h2>
+            </a>
         </div>
+        <?php endforeach; ?>
+        <?php else: ?>
+        <p class="text-center text-gray-600">Không có danh mục leaf nào.</p>
+        <?php endif; ?>
     </div>
-</section>
-<!-- ======================== END: Category List Section ======================== -->
+</div>
 
-<!-- SwiperJS Initialization -->
 <script>
-var swiper = new Swiper(".categorySwiper", {
-    slidesPerView: 2,
-    spaceBetween: 15,
-    loop: true,
-    slidesPerGroup: 1, // Kéo từng ảnh 1 qua
-    breakpoints: {
-        640: {
-            slidesPerView: 2,
-            slidesPerGroup: 1
-        },
-        768: {
-            slidesPerView: 3,
-            slidesPerGroup: 1
-        },
-        1024: {
-            slidesPerView: 5,
-            slidesPerGroup: 1
-        },
-    },
-    navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-    },
-});
+function scrollSlider(direction) {
+    const slider = document.getElementById('leafSlider');
+    const scrollAmount = 400;
+    slider.scrollBy({
+        left: direction * scrollAmount,
+        behavior: 'smooth'
+    });
+}
 </script>

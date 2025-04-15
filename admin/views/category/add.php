@@ -14,18 +14,6 @@ require_once('../../controller/categoryController.php');   // Controller danh m�
 // Xử lý form thêm danh mục; hàm này trả về mảng lỗi ($errors)
 $errors = processAddCategory($conn);
 
-// Hàm lấy danh sách tất cả danh mục cha
-function getAllCategories($conn) {
-    $sql = "SELECT category_id, category_name FROM category ORDER BY category_name ASC";
-    $result = $conn->query($sql);
-    $categories = [];
-    if ($result && $result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $categories[] = $row;
-        }
-    }
-    return $categories;
-}
 
 $allCategories = getAllCategories($conn);
 ?>
