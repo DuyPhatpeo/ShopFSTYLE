@@ -68,4 +68,8 @@ function generateUCCID() {
         bin2hex(substr($data, 10, 6))
     );
 }
+function createSlug($text) {
+    return safeString($text);
+}
+
 ?>
