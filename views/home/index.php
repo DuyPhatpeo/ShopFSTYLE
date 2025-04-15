@@ -10,7 +10,7 @@
     include ('banner.php'); 
 ?>
 <?php 
-    include ('../category/category-list.php'); 
+    include ('../category/slider_leaf.php'); 
 ?>
 
 <?php 

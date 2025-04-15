@@ -11,14 +11,17 @@ $categoryModel = new CategoryModel($conn);
 // Lấy danh mục cha
 $parentCategories = $categoryModel->getParentCategories();
 
-// Tập hợp danh mục leaf: gồm các danh mục cha không có con và danh mục con
+// Tập hợp danh mục leaf: gồm các danh mục cha không có con và các danh mục con
 $leafCategories = [];
 
 foreach ($parentCategories as $parent) {
     $children = $categoryModel->getChildCategories($parent['category_id']);
-    if (!$children) {
+    
+    // Nếu không có con (tức là danh mục cha này là leaf)
+    if (count($children) === 0) {
         $leafCategories[] = $parent;
     } else {
+        // Có con thì thêm các con vào danh sách leaf
         foreach ($children as $child) {
             $leafCategories[] = $child;
         }
@@ -35,7 +38,6 @@ foreach ($parentCategories as $parent) {
     scrollbar-width: none;
 }
 
-/* Hiển thị nút điều hướng ra ngoài viền container */
 .nav-btn {
     width: 44px;
     height: 44px;
@@ -47,8 +49,7 @@ foreach ($parentCategories as $parent) {
 </style>
 
 <div class="relative px-2 mt-8 max-w-screen-2xl mx-auto">
-
-    <!-- Nút điều hướng (cách slider xa hơn một chút) -->
+    <!-- Nút điều hướng slider -->
     <button onclick="scrollSlider(-1)"
         class="nav-btn absolute -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md rounded-full hover:bg-gray-200 transition">
         &#8592;
@@ -58,11 +59,9 @@ foreach ($parentCategories as $parent) {
         &#8594;
     </button>
 
-
-
-    <!-- Slider -->
+    <!-- Slider danh mục leaf -->
     <div id="leafSlider" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 scroll-hidden scroll-smooth">
-        <?php if ($leafCategories): ?>
+        <?php if (!empty($leafCategories)): ?>
         <?php foreach ($leafCategories as $cat): ?>
         <div class="snap-start flex-shrink-0 w-[350px] group">
             <a href="category.php?id=<?php echo urlencode($cat['category_id']); ?>">

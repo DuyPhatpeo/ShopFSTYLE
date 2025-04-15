@@ -73,13 +73,24 @@ function getCategoryBySlug($conn, $slug) {
 }
 
 function updateCategory($conn, $category_id, $categoryName, $parentId, $status, $imageUrl) {
-    $category_slug = createSlug($categoryName); // Tạo slug từ tên danh mục
-    $stmt = $conn->prepare("UPDATE category
-                            SET category_name = ?, category_slug = ?, parent_id = ?, status = ?, image_url = ?
-                            WHERE category_id = ?");
-    $stmt->bind_param("ssisss", $categoryName, $category_slug, $parentId, $status, $imageUrl, $category_id);
+    $category_slug = createSlug($categoryName);
+
+    // Nếu $parentId là null thì cần set NULL trong SQL, không bind kiểu "s"
+    if ($parentId === null) {
+        $stmt = $conn->prepare("UPDATE category
+                                SET category_name = ?, category_slug = ?, parent_id = NULL, status = ?, image_url = ?
+                                WHERE category_id = ?");
+        $stmt->bind_param("ssiss", $categoryName, $category_slug, $status, $imageUrl, $category_id);
+    } else {
+        $stmt = $conn->prepare("UPDATE category
+                                SET category_name = ?, category_slug = ?, parent_id = ?, status = ?, image_url = ?
+                                WHERE category_id = ?");
+        $stmt->bind_param("ssssis", $categoryName, $category_slug, $parentId, $status, $imageUrl, $category_id);
+    }
+
     return $stmt->execute();
 }
+
 
 function deleteCategory($conn, $category_id) {
     $stmt = $conn->prepare("SELECT category_id FROM category WHERE parent_id = ?");

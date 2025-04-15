@@ -54,21 +54,39 @@ function processEditCategory($conn, $category_id) {
             $errors['category_name'] = "Tên danh mục đã tồn tại.";
         }
 
-        // Lấy ảnh hiện tại nếu có
+        // Kiểm tra danh mục cha
+        $parent = trim($parent);
+        if ($parent === '' || strtolower($parent) === 'null') {
+            $parent = null;
+        } else {
+            if ($parent === $category_id) {
+                $errors['parent_id'] = "Không thể chọn chính nó làm danh mục cha.";
+            } elseif (!getCategoryById($conn, $parent)) {
+                $errors['parent_id'] = "Danh mục cha không tồn tại.";
+            }
+        }
+
+        // Lấy ảnh hiện tại
         $current = getCategoryById($conn, $category_id);
         $imageUrl = $current['image_url'] ?? null;
 
-        // Xử lý ảnh nếu có
+        // Xử lý ảnh nếu có upload mới
         $imageUrl = handleCategoryImageUpload($conn, $imageUrl);
 
-        // Nếu không có lỗi, tiến hành cập nhật danh mục
-        if (empty($errors) && updateCategory($conn, $category_id, $name, $parent, $status, $imageUrl)) {
-            header("Location: index.php?msg=Cập nhật thành công&type=success");
-            exit;
+        // Nếu không có lỗi thì cập nhật
+        if (empty($errors)) {
+            if (updateCategory($conn, $category_id, $name, $parent, $status, $imageUrl)) {
+                header("Location: index.php?msg=Cập nhật thành công&type=success");
+                exit;
+            } else {
+                $errors['general'] = "Đã có lỗi xảy ra khi cập nhật danh mục.";
+            }
         }
     }
+
     return $errors;
 }
+
 
 function processDeleteCategory($conn, $category_id) {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {

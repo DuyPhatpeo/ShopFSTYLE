@@ -92,21 +92,21 @@ class CategoryModel {
         return $stmt->execute();
     }
     // Lấy thông tin danh mục theo slug
-    public function getCategoryBySlug($slug) {
+    public function getCategoriesBySlug($slug) {
         $sql = "SELECT category_id, category_name, parent_id, image_url FROM category WHERE slug = ?";
         $stmt = $this->conn->prepare($sql);
-        if (!$stmt) {
-            return false;
-        }
-
-        $stmt->bind_param("s", $slug); // Dùng slug để tìm kiếm
+        if (!$stmt) return false;
+    
+        $stmt->bind_param("s", $slug);
         $stmt->execute();
         $result = $stmt->get_result();
-
-        if ($result && $result->num_rows > 0) {
-            return $result->fetch_assoc();
+    
+        $categories = [];
+        while ($row = $result->fetch_assoc()) {
+            $categories[] = $row;
         }
-        return false;
+        return $categories;
     }
+    
 }
 ?>
