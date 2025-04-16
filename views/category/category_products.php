@@ -19,6 +19,11 @@
     $products = $productModel->getProductsByCategoryUUID($category_id);
 ?>
 
+<!-- Toastr CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
 <!-- Nội dung danh sách sản phẩm -->
 <div class="container mx-auto p-4">
     <h1 class="text-2xl font-semibold mb-4">Sản phẩm thuộc danh mục</h1>
@@ -32,7 +37,7 @@
             $has_discount = $discount_price && $discount_price < $original_price;
             $discount_percent = $has_discount ? round(100 - ($discount_price / $original_price) * 100) : 0;
         ?>
-        <!-- Card sản phẩm: không có border, không có hiệu ứng zoom khi hover -->
+        <!-- Card sản phẩm -->
         <a href="product_detail.php?id=<?php echo $product['product_id']; ?>"
             class="block rounded-xl transition duration-300 p-4 relative group">
             <div class="relative">
@@ -40,12 +45,12 @@
                 <img src="../../<?php echo htmlspecialchars($product['image_url']); ?>"
                     alt="<?php echo htmlspecialchars($product['product_name']); ?>"
                     class="w-full h-96 object-cover rounded-lg">
-                <!-- Overlay hiển thị nút Thêm vào giỏ, nằm ở góc dưới bên phải -->
+                <!-- Overlay nút thêm giỏ -->
                 <div
                     class="absolute inset-x-0 bottom-0 flex justify-end pr-2 pb-2 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition duration-300 rounded-b-lg">
                     <button onclick="event.stopPropagation(); addToCart('<?php echo $product['product_id']; ?>')"
-                        class="bg-blue-600 text-white text-sm px-3 py-1 rounded">
-                        Thêm nhanh vào giỏ
+                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-md shadow-lg transition duration-300 transform hover:scale-105">
+                        <i class="fas fa-cart-plus mr-1"></i> Thêm vào giỏ
                     </button>
                 </div>
             </div>
@@ -55,10 +60,10 @@
             </h2>
             <div class="text-base font-medium text-gray-900 flex items-center gap-2 mt-1">
                 <?php if ($has_discount): ?>
-                <span class="text-red-600 text-xl"><?php echo number_format($discount_price); ?>đ</span>
+                <span class="text-blue-600 text-xl"><?php echo number_format($discount_price); ?>đ</span>
                 <span class="line-through text-sm text-gray-400"><?php echo number_format($original_price); ?>đ</span>
                 <span
-                    class="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-md"><?php echo "-$discount_percent%"; ?></span>
+                    class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-md"><?php echo "-$discount_percent%"; ?></span>
                 <?php else: ?>
                 <span class="text-xl"><?php echo number_format($original_price); ?>đ</span>
                 <?php endif; ?>
@@ -71,16 +76,16 @@
     <?php endif; ?>
 </div>
 
+<!-- Toastr JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
 function addToCart(productId) {
-    // Lấy giỏ hàng hiện tại từ localStorage, nếu chưa có thì là mảng rỗng
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    // Tạo đối tượng sản phẩm đơn giản, bạn có thể cập nhật thêm thông tin nếu cần
     const product = {
         id: productId,
         quantity: 1
     };
-    // Kiểm tra nếu sản phẩm đã tồn tại trong giỏ hàng, thì cập nhật số lượng
     const index = cart.findIndex(item => item.id === productId);
     if (index > -1) {
         cart[index].quantity += 1;
@@ -88,7 +93,14 @@ function addToCart(productId) {
         cart.push(product);
     }
     localStorage.setItem('cart', JSON.stringify(cart));
-    alert("Sản phẩm đã được thêm vào giỏ hàng!");
+
+    // Thông báo bằng toastr
+    toastr.success('Đã thêm sản phẩm vào giỏ hàng!', 'Thành công', {
+        closeButton: true,
+        progressBar: true,
+        timeOut: 2000,
+        positionClass: "toast-bottom-right"
+    });
 }
 </script>
 
