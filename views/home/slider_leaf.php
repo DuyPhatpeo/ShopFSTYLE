@@ -64,14 +64,14 @@ foreach ($parentCategories as $parent) {
         <?php if (!empty($leafCategories)): ?>
         <?php foreach ($leafCategories as $cat): ?>
         <div class="snap-start flex-shrink-0 w-[350px] group">
-            <a href="views/category/category_products.php?id=<?php echo urlencode($cat['category_id']); ?>">
+            <a href="views/category_products.php?id=<?php echo urlencode($cat['category_id']); ?>">
                 <div class="w-full h-[500px] mt-2">
                     <img class="w-full h-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
                         src="<?php echo htmlspecialchars($cat['image_url']); ?>"
                         alt="<?php echo htmlspecialchars($cat['category_name']); ?>" />
                 </div>
             </a>
-            <a href="category_products.php?id=<?php echo urlencode($cat['category_id']); ?>">
+            <a href="views/category_products.php?id=<?php echo urlencode($cat['category_id']); ?>">
                 <h2
                     class="text-lg font-semibold text-gray-800 text-center mt-2 transition-colors duration-300 group-hover:text-blue-600">
                     <?php echo htmlspecialchars($cat['category_name']); ?>

@@ -1,11 +1,11 @@
 <?php 
     // Bao gồm các tệp cần thiết
-    include ('../../includes/header.php'); 
-    include ('../../includes/search.php');  
+    include ('../includes/header.php'); 
+    include ('../includes/search.php');  
 
     // Kết nối cơ sở dữ liệu
-    require_once '../../includes/db.php';
-    require_once '../../model/productModel.php';
+    require_once '../includes/db.php';
+    require_once '../model/productModel.php';
 
     $category_id = isset($_GET['id']) ? $_GET['id'] : '';
 
@@ -42,7 +42,7 @@
             class="block rounded-xl transition duration-300 p-4 relative group">
             <div class="relative">
                 <!-- Hình sản phẩm -->
-                <img src="../../<?php echo htmlspecialchars($product['image_url']); ?>"
+                <img src="../<?php echo htmlspecialchars($product['image_url']); ?>"
                     alt="<?php echo htmlspecialchars($product['product_name']); ?>"
                     class="w-full h-96 object-cover rounded-lg">
                 <!-- Overlay nút thêm giỏ -->
@@ -106,5 +106,5 @@ function addToCart(productId) {
 
 <?php 
     // Bao gồm phần chân trang
-    include ('../../includes/footer.php'); 
+    include ('../includes/footer.php'); 
 ?>

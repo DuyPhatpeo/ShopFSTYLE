@@ -1,8 +1,8 @@
 <?php
-include('../../includes/header.php');
-include('../../includes/search.php');
-require_once '../../includes/db.php';
-require_once '../../model/ProductModel.php';
+include('../includes/header.php');
+include('../includes/search.php');
+require_once '../includes/db.php';
+require_once '../model/ProductModel.php';
 
 // Lấy product_id từ URL
 $product_id = $_GET['id'] ?? '';
@@ -55,7 +55,7 @@ $starsEmpty = 5 - $starsFull;
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Ảnh sản phẩm -->
         <div class="flex justify-center">
-            <img src="../../<?php echo htmlspecialchars($product['main_image']); ?>"
+            <img src="../<?php echo htmlspecialchars($product['main_image']); ?>"
                 alt="<?php echo htmlspecialchars($product['product_name']); ?>"
                 class="w-full h-auto rounded-lg shadow-md max-w-md">
         </div>

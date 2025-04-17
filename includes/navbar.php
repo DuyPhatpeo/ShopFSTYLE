@@ -18,7 +18,8 @@ include_once __DIR__ . "/../includes/config.php";
 
         <?php if (!isset($_SESSION['customer'])): ?>
         <?php else: ?>
-        <a href="../../controller/authController.php?action=logout" class="text-red-500 hover:underline">Đăng xuất</a>
+        <a href="<?= USER_URL ?>/controller/authController.php?action=logout" class="text-red-500 hover:underline">Đăng
+            xuất</a>
         <?php endif; ?>
     </div>
 </div>
