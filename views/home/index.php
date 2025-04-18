@@ -13,12 +13,5 @@
     include ('slider_leaf.php'); 
 ?>
 
-<?php 
-    include ('../product/product-list.php'); 
-?>
-
-<?php 
-    include ('../product/product-list.php'); 
-?>
 
 <?php include ('../../includes/footer.php'); ?>

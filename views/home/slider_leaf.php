@@ -63,7 +63,7 @@ foreach ($parentCategories as $parent) {
     <div id="leafSlider" class="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4 scroll-hidden scroll-smooth">
         <?php if (!empty($leafCategories)): ?>
         <?php foreach ($leafCategories as $cat): ?>
-        <div class="snap-start flex-shrink-0 w-[350px] group">
+        <div class="snap-start flex-shrink-0 w-[280px] group">
             <a href="views/category_products.php?id=<?php echo urlencode($cat['category_id']); ?>">
                 <div class="w-full h-[500px] mt-2">
                     <img class="w-full h-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
