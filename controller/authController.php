@@ -179,7 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
         
         // Chuyển hướng sau khi đăng nhập thành công
-        header("Location: ../views/home/index.php");
+        header("Location: ../");
         exit;
     }
 
