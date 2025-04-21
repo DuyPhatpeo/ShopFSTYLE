@@ -1,8 +1,10 @@
 <?php
+session_start();
 include('../includes/header.php');
 include('../includes/search.php');
 require_once '../includes/db.php';
 require_once '../model/ProductModel.php';
+require_once '../model/FavouriteModel.php';
 
 // Lấy product_id từ URL
 $product_id = $_GET['id'] ?? '';
@@ -10,28 +12,37 @@ if (!$product_id) {
     die('Sản phẩm không hợp lệ.');
 }
 
-// Khởi tạo model và lấy dữ liệu
-$model = new ProductModel($conn);
-$product = $model->getProductDetail($product_id);
+// Khởi tạo model và lấy dữ liệu sản phẩm
+$model       = new ProductModel($conn);
+$product     = $model->getProductDetail($product_id);
 if (!$product) {
     die('Không tìm thấy sản phẩm hoặc đã ngừng kinh doanh.');
 }
-$total_stock = $model->getProductStock($product_id);
-$variants = $model->getProductVariants($product_id);
-$variant_json = json_encode($variants);
+$total_stock   = $model->getProductStock($product_id);
+$variants      = $model->getProductVariants($product_id);
+$variant_json  = json_encode($variants);
+
+// Kiểm tra trạng thái yêu thích
+$isFav = false;
+if (!empty($_SESSION['customer_id'])) {
+    $favModel = new FavouriteModel($conn);
+    $isFav    = $favModel->isFavourite($_SESSION['customer_id'], $product_id);
+}
 
 // Tính giá & khuyến mãi
-$_orig = $product['original_price'] ?? 0;
-$_disc = $product['discount_price'] ?? 0;
-$hasDiscount = $_disc > 0 && $_disc < $_orig;
+$_orig           = $product['original_price']  ?? 0;
+$_disc           = $product['discount_price']  ?? 0;
+$hasDiscount     = $_disc > 0 && $_disc < $_orig;
 $discountPercent = $hasDiscount ? round(100 - ($_disc / $_orig) * 100) : 0;
 
 // Rating mẫu
-$rating = $product['rating'] ?? 4.5;
-$starsFull = floor($rating);
+$rating     = $product['rating'] ?? 4.5;
+$starsFull  = floor($rating);
 $starsEmpty = 5 - $starsFull;
 ?>
+
 <style>
+/* Giữ lại cross-out style nếu cần */
 .crossed-out {
     position: relative;
     opacity: 0.5;
@@ -51,129 +62,163 @@ $starsEmpty = 5 - $starsFull;
 }
 </style>
 
-<div class="container mx-auto p-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="container mx-auto p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
         <!-- Ảnh sản phẩm -->
         <div class="flex justify-center">
-            <img src="../<?php echo htmlspecialchars($product['main_image']); ?>"
-                alt="<?php echo htmlspecialchars($product['product_name']); ?>"
-                class="w-full h-auto rounded-lg shadow-md max-w-md">
+            <img src="../<?= htmlspecialchars($product['main_image']); ?>"
+                alt="<?= htmlspecialchars($product['product_name']); ?>"
+                class="w-full max-w-md h-auto rounded-2xl shadow-lg transition-transform hover:scale-105 duration-300">
         </div>
 
-        <!-- Thông tin chi tiết -->
+        <!-- Thông tin sản phẩm -->
         <div>
-            <h1 class="text-3xl font-bold mb-2"><?php echo htmlspecialchars($product['product_name']); ?></h1>
-            <p class="text-xl font-semibold text-red-500 mb-4">
+            <h1 class="text-4xl font-extrabold mb-4 text-gray-800"><?= htmlspecialchars($product['product_name']); ?>
+            </h1>
+
+            <!-- Giá -->
+            <p class="text-2xl font-bold text-red-600 mb-6 flex items-center gap-2">
                 <?php if ($hasDiscount): ?>
-                <span class="text-lg line-through text-gray-500"><?php echo number_format($_orig); ?> VND</span>
-                <?php echo number_format($_disc); ?> VND
+                <span class="text-lg line-through text-gray-400"><?= number_format($_orig); ?>₫</span>
+                <?= number_format($_disc); ?>₫
                 <span
-                    class="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-md">-<?php echo $discountPercent; ?>%</span>
+                    class="bg-red-200 text-red-800 text-sm font-semibold px-2 py-0.5 rounded-full">-<?= $discountPercent; ?>%</span>
                 <?php else: ?>
-                <?php echo number_format($_orig); ?> VND
+                <?= number_format($_orig); ?>₫
                 <?php endif; ?>
             </p>
 
-            <p class="mb-4">
+            <!-- Đánh giá -->
+            <p class="mb-6 flex items-center gap-1">
                 <?php for ($i = 0; $i < $starsFull; $i++): ?><span
-                    class="text-yellow-500 text-lg">★</span><?php endfor; ?>
+                    class="text-yellow-400 text-xl">★</span><?php endfor; ?>
                 <?php for ($i = 0; $i < $starsEmpty; $i++): ?><span
-                    class="text-gray-300 text-lg">★</span><?php endfor; ?>
-                <span class="text-sm text-gray-600">(<?php echo $rating; ?>)</span>
+                    class="text-gray-300 text-xl">★</span><?php endfor; ?>
+                <span class="text-sm text-gray-500 ml-2">(<?= $rating; ?>)</span>
             </p>
 
-            <p class="text-gray-700 mb-6"><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
+            <!-- Thông tin thêm -->
+            <p class="text-sm text-gray-500 mb-2">Ngày tạo: <?= date('d-m-Y', strtotime($product['created_at'])); ?></p>
+            <p class="text-sm text-gray-500 mb-4">Trạng thái: <?= $product['status'] == 1 ? 'Còn bán' : 'Ngừng bán'; ?>
+            </p>
+            <p class="text-sm mb-6">
+                <span class="text-gray-600">Tồn kho:</span>
+                <span id="stockDisplay" class="font-medium text-gray-900"><?= $total_stock; ?></span>
+            </p>
 
-            <p class="text-sm text-gray-600 mb-2">Ngày tạo:
-                <?php echo date('d-m-Y', strtotime($product['created_at'])); ?></p>
-            <p class="text-sm text-gray-600 mb-4">Trạng thái:
-                <?php echo $product['status'] == 1 ? 'Còn bán' : 'Ngừng bán'; ?></p>
-            <p class="text-sm text-gray-600 mb-4">Tồn kho tổng: <?php echo $total_stock; ?></p>
-
+            <!-- Biến thể sản phẩm -->
             <?php if (!empty($variants)): ?>
-            <div class="mb-6">
+            <div class="mb-8">
                 <!-- Chọn màu -->
-                <p class="font-medium mb-2">Chọn màu:</p>
-                <div class="flex gap-2" id="colorOptions">
+                <p class="font-medium text-gray-700 mb-2">Chọn màu:</p>
+                <div class="flex gap-3 flex-wrap mb-4" id="colorOptions">
                     <?php
                     $colors = [];
                     foreach ($variants as $v) {
                         if (!isset($colors[$v['color_id']])) {
-                            $colors[$v['color_id']] = ['name' => $v['color_name'], 'code' => $v['color_code']];
+                            $colors[$v['color_id']] = ['name'=>$v['color_name'],'code'=>$v['color_code']];
                         }
                     }
                     foreach ($colors as $cid => $c): ?>
-                    <button id="color-<?php echo $cid; ?>" type="button"
-                        class="w-8 h-8 rounded-full border focus:outline-none"
-                        style="background-color: <?php echo htmlspecialchars($c['code']); ?>;"
-                        title="<?php echo htmlspecialchars($c['name']); ?>"
-                        onclick="selectColor('<?php echo $cid; ?>')"></button>
+                    <button id="color-<?= $cid; ?>" type="button"
+                        class="w-10 h-10 rounded-full border-2 border-gray-300 hover:ring-2 hover:ring-offset-1 hover:ring-blue-500 transition"
+                        style="background-color: <?= htmlspecialchars($c['code']); ?>;"
+                        title="<?= htmlspecialchars($c['name']); ?>" onclick="selectColor('<?= $cid; ?>')">
+                    </button>
                     <?php endforeach; ?>
                 </div>
 
                 <!-- Chọn kích cỡ -->
-                <p class="font-medium mt-4 mb-2">Chọn kích cỡ:</p>
-                <div id="sizeOptions" class="flex gap-2"></div>
+                <p class="font-medium text-gray-700 mb-2">Chọn kích cỡ:</p>
+                <div id="sizeOptions" class="flex gap-3 flex-wrap"></div>
             </div>
             <?php endif; ?>
 
-            <!-- Số lượng & Thêm giỏ -->
-            <div class="mb-6">
-                <label for="quantity" class="block text-sm font-semibold text-gray-700 mb-2">Số lượng</label>
-                <input id="quantity" type="number" min="1" value="1" class="border p-2 rounded-lg w-24" />
-                <a href="javascript:addToCart('<?php echo $product['product_id']; ?>')"
-                    class="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 ml-4">Thêm vào
-                    giỏ</a>
+            <!-- Số lượng & Giỏ hàng & Yêu thích -->
+            <div class="flex flex-wrap items-center gap-6 mb-8">
+                <div>
+                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Số lượng</label>
+                    <input id="quantity" type="number" min="1" value="1"
+                        class="border-gray-300 rounded-lg p-2 w-24 disabled:opacity-50" disabled />
+                </div>
+                <button id="addCartBtn" onclick="addToCart('<?= $product['product_id']; ?>')"
+                    class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow hover:shadow-lg hover:scale-105 transform transition disabled:opacity-50"
+                    disabled>Thêm vào giỏ</button>
+
+                <!-- Nút yêu thích -->
+                <button id="favBtn" data-favourited="<?= $isFav ? '1':'0'; ?>"
+                    class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-transform hover:scale-110"
+                    title="<?= $isFav ? 'Xóa khỏi yêu thích':'Thêm vào yêu thích'; ?>">
+                    <?php if ($isFav): ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-red-500">
+                        <path d="M47.6 300.4L228.3 469.1..." />
+                    </svg>
+                    <?php else: ?>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-black">
+                        <path d="M225.8 468.2l-2.5-2.3L48.1 303.2..." />
+                    </svg>
+                    <?php endif; ?>
+                </button>
             </div>
 
-            <a href="javascript:history.back()" class="inline-block px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">←
+            <!-- Mô tả sản phẩm (Đưa xuống dưới cùng) -->
+            <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+                <h2 class="text-xl font-semibold mb-2 text-gray-800">Mô tả sản phẩm</h2>
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                    <?= htmlspecialchars($product['description']); ?></p>
+            </div>
+
+            <!-- Nút quay lại -->
+            <a href="javascript:history.back()"
+                class="inline-block mt-6 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium shadow hover:shadow-md transition">←
                 Quay lại</a>
         </div>
     </div>
 </div>
 
+<?php include('../includes/footer.php'); ?>
+
 <script>
-const variants = <?php echo $variant_json; ?>;
+const variants = <?= $variant_json; ?>;
+const totalStock = <?= $total_stock; ?>;
 let selectedColor = '';
 let selectedSize = '';
 const sizeOrder = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+const stockEl = document.getElementById('stockDisplay');
+const qtyInput = document.getElementById('quantity');
+const addBtn = document.getElementById('addCartBtn');
+const favBtn = document.getElementById('favBtn');
 
 function selectColor(cid) {
     selectedColor = cid;
     selectedSize = '';
-
     document.querySelectorAll('#colorOptions button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
-    const colorBtn = document.getElementById('color-' + cid);
-    colorBtn.classList.add('ring-2', 'ring-blue-500');
+    document.getElementById('color-' + cid)?.classList.add('ring-2', 'ring-blue-500');
 
     updateSizeOptions(cid);
+    stockEl.textContent = totalStock;
+    qtyInput.value = 1;
+    qtyInput.max = totalStock;
+    addBtn.disabled = true;
 }
 
 function updateSizeOptions(cid) {
     const container = document.getElementById('sizeOptions');
     container.innerHTML = '';
-
     const sizes = variants.filter(v => v.color_id === cid);
-
-    // Sắp xếp theo thứ tự
-    sizes.sort((a, b) => {
-        return sizeOrder.indexOf(a.size_name) - sizeOrder.indexOf(b.size_name);
-    });
-
+    sizes.sort((a, b) => sizeOrder.indexOf(a.size_name) - sizeOrder.indexOf(b.size_name));
     sizes.forEach(v => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.id = 'size-' + v.size_id;
         btn.textContent = v.size_name;
-        btn.className = 'w-12 h-10 rounded-full border flex items-center justify-center text-sm';
-
+        btn.className = 'w-12 h-10 rounded-lg border text-sm font-semibold shadow-sm transition';
         if (parseInt(v.quantity) === 0) {
-            btn.classList.add('crossed-out', 'bg-gray-100', 'text-gray-400');
+            btn.classList.add('crossed-out', 'bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
         } else {
             btn.classList.add('hover:bg-blue-50');
             btn.onclick = () => selectSize(v.size_id);
         }
-
         container.appendChild(btn);
     });
 }
@@ -181,33 +226,57 @@ function updateSizeOptions(cid) {
 function selectSize(sid) {
     selectedSize = sid;
     document.querySelectorAll('#sizeOptions button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
-    const sizeBtn = document.getElementById('size-' + sid);
-    if (sizeBtn) sizeBtn.classList.add('ring-2', 'ring-blue-500');
+    document.getElementById('size-' + sid)?.classList.add('ring-2', 'ring-blue-500');
+
+    const variant = variants.find(v => v.color_id === selectedColor && v.size_id === selectedSize);
+    if (variant) {
+        const q = parseInt(variant.quantity);
+        stockEl.textContent = q;
+        qtyInput.max = q;
+        qtyInput.value = Math.min(q, qtyInput.value);
+        addBtn.disabled = (q === 0);
+    }
 }
 
-function isColorOutOfStock(cid) {
-    return !variants.some(v => v.color_id === cid && parseInt(v.quantity) > 0);
-}
-
-// Gạch chéo màu hết hàng + auto chọn màu đầu tiên còn hàng
-window.addEventListener('DOMContentLoaded', () => {
-    const uniqueColors = [...new Set(variants.map(v => v.color_id))];
-
-    uniqueColors.forEach(cid => {
-        if (isColorOutOfStock(cid)) {
-            const colorBtn = document.getElementById('color-' + cid);
-            if (colorBtn) colorBtn.classList.add('crossed-out');
+favBtn.addEventListener('click', async function() {
+    const isFav = this.dataset.favourited === '1';
+    const action = isFav ? 'remove' : 'add';
+    try {
+        const res = await fetch('/controller/favouriteController.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: '<?= $product_id; ?>',
+                action
+            })
+        });
+        const data = await res.json();
+        if (!data.success) {
+            alert('Bạn cần đăng nhập để tiếp tục');
+            return window.location.href = '/login.php';
         }
-    });
-
-    const availableColor = uniqueColors.find(cid => !isColorOutOfStock(cid));
-    if (availableColor) {
-        selectColor(availableColor);
+        this.dataset.favourited = isFav ? '0' : '1';
+        this.innerHTML = isFav ?
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-black"><path d="M225.8 468.2..."/></svg>` :
+            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-red-500"><path d="M47.6 300.4..."/></svg>`;
+        this.title = isFav ? 'Thêm vào yêu thích' : 'Xóa khỏi yêu thích';
+    } catch (err) {
+        console.error(err);
+        alert('Lỗi hệ thống, vui lòng thử lại sau');
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const uniqueColors = [...new Set(variants.map(v => v.color_id))];
+    uniqueColors.forEach(cid => {
+        if (!variants.some(v => v.color_id === cid && parseInt(v.quantity) > 0)) {
+            document.getElementById('color-' + cid)?.classList.add('crossed-out');
+        }
+    });
+    const available = uniqueColors.find(cid => variants.some(v => v.color_id === cid && parseInt(v.quantity) >
+        0));
+    if (available) selectColor(available);
+});
 </script>
-
-
-<?php 
-// include('../../includes/footer.php'); 
-?>
