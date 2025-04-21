@@ -86,3 +86,44 @@ function verifyCustomerCode($conn, $email, $code) {
 }
 
 ?>
+<?php
+// File: model/CustomerModel.php
+// -----------------------------------
+class CustomerModel {
+    private $conn;
+    public function __construct($conn) {
+        $this->conn = $conn;
+    }
+    public function getById($customer_id) {
+        $stmt = $this->conn->prepare("SELECT customer_id, full_name, email, phone, address FROM customer WHERE customer_id = ?");
+        $stmt->bind_param("s", $customer_id);
+        $stmt->execute();
+        $c = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $c;
+    }
+    public function updateInfo($customer_id, $full_name, $phone, $address) {
+        $stmt = $this->conn->prepare("UPDATE customer SET full_name = ?, phone = ?, address = ? WHERE customer_id = ?");
+        $stmt->bind_param("ssss", $full_name, $phone, $address, $customer_id);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
+    public function changePassword($customer_id, $old_password, $new_password) {
+        // fetch current hash
+        $stmt = $this->conn->prepare("SELECT password FROM customer WHERE customer_id = ?");
+        $stmt->bind_param("s", $customer_id);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if (!$row || !password_verify($old_password, $row['password'])) {
+            return 'wrong_password';
+        }
+        $hash = password_hash($new_password, PASSWORD_DEFAULT);
+        $u = $this->conn->prepare("UPDATE customer SET password = ? WHERE customer_id = ?");
+        $u->bind_param("ss", $hash, $customer_id);
+        $res = $u->execute();
+        $u->close();
+        return $res;
+    }
+}

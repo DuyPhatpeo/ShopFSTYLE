@@ -1,4 +1,5 @@
 <?php
+// File: includes/db.php
 $host = "localhost"; // hoặc địa chỉ IP của server MySQL
 $username = "root"; // Tên người dùng MySQL
 $password = ""; // Mật khẩu MySQL (nếu có)
