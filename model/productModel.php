@@ -45,16 +45,32 @@ class ProductModel {
     // Lấy biến thể: color + size + quantity
     public function getProductVariants($product_id) {
         $query = "SELECT pv.variant_id, pv.color_id, c.color_name, c.color_code,
-                         pv.size_id, s.size_name, pv.quantity, pv.status
-                  FROM product_variants pv
-                  JOIN color c ON pv.color_id = c.color_id AND c.status = 1
-                  JOIN sizes s ON pv.size_id = s.size_id
-                  WHERE pv.product_id = ? AND pv.status = 1
-                  ORDER BY c.color_name, s.size_name";
+                        pv.size_id, s.size_name, pv.quantity, pv.status
+                FROM product_variants pv
+                LEFT JOIN color c ON pv.color_id = c.color_id AND c.status = 1
+                LEFT JOIN sizes s ON pv.size_id = s.size_id
+                WHERE pv.product_id = ? AND pv.status = 1
+                ORDER BY c.color_name, s.size_name";
+
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("s", $product_id);
         $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $result = $stmt->get_result();
+
+        $variants = [];
+        while ($row = $result->fetch_assoc()) {
+            // Nếu có size, thêm vào mảng biến thể
+            if ($row['size_id'] !== null) {
+                $variants[] = $row;
+            } else {
+                // Nếu không có size, chỉ thêm màu
+                $row['size_name'] = 'Không có kích thước';
+                $variants[] = $row;
+            }
+        }
+
+        return $variants;
     }
+
 }
 ?>

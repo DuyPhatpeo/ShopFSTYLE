@@ -61,10 +61,12 @@ function handleVariantActions($conn) {
  */
 function processAddVariant($conn) {
     $errors = [];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $product_id = trim($_POST['product_id'] ?? '');
         $variants = $_POST['variants'] ?? [];
 
+        // Kiểm tra mã sản phẩm
         if (empty($product_id)) {
             $errors['product'] = "Thiếu mã sản phẩm.";
         }
@@ -74,36 +76,43 @@ function processAddVariant($conn) {
             $errors['variant'] = "Chưa có biến thể nào được tạo.";
         }
 
-        // Duyệt qua từng biến thể để kiểm tra và thêm
+        // Duyệt qua từng biến thể
         foreach ($variants as $key => $variant) {
             $parts = explode('_', $key);
             $color_id = $parts[0] ?? null;
-            $size_id = $parts[1] ?? null;
+            $size_id  = $parts[1] ?? null;
             $quantity = intval($variant['quantity'] ?? 0);
 
+            // Kiểm tra color_id (bắt buộc)
             if (empty($color_id)) {
                 $errors['color_' . $key] = "Vui lòng chọn màu sắc.";
             }
 
+            // Kiểm tra số lượng
             if ($quantity < 1) {
                 $errors['quantity_' . $key] = "Số lượng không hợp lệ.";
             }
 
+            // Nếu size_id rỗng, gán NULL
             if ($size_id === '') {
                 $size_id = NULL;
             }
 
-            if (isVariantExists($conn, $product_id, $color_id, $size_id)) {
-                $errors['variant_' . $key] = "Biến thể màu $color_id và size $size_id đã tồn tại.";
+            // Kiểm tra xem biến thể đã tồn tại chưa
+            if (!empty($product_id) && !empty($color_id) && isVariantExists($conn, $product_id, $color_id, $size_id)) {
+                $errors['variant_' . $key] = "Biến thể màu $color_id và size " . ($size_id ?? 'Mặc định') . " đã tồn tại.";
             }
 
-            // Nếu không có lỗi cho biến thể này thì thêm
+            // Nếu không có lỗi với biến thể này thì thêm
             if (empty($errors)) {
                 $status = ($quantity > 0) ? 1 : 0;
-                addVariant($conn, $product_id, $color_id, $size_id, $quantity, $status);
+                if (!addVariant($conn, $product_id, $color_id, $size_id, $quantity, $status)) {
+                    $errors['add_' . $key] = "Không thể thêm biến thể màu $color_id, size " . ($size_id ?? 'Mặc định');
+                }
             }
         }
 
+        // Nếu không có lỗi nào, chuyển hướng về trang chi tiết sản phẩm
         if (empty($errors)) {
             header("Location: detail.php?id=" . urlencode($product_id) . "&msg=Thêm biến thể thành công&type=success");
             exit;
@@ -112,6 +121,7 @@ function processAddVariant($conn) {
 
     return $errors;
 }
+
 
 /**
  * Xử lý xoá biến thể.

@@ -188,41 +188,58 @@ const stockEl = document.getElementById('stockDisplay');
 const qtyInput = document.getElementById('quantity');
 const addBtn = document.getElementById('addCartBtn');
 const favBtn = document.getElementById('favBtn');
+const sizeOptionsEl = document.getElementById('sizeOptions');
 
+// Chọn màu và cập nhật thông tin
 function selectColor(cid) {
     selectedColor = cid;
-    selectedSize = '';
+    selectedSize = ''; // Đặt lại kích thước khi thay đổi màu
+
+    // Xóa lớp lựa chọn màu cũ
     document.querySelectorAll('#colorOptions button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
     document.getElementById('color-' + cid)?.classList.add('ring-2', 'ring-blue-500');
 
+    // Cập nhật các tùy chọn kích thước
     updateSizeOptions(cid);
+
+    // Hiển thị lại số lượng tồn kho và thiết lập giá trị mặc định cho số lượng
     stockEl.textContent = totalStock;
     qtyInput.value = 1;
     qtyInput.max = totalStock;
-    addBtn.disabled = true;
+    addBtn.disabled = true; // Vô hiệu nút thêm vào giỏ hàng nếu chưa chọn kích thước
 }
 
+// Cập nhật các tùy chọn kích thước khi chọn màu
 function updateSizeOptions(cid) {
-    const container = document.getElementById('sizeOptions');
-    container.innerHTML = '';
-    const sizes = variants.filter(v => v.color_id === cid);
-    sizes.sort((a, b) => sizeOrder.indexOf(a.size_name) - sizeOrder.indexOf(b.size_name));
-    sizes.forEach(v => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.id = 'size-' + v.size_id;
-        btn.textContent = v.size_name;
-        btn.className = 'w-12 h-10 rounded-lg border text-sm font-semibold shadow-sm transition';
-        if (parseInt(v.quantity) === 0) {
-            btn.classList.add('crossed-out', 'bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
-        } else {
-            btn.classList.add('hover:bg-blue-50');
-            btn.onclick = () => selectSize(v.size_id);
-        }
-        container.appendChild(btn);
-    });
+    sizeOptionsEl.innerHTML = ''; // Xóa các tùy chọn kích thước cũ
+
+    // Lọc các biến thể có size cho màu đã chọn
+    const sizes = variants.filter(v => v.color_id === cid && v.size_name !== null);
+
+    if (sizes.length === 0) {
+        sizeOptionsEl.style.display = 'none'; // Ẩn phần chọn kích thước nếu không có size
+        addBtn.disabled = false; // Nếu không có size, cho phép thêm vào giỏ hàng
+    } else {
+        sizeOptionsEl.style.display = 'block'; // Hiển thị lại phần chọn kích thước
+        sizes.sort((a, b) => sizeOrder.indexOf(a.size_name) - sizeOrder.indexOf(b.size_name));
+        sizes.forEach(v => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.id = 'size-' + v.size_id;
+            btn.textContent = v.size_name;
+            btn.className = 'w-12 h-10 rounded-lg border text-sm font-semibold shadow-sm transition';
+            if (parseInt(v.quantity) === 0) {
+                btn.classList.add('crossed-out', 'bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
+            } else {
+                btn.classList.add('hover:bg-blue-50');
+                btn.onclick = () => selectSize(v.size_id);
+            }
+            sizeOptionsEl.appendChild(btn);
+        });
+    }
 }
 
+// Chọn kích thước và cập nhật thông tin số lượng
 function selectSize(sid) {
     selectedSize = sid;
     document.querySelectorAll('#sizeOptions button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
@@ -238,6 +255,7 @@ function selectSize(sid) {
     }
 }
 
+// Xử lý yêu thích
 favBtn.addEventListener('click', async function() {
     const isFav = this.dataset.favourited === '1';
     const action = isFav ? 'remove' : 'add';
@@ -268,6 +286,7 @@ favBtn.addEventListener('click', async function() {
     }
 });
 
+// Xử lý khi trang tải xong
 document.addEventListener('DOMContentLoaded', () => {
     const uniqueColors = [...new Set(variants.map(v => v.color_id))];
     uniqueColors.forEach(cid => {
