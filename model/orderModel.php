@@ -28,37 +28,55 @@ class OrderModel {
         return $data['order_id'];
     }
 
-    // Thêm chi tiết đơn hàng
     public function addOrderDetail($data) {
         if (empty($data['order_detail_id'])) {
             $data['order_detail_id'] = uniqid('order_detail_');
         }
     
-        $stmt = $this->conn->prepare("
-            INSERT INTO order_detail 
-            (order_detail_id, order_id, variant_id, quantity, unit_price) 
-            VALUES (?, ?, ?, ?, ?)
-        ");
+        // Bắt đầu transaction
+        $this->conn->begin_transaction();
     
-        if (!$stmt) {
-            error_log("Prepare failed: " . $this->conn->error);
-            throw new Exception("Lỗi prepare SQL: " . $this->conn->error);
+        try {
+            // 1. Thêm chi tiết đơn hàng
+            $stmt = $this->conn->prepare("
+                INSERT INTO order_detail 
+                (order_detail_id, order_id, variant_id, quantity, unit_price) 
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt->bind_param("sssii", 
+                $data['order_detail_id'],   
+                $data['order_id'],          
+                $data['variant_id'],        
+                $data['quantity'],          
+                $data['unit_price']       
+            );
+            if (!$stmt->execute()) {
+                throw new Exception("Lỗi thêm chi tiết đơn hàng: " . $stmt->error);
+            }
+    
+            // 2. Trừ số lượng tồn kho
+            $updateStock = $this->conn->prepare("
+                UPDATE product_variants 
+                SET quantity = quantity - ? 
+                WHERE variant_id = ? AND quantity >= ?
+            ");
+            $updateStock->bind_param("isi", $data['quantity'], $data['variant_id'], $data['quantity']);
+            if (!$updateStock->execute() || $updateStock->affected_rows === 0) {
+                throw new Exception("Không đủ hàng tồn kho hoặc lỗi cập nhật.");
+            }
+    
+            // 3. Commit nếu mọi thứ OK
+            $this->conn->commit();
+            return true;
+    
+        } catch (Exception $e) {
+            // Có lỗi, rollback lại
+            $this->conn->rollback();
+            error_log("Lỗi transaction: " . $e->getMessage());
+            throw $e;
         }
-        $stmt->bind_param("sssii", 
-            $data['order_detail_id'],   
-            $data['order_id'],          
-            $data['variant_id'],        
-            $data['quantity'],          
-            $data['unit_price']       
-        );
-    
-        if (!$stmt->execute()) {
-            error_log("Execute failed: " . $stmt->error);
-            throw new Exception("Lỗi thực thi thêm chi tiết đơn hàng: " . $stmt->error);
-        }
-    
-        return true;
     }
+    
     
 
     // Lấy thông tin đơn hàng
@@ -110,4 +128,4 @@ class OrderModel {
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 }
-?> 
+?>
