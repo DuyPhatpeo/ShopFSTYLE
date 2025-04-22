@@ -188,11 +188,12 @@ $currentPage  = $variantsData['currentPage'];
                         <td class="p-3"><?= htmlspecialchars($variant['quantity']) ?></td>
                         <td class="p-3">
                             <?php 
-                            echo $variant['status']
-                                ? '<span class="px-2 py-1 bg-green-200 text-green-800 rounded">Còn hàng</span>' 
-                                : '<span class="px-2 py-1 bg-red-200 text-red-800 rounded">Hết hàng</span>'; 
-                            ?>
+                                echo ($variant['quantity'] > 0)
+                                    ? '<span class="px-2 py-1 bg-green-200 text-green-800 rounded">Còn hàng</span>' 
+                                    : '<span class="px-2 py-1 bg-red-200 text-red-800 rounded">Hết hàng</span>'; 
+                                ?>
                         </td>
+
                         <td class="p-3 text-center">
                             <div class="flex flex-col sm:flex-row items-center gap-1">
                                 <!-- Form Thêm số lượng -->
