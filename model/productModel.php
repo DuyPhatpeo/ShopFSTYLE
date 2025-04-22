@@ -72,5 +72,98 @@ class ProductModel {
         return $variants;
     }
 
+    public function getProduct($product_id) {
+        $stmt = $this->conn->prepare("SELECT * FROM products WHERE product_id = ?");
+        $stmt->bind_param("i", $product_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
+
+    public function getProducts($category_id = null, $search = '', $sort = 'newest', $page = 1, $per_page = 12) {
+        $offset = ($page - 1) * $per_page;
+        $where = [];
+        $params = [];
+        $types = '';
+
+        if ($category_id) {
+            $where[] = "category_id = ?";
+            $params[] = $category_id;
+            $types .= 'i';
+        }
+
+        if ($search) {
+            $where[] = "name LIKE ?";
+            $params[] = "%$search%";
+            $types .= 's';
+        }
+
+        $where_clause = $where ? "WHERE " . implode(" AND ", $where) : "";
+        
+        switch ($sort) {
+            case 'price_asc':
+                $order_by = "price ASC";
+                break;
+            case 'price_desc':
+                $order_by = "price DESC";
+                break;
+            case 'name':
+                $order_by = "name ASC";
+                break;
+            default:
+                $order_by = "created_at DESC";
+        }
+
+        $query = "SELECT * FROM products $where_clause ORDER BY $order_by LIMIT ? OFFSET ?";
+        $types .= 'ii';
+        $params[] = $per_page;
+        $params[] = $offset;
+
+        $stmt = $this->conn->prepare($query);
+        if ($params) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function getTotalProducts($category_id = null, $search = '') {
+        $where = [];
+        $params = [];
+        $types = '';
+
+        if ($category_id) {
+            $where[] = "category_id = ?";
+            $params[] = $category_id;
+            $types .= 'i';
+        }
+
+        if ($search) {
+            $where[] = "name LIKE ?";
+            $params[] = "%$search%";
+            $types .= 's';
+        }
+
+        $where_clause = $where ? "WHERE " . implode(" AND ", $where) : "";
+        $query = "SELECT COUNT(*) as total FROM products $where_clause";
+
+        $stmt = $this->conn->prepare($query);
+        if ($params) {
+            $stmt->bind_param($types, ...$params);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc()['total'];
+    }
+
+
+    public function getProductVariantsBySizeAndColor($size_id, $color_id, $product_id) {
+        $query = "SELECT * FROM product_variants WHERE size_id = ? AND color_id = ? AND product_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param("sss", $size_id, $color_id, $product_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
 }
 ?>

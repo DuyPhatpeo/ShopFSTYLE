@@ -126,4 +126,11 @@ class CustomerModel {
         $u->close();
         return $res;
     }
+    public function getCustomer($customer_id) {
+        $stmt = $this->conn->prepare("SELECT * FROM customer WHERE customer_id = ?");
+        $stmt->bind_param("i", $customer_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_assoc();
+    }
 }

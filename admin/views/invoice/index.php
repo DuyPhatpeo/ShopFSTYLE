@@ -13,6 +13,12 @@ include("../../includes/header.php");
 require_once('../../../includes/db.php'); // Khởi tạo biến $conn (mysqli connection)
 require_once('../../controller/invoiceController.php');
 
+function dd($data) {
+    echo "<pre>";
+    print_r($data);
+    echo "</pre>";
+    die();
+}
 // Xử lý xoá đơn hàng nếu có yêu cầu (nếu cần)
 processDeleteOrder($conn);
 
@@ -108,7 +114,6 @@ $totalOrders = $data['totalOrders'];
                         <th class="p-3 text-left">STT</th>
                         <th class="p-3 text-left">Mã đơn hàng</th>
                         <th class="p-3 text-left">Địa chỉ giao hàng</th>
-                        <th class="p-3 text-left hidden sm:table-cell">Địa chỉ thanh toán</th>
                         <th class="p-3 text-right hidden sm:table-cell">Tổng tiền</th>
                         <th class="p-3 text-center hidden sm:table-cell">PTTT</th>
                         <th class="p-3 text-center hidden sm:table-cell">Trạng thái</th>
@@ -122,16 +127,15 @@ $totalOrders = $data['totalOrders'];
                     <?php while ($order = $orders->fetch_assoc()) : ?>
                     <tr class="<?= ($stt % 2 === 0) ? 'bg-gray-100' : 'bg-white' ?> hover:bg-gray-200 transition">
                         <td class="p-3"><?= $stt++ ?></td>
-                        <td class="p-3"><?= htmlspecialchars($order['order_id']) ?></td>
-                        <td class="p-3"><?= htmlspecialchars($order['shipping_address']) ?></td>
-                        <td class="p-3 hidden sm:table-cell"><?= htmlspecialchars($order['billing_address']) ?></td>
+                        <td class="p-3"><?= $order['order_id'] ?></td>
+                        <td class="p-3"><?= $order['shipping_address'] ?></td>
                         <td class="p-3 text-right hidden sm:table-cell">
                             <span class="font-bold text-blue-600">
                                 <?= number_format($order['total_amount'], 0, ',', '.') ?> VND
                             </span>
                         </td>
                         <td class="p-3 text-center hidden sm:table-cell">
-                            <?= htmlspecialchars($order['payment_method']) ?></td>
+                            <?= $order['payment_method'] ?></td>
                         <td class="p-3 text-center hidden sm:table-cell">
                             <?php
                                     switch ($order['status']) {
@@ -170,17 +174,6 @@ $totalOrders = $data['totalOrders'];
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <line x1="12" y1="16" x2="12" y2="12"></line>
                                         <line x1="12" y1="8" x2="12" y2="8"></line>
-                                    </svg>
-                                </a>
-                                <a href="edit.php?id=<?= urlencode($order['order_id']) ?>"
-                                    class="bg-yellow-200 hover:bg-yellow-300 p-2 rounded-lg shadow"
-                                    title="Chỉnh sửa trạng thái">
-                                    <!-- Icon chỉnh sửa -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" viewBox="0 0 24 24">
-                                        <path d="M12 20h9"></path>
-                                        <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4 12.5-12.5z"></path>
                                     </svg>
                                 </a>
                                 <a href="delete.php?delete_order=<?= urlencode($order['order_id']) ?>"

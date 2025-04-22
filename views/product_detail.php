@@ -24,9 +24,9 @@ $variant_json  = json_encode($variants);
 
 // Kiểm tra trạng thái yêu thích
 $isFav = false;
-if (!empty($_SESSION['customer_id'])) {
+if (!empty($_SESSION['customer'])) {
     $favModel = new FavouriteModel($conn);
-    $isFav    = $favModel->isFavourite($_SESSION['customer_id'], $product_id);
+    $isFav    = $favModel->isFavourite($_SESSION['customer']['customer_id'], $product_id);
 }
 
 // Tính giá & khuyến mãi
@@ -147,16 +147,12 @@ $starsEmpty = 5 - $starsFull;
 
                 <!-- Nút yêu thích -->
                 <button id="favBtn" data-favourited="<?= $isFav ? '1':'0'; ?>"
-                    class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-transform hover:scale-110"
+                    class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow hover:shadow-lg hover:scale-105 transform transition disabled:opacity-50"
                     title="<?= $isFav ? 'Xóa khỏi yêu thích':'Thêm vào yêu thích'; ?>">
                     <?php if ($isFav): ?>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-red-500">
-                        <path d="M47.6 300.4L228.3 469.1..." />
-                    </svg>
+                        Xóa khỏi yêu thích
                     <?php else: ?>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-black">
-                        <path d="M225.8 468.2l-2.5-2.3L48.1 303.2..." />
-                    </svg>
+                        Thêm vào yêu thích
                     <?php endif; ?>
                 </button>
             </div>
@@ -201,7 +197,8 @@ function selectColor(cid) {
 
     // Cập nhật các tùy chọn kích thước
     updateSizeOptions(cid);
-
+    sessionStorage.setItem('selectedColor', cid);
+    console.log(sessionStorage.getItem('selectedColor'));
     // Hiển thị lại số lượng tồn kho và thiết lập giá trị mặc định cho số lượng
     stockEl.textContent = totalStock;
     qtyInput.value = 1;
@@ -212,7 +209,7 @@ function selectColor(cid) {
 // Cập nhật các tùy chọn kích thước khi chọn màu
 function updateSizeOptions(cid) {
     sizeOptionsEl.innerHTML = ''; // Xóa các tùy chọn kích thước cũ
-
+    
     // Lọc các biến thể có size cho màu đã chọn
     const sizes = variants.filter(v => v.color_id === cid && v.size_name !== null);
 
@@ -244,7 +241,8 @@ function selectSize(sid) {
     selectedSize = sid;
     document.querySelectorAll('#sizeOptions button').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
     document.getElementById('size-' + sid)?.classList.add('ring-2', 'ring-blue-500');
-
+    sessionStorage.setItem('selectedSize', sid);
+    console.log(sessionStorage.getItem('selectedSize'));
     const variant = variants.find(v => v.color_id === selectedColor && v.size_id === selectedSize);
     if (variant) {
         const q = parseInt(variant.quantity);
@@ -255,34 +253,43 @@ function selectSize(sid) {
     }
 }
 
+
 // Xử lý yêu thích
 favBtn.addEventListener('click', async function() {
-    const isFav = this.dataset.favourited === '1';
+    const isFav = this.dataset.favourited == '1';
     const action = isFav ? 'remove' : 'add';
+    
     try {
-        const res = await fetch('/controller/favouriteController.php', {
+        const formData = new FormData();
+        formData.append('action', action);
+        formData.append('product_id', '<?= $product_id; ?>');
+
+        const res = await fetch('<?= USER_URL ?>/controller/favouriteController.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                product_id: '<?= $product_id; ?>',
-                action
-            })
+            body: formData
         });
+        
         const data = await res.json();
+        
         if (!data.success) {
-            alert('Bạn cần đăng nhập để tiếp tục');
-            return window.location.href = '/login.php';
+            if (data.message === 'Vui lòng đăng nhập') {
+                alert('Bạn cần đăng nhập để tiếp tục');
+                window.location.href = '<?= USER_URL ?>/login.php';
+                return;
+            }
+            alert(data.message || 'Có lỗi xảy ra');
+            return;
         }
+
+        // Cập nhật trạng thái nút
         this.dataset.favourited = isFav ? '0' : '1';
-        this.innerHTML = isFav ?
-            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-black"><path d="M225.8 468.2..."/></svg>` :
-            `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-6 h-6 text-red-500"><path d="M47.6 300.4..."/></svg>`;
+        this.innerHTML = isFav ? 
+            'Thêm vào yêu thích' : 
+            'Xóa khỏi yêu thích';
         this.title = isFav ? 'Thêm vào yêu thích' : 'Xóa khỏi yêu thích';
+        alert(data.message);
     } catch (err) {
         console.error(err);
-        alert('Lỗi hệ thống, vui lòng thử lại sau');
     }
 });
 
@@ -298,4 +305,57 @@ document.addEventListener('DOMContentLoaded', () => {
         0));
     if (available) selectColor(available);
 });
+
+function addToCart(variantId, quantity = 1) {
+    const formData = new FormData();
+    formData.append('action', 'add');
+    formData.append('size_id', sessionStorage.getItem('selectedSize'));
+    formData.append('color_id', sessionStorage.getItem('selectedColor'));
+    formData.append('product_id', '<?= $product_id; ?>');
+    formData.append('quantity', quantity);
+
+    fetch('<?= USER_URL ?>/controller/cartController.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Đã thêm vào giỏ hàng!');
+            updateCartCount();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra, vui lòng thử lại!');
+    });
+}
+
+function updateCartCount() {
+    fetch('<?= USER_URL ?>/controller/cartController.php')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                cartCount.textContent = data.data.items.length;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 </script>

@@ -75,6 +75,7 @@ include_once __DIR__ . "/../includes/config.php";
                 <a href="#" class="text-gray-600 hover:text-black">Đồ Chạy Bộ</a>
                 <a href="#" class="text-gray-600 hover:text-black">Quần Lót</a>
                 <a href="#" class="text-gray-600 hover:text-black">Liên Hệ</a>
+                <a href="<?= USER_URL ?>/views/favourite.php" class="text-gray-600 hover:text-black">Yêu Thích</a>
             </nav>
             <div class="flex items-center space-x-4">
                 <form class="relative hidden lg:block" onsubmit="return false;">
@@ -85,7 +86,7 @@ include_once __DIR__ . "/../includes/config.php";
                         <img src="<?= USER_URL ?>/assets/icons/search.svg" alt="search" class="w-6 h-6" />
                     </button>
                 </form>
-                <a href="<?= USER_URL ?>/views/user/shopping-card.php" class="text-gray-600 hover:text-black">
+                <a href="<?= USER_URL ?>/views/cart.php" class="text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/bag-shopping.svg" alt="bag-shopping" class="w-8 h-8" />
                 </a>
                 <div class="flex items-center space-x-4">
