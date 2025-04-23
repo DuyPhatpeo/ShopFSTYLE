@@ -69,36 +69,33 @@ try {
             }
             break;
 
-        case 'update':
-            $cart_item_id = filter_var($_POST['cart_item_id'] ?? '', FILTER_SANITIZE_STRING);
-            $quantity = intval($_POST['quantity'] ?? 1);
-            if (!$cart_item_id || $quantity < 1) {
-                echo json_encode(['status' => 'error', 'message' => 'Thông tin không hợp lệ']);
-                exit;
-            }
-
-            // Cập nhật số lượng trong giỏ hàng
-            if ($cartModel->updateCartItem($cart_item_id, $quantity)) {
-                echo json_encode(['status' => 'success', 'message' => 'Đã cập nhật giỏ hàng']);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Cập nhật thất bại']);
-            }
-            break;
-
-        case 'remove':
-            $cart_item_id = filter_var($_POST['cart_item_id'] ?? '', FILTER_SANITIZE_STRING);
-
-            if (!$cart_item_id) {
-                echo json_encode(['status' => 'error', 'message' => 'Thiếu thông tin sản phẩm']);
-                exit;
-            }
-
-            if ($cartModel->removeFromCart($cart_item_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Đã xóa sản phẩm']);
-            } else {
-                echo json_encode(['status' => 'error', 'message' => 'Xóa thất bại']);
-            }
-            break;
+            case 'update':
+                $cart_item_id = filter_var($_POST['cart_item_id'] ?? '', FILTER_SANITIZE_STRING);
+                $quantity     = intval($_POST['quantity'] ?? 0);
+                if (!$cart_item_id || $quantity === 0) {
+                    echo json_encode(['status' => 'error', 'message' => 'Thông tin không hợp lệ']);
+                    exit;
+                }
+        
+                if ($cartModel->updateCartItem($cart_item_id, $quantity)) {
+                    echo json_encode(['status' => 'success', 'message' => 'Đã cập nhật giỏ hàng']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Cập nhật thất bại']);
+                }
+                break;
+        
+            case 'remove':
+                $cart_item_id = filter_var($_POST['cart_item_id'] ?? '', FILTER_SANITIZE_STRING);
+                if (!$cart_item_id) {
+                    echo json_encode(['status' => 'error', 'message' => 'Thiếu cart_item_id']);
+                    exit;
+                }
+                if ($cartModel->removeFromCart($cart_item_id)) {
+                    echo json_encode(['status' => 'success', 'message' => 'Đã xóa sản phẩm']);
+                } else {
+                    echo json_encode(['status' => 'error', 'message' => 'Xóa thất bại']);
+                }
+                break;
 
         case 'clear':
             if ($cartModel->clearCart($cart['cart_id'])) {

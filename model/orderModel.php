@@ -14,7 +14,7 @@ class OrderModel {
         $sql = "
             INSERT INTO `order` 
               (order_id, customer_id, shipping_address, total_amount, payment_method, note, status) 
-            VALUES (?, ?, ?, ?, ?, ?, '1')
+            VALUES (?, ?, ?, ?, ?, ?, 'pending')
         ";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param(
