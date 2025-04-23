@@ -1,15 +1,18 @@
 <?php
+// file: controller/cartController.php
 header('Content-Type: application/json');
 
 require_once '../model/cartModel.php';
 require_once '../model/productModel.php';
 require_once '../includes/db.php';
+
 function dd($data) {
     echo "<pre>";
     print_r($data);
     echo "</pre>";
     die();
-}   
+}
+
 try {
     session_start();
     // Kiểm tra đăng nhập
@@ -34,9 +37,9 @@ try {
 
     switch ($action) {
         case 'add':
-            $size_id = $_POST['size_id'] ?? '';
-            $color_id = $_POST['color_id'] ?? '';
-            $product_id = $_POST['product_id'] ?? '';
+            $size_id = filter_var($_POST['size_id'] ?? '', FILTER_SANITIZE_STRING);
+            $color_id = filter_var($_POST['color_id'] ?? '', FILTER_SANITIZE_STRING);
+            $product_id = filter_var($_POST['product_id'] ?? '', FILTER_SANITIZE_STRING);
             $quantity = intval($_POST['quantity'] ?? 1);
 
             if (!$size_id || !$color_id || !$product_id) {
@@ -44,8 +47,7 @@ try {
                 exit;
             }
 
-
-            // Kiểm tra số lượng tồn kho
+            // Kiểm tra sự tồn tại của sản phẩm và biến thể (size + color)
             $variant = $productModel->getProductVariantsBySizeAndColor($size_id, $color_id, $product_id);
             if (!$variant) {
                 echo json_encode(['status' => 'error', 'message' => 'Không tìm thấy sản phẩm']);
@@ -54,11 +56,12 @@ try {
 
             $variant_id = $variant['variant_id'];
             // Kiểm tra số lượng tồn kho
-            if (!isset($variant['quantity']) || $variant['quantity'] < $quantity) {
+            if ($variant['quantity'] < $quantity) {
                 echo json_encode(['status' => 'error', 'message' => 'Số lượng không đủ']);
                 exit;
             }
-            // dd($variant_id);
+
+            // Kiểm tra xem sản phẩm đã có trong giỏ chưa
             if ($cartModel->addToCart($cart['cart_id'], $variant_id, $quantity)) {
                 echo json_encode(['status' => 'success', 'message' => 'Đã thêm vào giỏ hàng']);
             } else {
@@ -67,12 +70,14 @@ try {
             break;
 
         case 'update':
-            $cart_item_id = $_POST['cart_item_id'] ?? '';
+            $cart_item_id = filter_var($_POST['cart_item_id'] ?? '', FILTER_SANITIZE_STRING);
             $quantity = intval($_POST['quantity'] ?? 1);
-            if (!$cart_item_id) {
+            if (!$cart_item_id || $quantity < 1) {
                 echo json_encode(['status' => 'error', 'message' => 'Thông tin không hợp lệ']);
                 exit;
             }
+
+            // Cập nhật số lượng trong giỏ hàng
             if ($cartModel->updateCartItem($cart_item_id, $quantity)) {
                 echo json_encode(['status' => 'success', 'message' => 'Đã cập nhật giỏ hàng']);
             } else {
@@ -81,7 +86,7 @@ try {
             break;
 
         case 'remove':
-            $cart_item_id = $_POST['cart_item_id'] ?? '';
+            $cart_item_id = filter_var($_POST['cart_item_id'] ?? '', FILTER_SANITIZE_STRING);
 
             if (!$cart_item_id) {
                 echo json_encode(['status' => 'error', 'message' => 'Thiếu thông tin sản phẩm']);
