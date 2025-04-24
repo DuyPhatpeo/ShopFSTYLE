@@ -1,88 +1,86 @@
 <?php
 session_start();
 $errors = $_SESSION['errors'] ?? [];
-unset($_SESSION['errors']);
-$email = $_GET['email'] ?? '';
-$pageTitle = "Xác nhận tài khoản - FStyle";
+$old = $_SESSION['old'] ?? [];
+unset($_SESSION['errors'], $_SESSION['old']);
+$pageTitle = "Đăng ký - FStyle";
 include("../../includes/header.php");
 ?>
 
-<div class="flex flex-col min-h-screen justify-center">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-lg mt-12 mb-12 w-full sm:w-96">
-        <h2 class="text-2xl sm:text-3xl font-bold text-center text-primary mb-6">Xác nhận tài khoản</h2>
+<div class="flex min-h-screen justify-center items-center bg-gradient-to-tr from-green-100 via-blue-50 to-white px-4">
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl p-8">
+        <h2 class="text-3xl font-bold text-center text-green-600 mb-6">Đăng ký</h2>
 
         <?php if (!empty($errors['general'])): ?>
-        <div class="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4">
+        <div class="bg-red-100 text-red-700 border border-red-400 px-4 py-3 rounded mb-4 text-sm">
             <?= htmlspecialchars($errors['general']) ?>
         </div>
         <?php endif; ?>
 
-        <p class="text-center mb-4">
-            Chúng tôi đã gửi mã xác nhận đến email:
-            <strong><?= htmlspecialchars($email) ?></strong>
-        </p>
+        <form action="../../controller/authController.php?action=register" method="post" class="space-y-6">
+            <input type="hidden" name="action" value="register">
 
-        <form action="../../controller/authController.php?action=verify" method="post" class="space-y-5"
-            onsubmit="return collectCode()">
-            <input type="hidden" name="email" value="<?= htmlspecialchars($email) ?>">
-            <input type="hidden" name="verify_code" id="verify_code_hidden">
+            <!-- Họ tên -->
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                    Họ tên <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="name" id="name" placeholder="Nguyễn Văn A"
+                    value="<?= htmlspecialchars($old['name'] ?? '') ?>"
+                    class="w-full px-4 py-3 border rounded-xl shadow-sm text-sm transition focus:outline-none focus:ring-2 <?= isset($errors['name']) ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-green-400' ?>">
+                <?php if (isset($errors['name'])): ?>
+                <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['name']) ?></p>
+                <?php endif; ?>
+            </div>
 
-            <label for="codeInputs" class="block text-sm font-medium text-gray-700 mb-1">Nhập mã xác nhận</label>
-            <div id="codeInputs" class="flex justify-between gap-2">
-                <?php for ($i = 0; $i < 6; $i++): ?>
-                <input type="text" maxlength="1"
-                    class="w-12 h-12 text-center border rounded-lg text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-primary border-gray-300"
-                    oninput="moveNext(this, event)" onpaste="handlePaste(event)" pattern="[0-9]*" inputmode="numeric"
-                    required>
-                <?php endfor; ?>
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+                    Email <span class="text-red-500">*</span>
+                </label>
+                <input type="email" name="email" id="email" placeholder="your@email.com"
+                    value="<?= htmlspecialchars($old['email'] ?? '') ?>"
+                    class="w-full px-4 py-3 border rounded-xl shadow-sm text-sm transition focus:outline-none focus:ring-2 <?= isset($errors['email']) ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-green-400' ?>">
+                <?php if (isset($errors['email'])): ?>
+                <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['email']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <!-- Mật khẩu -->
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                    Mật khẩu <span class="text-red-500">*</span>
+                </label>
+                <input type="password" name="password" id="password" placeholder="••••••••"
+                    class="w-full px-4 py-3 border rounded-xl shadow-sm text-sm transition focus:outline-none focus:ring-2 <?= isset($errors['password']) ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-green-400' ?>">
+                <?php if (isset($errors['password'])): ?>
+                <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['password']) ?></p>
+                <?php endif; ?>
+            </div>
+
+            <!-- Xác nhận mật khẩu -->
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nhập lại mật khẩu <span class="text-red-500">*</span>
+                </label>
+                <input type="password" name="password_confirmation" id="password_confirmation" placeholder="••••••••"
+                    class="w-full px-4 py-3 border rounded-xl shadow-sm text-sm transition focus:outline-none focus:ring-2 <?= isset($errors['password_confirmation']) ? 'border-red-500 focus:ring-red-400' : 'border-gray-300 focus:ring-green-400' ?>">
+                <?php if (isset($errors['password_confirmation'])): ?>
+                <p class="text-red-500 text-sm mt-1"><?= htmlspecialchars($errors['password_confirmation']) ?></p>
+                <?php endif; ?>
             </div>
 
             <button type="submit"
-                class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition font-semibold text-lg mt-4">
-                Xác nhận
+                class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition font-semibold text-lg shadow-md">
+                Đăng ký
             </button>
         </form>
+
+        <p class="text-sm text-center mt-6 text-gray-600">
+            Đã có tài khoản?
+            <a href="login.php" class="text-blue-500 hover:underline">Đăng nhập</a>
+        </p>
     </div>
 </div>
-
-<script>
-function moveNext(input, event) {
-    const inputs = Array.from(document.querySelectorAll('#codeInputs input'));
-    const index = inputs.indexOf(input);
-
-    // Chuyển focus khi gõ hoặc xóa
-    if (event.inputType === 'deleteContentBackward') {
-        if (input.value === '' && index > 0) {
-            inputs[index - 1].focus();
-            inputs[index - 1].select();
-        }
-    } else if (input.value.length === 1 && index < inputs.length - 1) {
-        inputs[index + 1].focus();
-        inputs[index + 1].select();
-    }
-}
-
-// Tự động điền nếu paste nguyên mã
-function handlePaste(event) {
-    event.preventDefault();
-    const paste = (event.clipboardData || window.clipboardData).getData('text').trim().replace(/\D/g, '').slice(0, 6);
-    const inputs = document.querySelectorAll('#codeInputs input');
-    for (let i = 0; i < paste.length && i < inputs.length; i++) {
-        inputs[i].value = paste[i];
-    }
-    if (paste.length === inputs.length) {
-        inputs[inputs.length - 1].focus();
-    }
-}
-
-// Gộp lại mã xác nhận trước khi submit
-function collectCode() {
-    const inputs = document.querySelectorAll('#codeInputs input');
-    let code = '';
-    inputs.forEach(input => code += input.value);
-    document.getElementById('verify_code_hidden').value = code;
-    return true; // Cho phép submit
-}
-</script>
 
 <?php include("../../includes/footer.php"); ?>
