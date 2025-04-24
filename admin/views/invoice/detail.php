@@ -63,15 +63,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <?php if (isset($_GET['success'])): ?>
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">Cập nhật trạng thái đơn hàng thành công!</span>
-        </div>
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <span class="block sm:inline">Cập nhật trạng thái đơn hàng thành công!</span>
+    </div>
     <?php endif; ?>
 
     <?php if (isset($error)): ?>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline"><?= $error ?></span>
-        </div>
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <span class="block sm:inline"><?= $error ?></span>
+    </div>
     <?php endif; ?>
 
     <!-- Thông tin đơn hàng -->
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="space-y-2">
                 <p><strong>Mã đơn hàng:</strong> <?= $order['order_id'] ?></p>
                 <p><strong>Ngày đặt:</strong> <?= date('d/m/Y H:i', strtotime($order['created_at'])) ?></p>
-                <p><strong>Trạng thái:</strong> 
+                <p><strong>Trạng thái:</strong>
                     <span class="px-2 py-1 rounded <?= getStatusBadgeClass($order['order_status']) ?>">
                         <?= getStatusText($order['order_status']) ?>
                     </span>
@@ -109,40 +109,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản phẩm</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Màu sắc</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kích thước</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đơn giá</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số lượng</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thành tiền</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STT
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sản
+                            phẩm</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Màu
+                            sắc</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kích
+                            thước</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Đơn
+                            giá</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số
+                            lượng</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thành
+                            tiền</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php foreach ($orderDetails as $index => $detail): ?>
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap"><?= $index + 1 ?></td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center">
-                                    <img src="<?= BASE_URL .'/' . $detail['main_image'] ?>" alt="<?= $detail['product_name'] ?>" 
-                                         class="h-10 w-10 rounded-full object-cover mr-3">
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900"><?= $detail['product_name'] ?></div>
-                                    </div>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap"><?= $index + 1 ?></td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <img src="<?= BASE_URL .'/' . $detail['main_image'] ?>"
+                                    alt="<?= $detail['product_name'] ?>"
+                                    class="h-10 w-10 rounded-full object-cover mr-3">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900"><?= $detail['product_name'] ?></div>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap"><?= $detail['color_name'] ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap"><?= $detail['size_name'] ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap"><?= number_format($detail['unit_price'], 0, ',', '.') ?>đ</td>
-                            <td class="px-6 py-4 whitespace-nowrap"><?= $detail['quantity'] ?></td>
-                            <td class="px-6 py-4 whitespace-nowrap"><?= number_format($detail['unit_price'] * $detail['quantity'], 0, ',', '.') ?>đ</td>
-                        </tr>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap"><?= $detail['color_name'] ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><?= $detail['size_name'] ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <?= number_format($detail['unit_price'], 0, ',', '.') ?>đ</td>
+                        <td class="px-6 py-4 whitespace-nowrap"><?= $detail['quantity'] ?></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <?= number_format($detail['unit_price'] * $detail['quantity'], 0, ',', '.') ?>đ</td>
+                    </tr>
                     <?php endforeach; ?>
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-right font-semibold">Tổng tiền:</td>
-                        <td class="px-6 py-4 whitespace-nowrap font-semibold"><?= number_format($order['total_amount'], 0, ',', '.') ?>đ</td>
+                        <td class="px-6 py-4 whitespace-nowrap font-semibold">
+                            <?= number_format($order['total_amount'], 0, ',', '.') ?>đ</td>
                     </tr>
                 </tfoot>
             </table>
@@ -157,11 +168,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <label for="status" class="block text-sm font-medium text-gray-700">Trạng thái mới</label>
                 <select id="status" name="status" required
                     class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                    <option value="pending" <?= $order['order_status'] == 'pending' ? 'selected' : '' ?>>Chờ xác nhận</option>
-                    <option value="processing" <?= $order['order_status'] == 'processing' ? 'selected' : '' ?>>Đang xử lý</option>
-                    <option value="shipping" <?= $order['order_status'] == 'shipping' ? 'selected' : '' ?>>Đã giao hàng</option>
-                    <option value="completed" <?= $order['order_status'] == 'completed' ? 'selected' : '' ?>>Hoàn thành</option>
-                    <option value="cancelled" <?= $order['order_status'] == 'cancelled' ? 'selected' : '' ?>>Đã hủy</option>
+                    <option value="pending" <?= $order['order_status'] == 'pending' ? 'selected' : '' ?>>Chờ xử lý
+                    </option>
+                    <option value="processing" <?= $order['order_status'] == 'processing' ? 'selected' : '' ?>>Đang xử
+                        lý</option>
+                    <option value="shipping" <?= $order['order_status'] == 'shipping' ? 'selected' : '' ?>>Đã giao hàng
+                    </option>
+                    <option value="completed" <?= $order['order_status'] == 'completed' ? 'selected' : '' ?>>Hoàn thành
+                    </option>
+                    <option value="cancelled" <?= $order['order_status'] == 'cancelled' ? 'selected' : '' ?>>Đã hủy
+                    </option>
                 </select>
             </div>
             <button type="submit"
@@ -211,4 +227,4 @@ function getStatusText($status) {
             return 'Không xác định';
     }
 }
-?> 
+?>

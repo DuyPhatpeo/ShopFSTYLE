@@ -80,4 +80,32 @@ try {
     $conn->rollback();
     // gửi luôn $e->getMessage() về client để debug
     echo json_encode(['status'=>'error','message'=>$e->getMessage()]);
+}// Xử lý hủy đơn hàng
+if ($action === 'cancel_order') {
+    $order_id = $_POST['order_id'] ?? '';
+    if (!$order_id) {
+        echo json_encode(['status'=>'error','message'=>'Order ID không hợp lệ']);
+        exit;
+    }
+    // Lấy và kiểm tra quyền
+    $order = $orderModel->getOrder($order_id);
+    if (!$order || $order['customer_id'] !== $customer_id) {
+        echo json_encode(['status'=>'error','message'=>'Không tìm thấy đơn hoặc không quyền hủy']);
+        exit;
+    }
+    if ($order['order_status'] !== 'pending') {
+        echo json_encode(['status'=>'error','message'=>'Chỉ hủy đơn chờ xử lý']);
+        exit;
+    }
+    // Hủy đơn
+    if ($orderModel->cancelOrder($order_id)) {
+        echo json_encode(['status'=>'success','message'=>'Đã hủy đơn thành công']);
+    } else {
+        echo json_encode(['status'=>'error','message'=>'Hủy đơn thất bại']);
+    }
+    exit;
 }
+
+// Nếu không phải action nào
+echo json_encode(['status'=>'error','message'=>'Action không hợp lệ']);
+exit;

@@ -1,13 +1,15 @@
 <?php
+// Cập nhật OrderModel
+
 class OrderModel {
     private $conn;
-    
+
     public function __construct($conn) {
         $this->conn = $conn;
     }
 
     /**
-     * Tạo đơn hàng mới (không transaction)
+     * Tạo đơn hàng mới
      * @return string $order_id
      */
     public function createOrder($data) {
@@ -34,7 +36,7 @@ class OrderModel {
     }
 
     /**
-     * Thêm 1 dòng vào order_detail (không commit/rollback ở đây)
+     * Thêm 1 dòng vào order_detail
      * @return bool
      */
     public function addOrderDetail($data) {
@@ -63,7 +65,7 @@ class OrderModel {
     }
 
     /**
-     * Giảm tồn kho, trả về true nếu thành công, false nếu không đủ hoặc lỗi
+     * Giảm tồn kho
      */
     public function decreaseStock($variant_id, $qty) {
         $sql = "
@@ -80,41 +82,40 @@ class OrderModel {
         return $stmt->affected_rows > 0;
     }
 
-    /* ------------------ các method khác giữ nguyên ------------------ */
+    /* Các method khác giữ nguyên */
 
+    /**
+     * Lấy thông tin chi tiết đơn hàng
+     */
     public function getOrder($order_id) {
-        $stmt = $this->conn->prepare("
-            SELECT *, o.status as order_status 
-            FROM `order` o
-            LEFT JOIN customer c ON o.customer_id = c.customer_id
-            WHERE o.order_id = ?
-        ");
+        $stmt = $this->conn->prepare("SELECT *, o.status as order_status FROM `order` o LEFT JOIN customer c ON o.customer_id = c.customer_id WHERE o.order_id = ?");
         $stmt->bind_param("s", $order_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
 
+    /**
+     * Lấy chi tiết các sản phẩm trong đơn hàng
+     */
     public function getOrderDetails($order_id) {
-        $stmt = $this->conn->prepare("
-            SELECT od.*, p.product_name, p.main_image, c.color_name, s.size_name 
-            FROM order_detail od 
-            LEFT JOIN product_variants pv ON od.variant_id = pv.variant_id
-            LEFT JOIN color c          ON pv.color_id = c.color_id
-            LEFT JOIN sizes s          ON pv.size_id = s.size_id
-            LEFT JOIN product p        ON pv.product_id = p.product_id
-            WHERE od.order_id = ?
-        ");
+        $stmt = $this->conn->prepare("SELECT od.*, p.product_name, p.main_image, c.color_name, s.size_name FROM order_detail od LEFT JOIN product_variants pv ON od.variant_id = pv.variant_id LEFT JOIN color c ON pv.color_id = c.color_id LEFT JOIN sizes s ON pv.size_id = s.size_id LEFT JOIN product p ON pv.product_id = p.product_id WHERE od.order_id = ?");
         $stmt->bind_param("s", $order_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
+    /**
+     * Cập nhật trạng thái đơn hàng
+     */
     public function updateOrderStatus($order_id, $status) {
         $stmt = $this->conn->prepare("UPDATE `order` SET status = ? WHERE order_id = ?");
         $stmt->bind_param("ss", $status, $order_id);
         return $stmt->execute();
     }
 
+    /**
+     * Lấy danh sách đơn hàng của khách hàng
+     */
     public function getCustomerOrders($customer_id) {
         $sql = "
             SELECT o.*, COUNT(od.order_detail_id) as item_count
@@ -129,4 +130,50 @@ class OrderModel {
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
+
+    /**
+     * Tăng số lượng sản phẩm vào kho (khi huỷ đơn hàng)
+     */
+    public function increaseStock($variant_id, $qty) {
+        $sql = "
+            UPDATE product_variants 
+            SET quantity = quantity + ? 
+            WHERE variant_id = ?
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("is", $qty, $variant_id);
+        $stmt->execute();
+        if ($stmt->error) {
+            error_log("OrderModel::increaseStock error: " . $stmt->error);
+        }
+        return $stmt->affected_rows > 0;
+    }
+
+    /**
+     * Hủy đơn hàng và hoàn lại kho
+     */
+    public function cancelOrder($order_id) {
+        // Cập nhật trạng thái đơn hàng thành "cancelled"
+        $this->updateOrderStatus($order_id, 'cancelled');
+
+        // Lấy chi tiết sản phẩm trong đơn hàng để hoàn lại vào kho
+        $sql = "
+            SELECT od.variant_id, od.quantity 
+            FROM order_detail od
+            WHERE od.order_id = ?
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $order_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            // Tăng lại số lượng sản phẩm vào kho
+            $this->increaseStock($row['variant_id'], $row['quantity']);
+        }
+
+        return true;
+    }
 }
+
+?>
