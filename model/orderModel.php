@@ -149,31 +149,47 @@ class OrderModel {
         return $stmt->affected_rows > 0;
     }
 
-    /**
-     * Hủy đơn hàng và hoàn lại kho
-     */
     public function cancelOrder($order_id) {
-        // Cập nhật trạng thái đơn hàng thành "cancelled"
-        $this->updateOrderStatus($order_id, 'cancelled');
-
-        // Lấy chi tiết sản phẩm trong đơn hàng để hoàn lại vào kho
-        $sql = "
-            SELECT od.variant_id, od.quantity 
-            FROM order_detail od
-            WHERE od.order_id = ?
-        ";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $order_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        while ($row = $result->fetch_assoc()) {
-            // Tăng lại số lượng sản phẩm vào kho
-            $this->increaseStock($row['variant_id'], $row['quantity']);
+        // Bắt đầu transaction
+        $this->conn->begin_transaction();
+    
+        try {
+            // Cập nhật trạng thái đơn hàng thành "cancelled"
+            $updateStatus = $this->updateOrderStatus($order_id, 'cancelled');
+            if (!$updateStatus) {
+                throw new Exception("Không thể cập nhật trạng thái đơn hàng.");
+            }
+    
+            // Lấy chi tiết sản phẩm trong đơn hàng để hoàn lại kho
+            $sql = "
+                SELECT od.variant_id, od.quantity 
+                FROM order_detail od
+                WHERE od.order_id = ?
+            ";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("s", $order_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+    
+            // Lặp qua từng sản phẩm để hoàn kho
+            while ($row = $result->fetch_assoc()) {
+                $success = $this->increaseStock($row['variant_id'], $row['quantity']);
+                if (!$success) {
+                    throw new Exception("Không thể hoàn lại kho cho variant_id: " . $row['variant_id']);
+                }
+            }
+    
+            // Commit transaction nếu mọi việc thành công
+            $this->conn->commit();
+            return true;
+        } catch (Exception $e) {
+            // Rollback nếu có lỗi
+            $this->conn->rollback();
+            error_log("OrderModel::cancelOrder error: " . $e->getMessage());
+            return false;
         }
-
-        return true;
     }
+    
 }
 
 ?>
