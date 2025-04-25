@@ -91,27 +91,42 @@ function isProductNameExists($conn, $product_name, $exclude_id = null) {
 /**
  * Thêm sản phẩm mới
  */
-function addProduct($conn, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image) {
+function addProduct($conn, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status) {
     $product_slug = createSlug($product_name);
     $product_id = generateUCCID();
+    
     $stmt = $conn->prepare("INSERT INTO product 
-        (product_id, product_name, description, original_price, discount_price, brand_id, category_id, status, main_image, product_slug, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-    $stmt->bind_param("sssddssiss", $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image, $product_slug);
+        (product_id, product_name, description, original_price, discount_price, brand_id, category_id, status, product_slug, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+    
+    $stmt->bind_param("sssddssis", $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $product_slug);
+    
     $success = $stmt->execute();
     $stmt->close();
+    
     return $success ? $product_id : false;
 }
-
+function addImage($conn, $product_id, $image_url, $position, $status, $is_main) {
+    $image_id = generateUCCID();
+    
+    $stmt = $conn->prepare("INSERT INTO product_images (image_id, product_id, image_url, position, status, is_main) VALUES (?, ?, ?, ?, ?, ?)");
+    
+    $stmt->bind_param("sssiii",$image_id, $product_id, $image_url, $position, $status, $is_main);
+    
+    $success = $stmt->execute();
+    $stmt->close();
+    
+    return $success ? $product_id : false;
+}
 /**
  * Cập nhật sản phẩm
  */
-function updateProduct($conn, $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image) {
+function updateProduct($conn, $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status) {
     $product_slug = createSlug($product_name);
     $stmt = $conn->prepare("UPDATE product 
-        SET product_name=?, description=?, original_price=?, discount_price=?, brand_id=?, category_id=?, status=?, main_image=?, product_slug=? 
+        SET product_name=?, description=?, original_price=?, discount_price=?, brand_id=?, category_id=?, status=?, product_slug=? 
         WHERE product_id=?");
-    $stmt->bind_param("ssddssisss", $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image, $product_slug, $product_id);
+    $stmt->bind_param("ssddssisss", $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $product_slug, $product_id);
     $success = $stmt->execute();
     $stmt->close();
     return $success;
@@ -189,10 +204,6 @@ function deleteProductImages($conn, $product_id) {
  */
 function deleteProduct($conn, $product_id) {
     $product = getProductById($conn, $product_id);
-    if ($product && $product['main_image']) {
-        $mainImage = __DIR__ . '/../../' . $product['main_image'];
-        if (file_exists($mainImage)) unlink($mainImage);
-    }
 
     deleteProductImages($conn, $product_id);
 

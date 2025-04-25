@@ -114,10 +114,10 @@ $allCategories = getAllCategories($conn);
         </form>
 
         <!-- Bảng hiển thị sản phẩm -->
-        <div class="rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto transition-all duration-300">
-            <table class="w-full table-auto border-collapse text-sm sm:text-base">
-                <thead class="bg-indigo-500 text-white">
-                    <tr>
+        <div class="rounded-lg overflow-hidden max-h-[600px] overflow-y-auto transition-all duration-300">
+            <table class="w-full border-collapse text-sm sm:text-base">
+                <thead class="sticky top-0 z-10">
+                    <tr class="bg-indigo-500 text-white">
                         <th class="p-3 text-left">STT</th>
                         <th class="p-3 text-left">Tên sản phẩm</th>
                         <th class="p-3 text-left">Ảnh</th>

@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
 
-        <div>
+        <!-- <div>
             <label for="main_image" class="block text-sm font-medium text-gray-700 mb-1">
                 Ảnh chính <span class="text-red-500">*</span>
             </label>
@@ -164,7 +164,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if (!empty($errors['main_image'])): ?>
             <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['main_image']) ?></p>
             <?php endif; ?>
+        </div> -->
+        <div class="mb-4">
+            <label for="content-imgs" class="block text-sm font-medium text-gray-700 mb-2">Chọn ảnh</label>
+            <input type="file" id="content-imgs" name="content-imgs[]" accept="image/*" multiple
+                onchange="previewImagesAdd2(event)"
+                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <?php if (isset($messages['images'])): ?>
+            <small class="text-red-500 mt-2 block text-xs"><?= htmlspecialchars($messages['images']) ?></small>
+            <?php endif; ?>
         </div>
+
         <!-- Mô tả sản phẩm -->
         <div>
             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
