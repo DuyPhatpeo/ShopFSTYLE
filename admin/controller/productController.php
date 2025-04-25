@@ -42,6 +42,7 @@ function uploadMainImage($product_name, $fileData) {
  */
 function processAddProduct($conn) {
     $errors = [];
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $product_name   = trim($_POST['product_name'] ?? '');
         $description    = trim($_POST['description'] ?? '');
@@ -74,30 +75,87 @@ function processAddProduct($conn) {
             $errors['status'] = "Trạng thái không hợp lệ.";
         }
 
-        // Upload ảnh chính nếu có
-        $main_image = null;
-        if (empty($errors) && !empty($_FILES['main_image']['name'])) {
-            $main_image = uploadMainImage($product_name, $_FILES['main_image']);
-            if (!$main_image) {
-                $errors['main_image'] = "Tải ảnh thất bại.";
-            }
-        }
+        // // Upload ảnh chính nếu có
+        // $main_image = null;
+        // if (empty($errors) && !empty($_FILES['main_image']['name'])) {
+        //     $main_image = uploadMainImage($product_name, $_FILES['main_image']);
+        //     if (!$main_image) {
+        //         $errors['main_image'] = "Tải ảnh thất bại.";
+        //     }
+        // }
 
         // Nếu không có lỗi
         if (empty($errors)) {
-            $product_id = addProduct($conn, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image);
+            $product_id = addProduct($conn, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status);
 
             if ($product_id) {
+                // Xử lý upload nhiều ảnh phụ
+                if (isset($_FILES['content-imgs']) && is_array($_FILES['content-imgs']['name'])) {
+                    $total = count($_FILES['content-imgs']['name']);
+                    $targetDir = "../../uploads/products/";
+                    for ($i = 0; $i < $total; $i++) {
+                        if ($_FILES['content-imgs']['error'][$i] == 0) {
+                            $file = [
+                                'name' => $_FILES['content-imgs']['name'][$i],
+                                'type' => $_FILES['content-imgs']['type'][$i],
+                                'tmp_name' => $_FILES['content-imgs']['tmp_name'][$i],
+                                'error' => $_FILES['content-imgs']['error'][$i],
+                                'size' => $_FILES['content-imgs']['size'][$i],
+                            ];
+                            $uploadResult = uploadImage($file, $targetDir, uniqid('img_'));
+                            
+                            if ($uploadResult['success']) {
+                                $image_url = $uploadResult['filename'];
+                                $position = $i + 1;
+                                $is_main = 0;
+                                $status_img = 1;
+
+                                addImage($conn, $product_id, $image_url, $position, $status_img, $is_main);
+                            }
+                        }
+                    }
+                }
+
                 header("Location: index.php?msg=Thêm sản phẩm thành công&type=success");
                 exit;
             }
-            
         }
     }
+
     return $errors;
 }
 
+function uploadImage($file, $targetDir, $id)
+{
+    $result = ['success' => false, 'message' => '', 'filename' => ''];
 
+    if (isset($file) && $file['error'] == 0) {
+        $originalFileName = basename($file["name"]);
+        $fileTmpName = $file["tmp_name"];
+        $fileSize = $file["size"];
+        $fileType = strtolower(pathinfo($originalFileName, PATHINFO_EXTENSION));
+
+        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+        if (!in_array($fileType, $allowedTypes)) {
+            $result['message'] = "Chỉ các định dạng JPG, JPEG, PNG và GIF được chấp nhận.";
+            return $result;
+        }
+        $finalFileName = $id . '.' . $fileType;
+        $filePath = $targetDir . $finalFileName;
+
+        if (move_uploaded_file($fileTmpName, $filePath)) {
+            $result['success'] = true;
+            $result['filename'] = $finalFileName;
+        } else {
+            $result['message'] = "Có lỗi xảy ra khi tải tệp lên.";
+        }
+    } else {
+        $result['message'] = "Không có tệp nào được tải lên hoặc có lỗi trong quá trình tải.";
+    }
+
+    return $result;
+}
 
 /**
  * Xử lý cập nhật thông tin sản phẩm.
