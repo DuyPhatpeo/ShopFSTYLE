@@ -102,18 +102,20 @@ class OrderModel {
      */
     public function getOrderDetails($order_id) {
         $stmt = $this->conn->prepare("
-            SELECT od.*, p.product_name, c.color_name, s.size_name 
+            SELECT od.*, p.product_name, c.color_name, s.size_name, pi.image_url AS image_url
             FROM order_detail od 
             LEFT JOIN product_variants pv ON od.variant_id = pv.variant_id 
             LEFT JOIN color c ON pv.color_id = c.color_id 
             LEFT JOIN sizes s ON pv.size_id = s.size_id 
             LEFT JOIN product p ON pv.product_id = p.product_id 
+            LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_main = 1
             WHERE od.order_id = ?
         ");
         $stmt->bind_param("s", $order_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
+    
 
     /**
      * Cập nhật trạng thái đơn hàng

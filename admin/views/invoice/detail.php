@@ -131,14 +131,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <td class="px-6 py-4 whitespace-nowrap"><?= $index + 1 ?></td>
                         <td class="px-6 py-4">
                             <div class="flex items-center">
-                                <img src="<?= BASE_URL .'/' . $detail['main_image'] ?>"
-                                    alt="<?= $detail['product_name'] ?>"
-                                    class="h-10 w-10 rounded-full object-cover mr-3">
+                                <div
+                                    class="w-24 h-24 bg-gray-100 rounded overflow-hidden flex items-center justify-center mr-4">
+                                    <img src="../../uploads/products/<?= htmlspecialchars($detail['image_url']) ?>"
+                                        alt="<?= htmlspecialchars($detail['product_name']) ?>"
+                                        class="object-contain w-full h-full transition-transform duration-300 hover:scale-105">
+                                </div>
                                 <div>
                                     <div class="text-sm font-medium text-gray-900"><?= $detail['product_name'] ?></div>
                                 </div>
                             </div>
                         </td>
+
                         <td class="px-6 py-4 whitespace-nowrap"><?= $detail['color_name'] ?></td>
                         <td class="px-6 py-4 whitespace-nowrap"><?= $detail['size_name'] ?></td>
                         <td class="px-6 py-4 whitespace-nowrap">

@@ -247,7 +247,6 @@ function getProductImagesArray($conn, $product_id) {
     $stmt->close();
     return $images;
 }
-
 function getImagesByProductId($conn, $product_id) {
     $sql = "SELECT * FROM product_images WHERE product_id = :product_id";
     $stmt = $conn->prepare($sql);

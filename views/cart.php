@@ -27,7 +27,7 @@ if (!$cart) {
     $cart    = ['cart_id' => $cart_id];
 }
 
-// Lấy sản phẩm trong giỏ
+// Lấy sản phẩm trong giỏ, đã bao gồm trường image_url
 $items = $cartModel->getCartItems($cart['cart_id']);
 ?>
 
@@ -65,8 +65,13 @@ $items = $cartModel->getCartItems($cart['cart_id']);
                 </span>
                 <?php endif; ?>
 
-                <img src="../<?= htmlspecialchars($item['main_image']) ?>"
-                    alt="<?= htmlspecialchars($item['product_name']) ?>" class="w-28 h-28 object-cover rounded-lg" />
+                <!-- Hình sản phẩm -->
+                <div
+                    class="w-28 h-28 flex items-center justify-center overflow-hidden rounded-lg bg-gray-100 shadow-sm">
+                    <img src="<?= USER_URL ?>/admin/uploads/products/<?= htmlspecialchars($item['image_url']) ?>"
+                        alt="<?= htmlspecialchars($item['product_name']) ?>"
+                        class="object-contain w-full h-full transition-transform duration-300 hover:scale-105" />
+                </div>
 
                 <div class="flex-1">
                     <h3 class="text-xl font-semibold text-gray-800"><?= htmlspecialchars($item['product_name']) ?></h3>
@@ -139,6 +144,7 @@ $items = $cartModel->getCartItems($cart['cart_id']);
                         class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                 </div>
             </div>
+
             <div class="border-t pt-4 space-y-3">
                 <div class="flex justify-between">
                     <span>Tạm tính:</span>
@@ -153,6 +159,7 @@ $items = $cartModel->getCartItems($cart['cart_id']);
                     <span id="display-grandtotal">0đ</span>
                 </div>
             </div>
+
             <input type="hidden" name="payment_method" value="cod">
             <input type="hidden" name="total_amount" id="total_amount" value="0">
             <input type="hidden" name="discount_amount" value="0">

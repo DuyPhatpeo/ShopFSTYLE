@@ -23,6 +23,27 @@ class CartModel {
         return $stmt->get_result()->fetch_assoc();
     }
 
+    // Lấy tất cả sản phẩm trong giỏ hàng, kèm ảnh chính
+    public function getCartItems($cart_id) {
+        $sql = "SELECT ci.*, 
+                       p.product_name, p.original_price, p.discount_price,
+                       c.color_name, s.size_name, pv.quantity AS stock_quantity,
+                       pi.image_url AS image_url
+                FROM cart_items ci
+                JOIN product_variants pv ON ci.variant_id = pv.variant_id
+                JOIN product p ON pv.product_id = p.product_id
+                JOIN color c ON pv.color_id = c.color_id
+                LEFT JOIN sizes s ON pv.size_id = s.size_id
+                LEFT JOIN product_images pi 
+                     ON p.product_id = pi.product_id 
+                    AND pi.is_main = 1
+                WHERE ci.cart_id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $cart_id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+
     // Thêm hoặc cập nhật số lượng sản phẩm trong giỏ hàng
     public function addToCart($cart_id, $variant_id, $quantity = 1) {
         // Kiểm tra tồn kho
@@ -50,7 +71,6 @@ class CartModel {
 
     // Cập nhật số lượng sản phẩm trong giỏ (tăng/giảm)
     public function updateCartItem($cart_item_id, $change) {
-        // Lấy thông tin hiện tại
         $stmt = $this->conn->prepare("SELECT quantity, variant_id FROM cart_items WHERE cart_item_id = ?");
         $stmt->bind_param("s", $cart_item_id);
         $stmt->execute();
@@ -62,7 +82,6 @@ class CartModel {
             return $this->removeFromCart($cart_item_id);
         }
 
-        // Kiểm tra tồn kho
         $stock = $this->getStockByVariant($item['variant_id']);
         if ($newQty > $stock) return false;
 
@@ -76,22 +95,6 @@ class CartModel {
         $stmt = $this->conn->prepare("DELETE FROM cart_items WHERE cart_item_id = ?");
         $stmt->bind_param("s", $cart_item_id);
         return $stmt->execute();
-    }
-
-    // Lấy tất cả sản phẩm trong giỏ hàng
-    public function getCartItems($cart_id) {
-        $sql = "SELECT ci.*, p.product_name, p.original_price, p.discount_price,
-                        c.color_name, s.size_name, pv.quantity AS stock_quantity
-                 FROM cart_items ci
-                 JOIN product_variants pv ON ci.variant_id = pv.variant_id
-                 JOIN product p ON pv.product_id = p.product_id
-                 JOIN color c ON pv.color_id = c.color_id
-                 LEFT JOIN sizes s ON pv.size_id = s.size_id
-                 WHERE ci.cart_id = ?";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("s", $cart_id);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     // Xóa toàn bộ giỏ hàng
@@ -109,20 +112,26 @@ class CartModel {
         $res = $stmt->get_result()->fetch_assoc();
         return $res ? (int)$res['quantity'] : 0;
     }
-    // Lấy các sản phẩm đã được chọn từ giỏ hàng
+
+    // Lấy các sản phẩm đã chọn, kèm ảnh chính
     public function getSelectedItems($cart_id, $selected_items) {
-        $placeholders = str_repeat('?,', count($selected_items) - 1) . '?'; // Chuẩn bị câu truy vấn
+        $placeholders = str_repeat('?,', count($selected_items) - 1) . '?';
         $sql = "SELECT ci.*, p.product_name, p.original_price, p.discount_price,
-                    c.color_name, s.size_name, pv.quantity AS stock_quantity
+                       c.color_name, s.size_name, pv.quantity AS stock_quantity,
+                       pi.image_url AS image_url
                 FROM cart_items ci
                 JOIN product_variants pv ON ci.variant_id = pv.variant_id
                 JOIN product p ON pv.product_id = p.product_id
                 JOIN color c ON pv.color_id = c.color_id
                 LEFT JOIN sizes s ON pv.size_id = s.size_id
+                LEFT JOIN product_images pi 
+                     ON p.product_id = pi.product_id 
+                    AND pi.is_main = 1
                 WHERE ci.cart_id = ? AND ci.cart_item_id IN ($placeholders)";
         
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param(str_repeat('s', count($selected_items) + 1), $cart_id, ...$selected_items);
+        $types = str_repeat('s', count($selected_items) + 1);
+        $stmt->bind_param($types, $cart_id, ...$selected_items);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
