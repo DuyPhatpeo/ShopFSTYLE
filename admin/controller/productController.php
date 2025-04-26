@@ -7,43 +7,53 @@ require_once __DIR__ . '/../model/categoryModel.php';
 require_once __DIR__ . '/stringHelper.php'; // Gồm removeAccents() và safeString()
 
 /**
- * Hàm xử lý upload ảnh chính cho sản phẩm.
- * Ảnh sẽ được lưu với tên: {safe(product_name)}-main.{ext}
+ * Upload ảnh sản phẩm với tên: {safe(product_name)}-{position}.{ext}
  */
-function uploadMainImage($product_name, $fileData) {
-    if (!empty($fileData['name'])) {
-        $folder = __DIR__ . '/../uploads/products/';
-        if (!is_dir($folder)) {
-            mkdir($folder, 0755, true);
-        }
-        $ext = pathinfo($fileData['name'], PATHINFO_EXTENSION);
-        // Tạo tên file an toàn dựa trên product_name
-        $safeName = safeString($product_name);
-        $filename = "{$safeName}-main." . $ext;
-        $target = $folder . $filename;
-        if (move_uploaded_file($fileData['tmp_name'], $target)) {
-            return 'admin/uploads/products/' . $filename;
-        }
+function uploadImage($file, $targetDir, $productName, $position)
+{
+    $result = ['success' => false, 'filename' => '', 'message' => ''];
+
+    if (!isset($file) || $file['error'] !== UPLOAD_ERR_OK) {
+        $result['message'] = "Không có tệp hợp lệ được tải lên.";
+        return $result;
     }
-    return null;
+
+    // Kiểm tra định dạng
+    $allowed = ['jpg','jpeg','png','gif','webp'];
+    $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowed, true)) {
+        $result['message'] = "Chỉ chấp nhận định dạng: " . implode(', ', $allowed);
+        return $result;
+    }
+
+    // Tạo folder nếu chưa có
+    if (!is_dir($targetDir)) {
+        mkdir($targetDir, 0755, true);
+    }
+
+    // Sinh tên file an toàn
+    $safe = safeString($productName);
+    $filename = "{$safe}-{$position}.{$ext}";
+    $dest = rtrim($targetDir, '/') . '/' . $filename;
+
+    if (move_uploaded_file($file['tmp_name'], $dest)) {
+        $result['success']  = true;
+        $result['filename'] = $filename;
+    } else {
+        $result['message'] = "Không thể lưu tệp lên server.";
+    }
+
+    return $result;
 }
 
 /**
- * Xử lý thêm sản phẩm mới.
- * Lấy dữ liệu từ form POST gồm: product_name, description, original_price, discount_price, brand_id, category_id, status.
- * Ảnh chính được upload theo tên: {safe(product_name)}-main.{ext}
- * Khi thành công, chuyển hướng về trang danh sách sản phẩm.
- */
-/**
- * Xử lý thêm sản phẩm mới.
- * Lấy dữ liệu từ form POST gồm: product_name, description, original_price, discount_price, brand_id, category_id, status.
- * Ảnh chính được upload theo tên: {safe(product_name)}-main.{ext}
- * Khi thành công, chuyển hướng về trang thêm biến thể.
+ * Xử lý thêm sản phẩm và upload nhiều ảnh (không phân biệt chính/phụ)
  */
 function processAddProduct($conn) {
     $errors = [];
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Lấy và validate input
         $product_name   = trim($_POST['product_name'] ?? '');
         $description    = trim($_POST['description'] ?? '');
         $original_price = floatval($_POST['original_price'] ?? 0);
@@ -52,11 +62,9 @@ function processAddProduct($conn) {
         $category_id    = $_POST['category_id'] ?? '';
         $status         = (int)($_POST['status'] ?? 1);
 
-        // Validate
-        if (empty($product_name)) {
+        if ($product_name === '') {
             $errors['product_name'] = "Tên sản phẩm không được để trống.";
-        }
-        if (!empty($product_name) && isProductNameExists($conn, $product_name)) {
+        } elseif (isProductNameExists($conn, $product_name)) {
             $errors['product_name'] = "Tên sản phẩm đã tồn tại.";
         }
         if ($original_price <= 0) {
@@ -65,52 +73,61 @@ function processAddProduct($conn) {
         if ($discount_price < 0 || $discount_price > $original_price) {
             $errors['discount_price'] = "Giá giảm không hợp lệ.";
         }
-        if (empty($brand_id)) {
+        if ($brand_id === '') {
             $errors['brand_id'] = "Vui lòng chọn thương hiệu.";
         }
-        if (empty($category_id)) {
+        if ($category_id === '') {
             $errors['category_id'] = "Vui lòng chọn danh mục.";
         }
-        if ($status !== 1 && $status !== 2) {
+        if (!in_array($status, [1,2], true)) {
             $errors['status'] = "Trạng thái không hợp lệ.";
         }
 
-        // // Upload ảnh chính nếu có
-        // $main_image = null;
-        // if (empty($errors) && !empty($_FILES['main_image']['name'])) {
-        //     $main_image = uploadMainImage($product_name, $_FILES['main_image']);
-        //     if (!$main_image) {
-        //         $errors['main_image'] = "Tải ảnh thất bại.";
-        //     }
-        // }
-
-        // Nếu không có lỗi
+        // Nếu không có lỗi thì lưu sản phẩm
         if (empty($errors)) {
-            $product_id = addProduct($conn, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status);
+            $product_id = addProduct(
+                $conn,
+                $product_name,
+                $description,
+                $original_price,
+                $discount_price,
+                $brand_id,
+                $category_id,
+                $status
+            );
 
             if ($product_id) {
-                // Xử lý upload nhiều ảnh phụ
-                if (isset($_FILES['content-imgs']) && is_array($_FILES['content-imgs']['name'])) {
-                    $total = count($_FILES['content-imgs']['name']);
-                    $targetDir = "../../uploads/products/";
-                    for ($i = 0; $i < $total; $i++) {
-                        if ($_FILES['content-imgs']['error'][$i] == 0) {
-                            $file = [
-                                'name' => $_FILES['content-imgs']['name'][$i],
-                                'type' => $_FILES['content-imgs']['type'][$i],
-                                'tmp_name' => $_FILES['content-imgs']['tmp_name'][$i],
-                                'error' => $_FILES['content-imgs']['error'][$i],
-                                'size' => $_FILES['content-imgs']['size'][$i],
-                            ];
-                            $uploadResult = uploadImage($file, $targetDir, uniqid('img_'));
-                            
-                            if ($uploadResult['success']) {
-                                $image_url = $uploadResult['filename'];
-                                $position = $i + 1;
-                                $is_main = 0;
-                                $status_img = 1;
+                $targetDir = __DIR__ . "/../uploads/products";
+                // Giả sử rằng bạn nhận được một mảng các giá trị từ form
+                $mainImageIndex = isset($_POST['is_main']) ? (int)$_POST['is_main'] : 0;
+                $positions = $_POST['positions'] ?? [];
 
-                                addImage($conn, $product_id, $image_url, $position, $status_img, $is_main);
+                if (!empty($_FILES['content-imgs']['name']) && is_array($_FILES['content-imgs']['name'])) {
+                    $total = count($_FILES['content-imgs']['name']);
+                    for ($i = 0; $i < $total; $i++) {
+                        if ($_FILES['content-imgs']['error'][$i] === UPLOAD_ERR_OK) {
+                            $file = [
+                                'name'     => $_FILES['content-imgs']['name'][$i],
+                                'type'     => $_FILES['content-imgs']['type'][$i],
+                                'tmp_name' => $_FILES['content-imgs']['tmp_name'][$i],
+                                'error'    => $_FILES['content-imgs']['error'][$i],
+                                'size'     => $_FILES['content-imgs']['size'][$i],
+                            ];
+
+                            // Gọi hàm upload ảnh
+                            $up = uploadImage($file, $targetDir, $product_name, $positions[$i]);
+                            if ($up['success']) {
+                                // Đánh dấu ảnh chính: nếu thứ tự i+1 trùng với mainImageIndex
+                                $is_main = ($i + 1 === $mainImageIndex) ? 1 : 0;
+
+                                addImage(
+                                    $conn,
+                                    $product_id,
+                                    $up['filename'],
+                                    $positions[$i],
+                                    1,   // status = 1 (active)
+                                    $is_main   // Đánh dấu ảnh chính hoặc phụ
+                                );
                             }
                         }
                     }
@@ -125,37 +142,7 @@ function processAddProduct($conn) {
     return $errors;
 }
 
-function uploadImage($file, $targetDir, $id)
-{
-    $result = ['success' => false, 'message' => '', 'filename' => ''];
 
-    if (isset($file) && $file['error'] == 0) {
-        $originalFileName = basename($file["name"]);
-        $fileTmpName = $file["tmp_name"];
-        $fileSize = $file["size"];
-        $fileType = strtolower(pathinfo($originalFileName, PATHINFO_EXTENSION));
-
-        $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-        if (!in_array($fileType, $allowedTypes)) {
-            $result['message'] = "Chỉ các định dạng JPG, JPEG, PNG và GIF được chấp nhận.";
-            return $result;
-        }
-        $finalFileName = $id . '.' . $fileType;
-        $filePath = $targetDir . $finalFileName;
-
-        if (move_uploaded_file($fileTmpName, $filePath)) {
-            $result['success'] = true;
-            $result['filename'] = $finalFileName;
-        } else {
-            $result['message'] = "Có lỗi xảy ra khi tải tệp lên.";
-        }
-    } else {
-        $result['message'] = "Không có tệp nào được tải lên hoặc có lỗi trong quá trình tải.";
-    }
-
-    return $result;
-}
 
 /**
  * Xử lý cập nhật thông tin sản phẩm.
@@ -200,18 +187,7 @@ function processEditProduct($conn, $product_id) {
         $product = getProductById($conn, $product_id);
         $main_image = $product['main_image'] ?? null;
         
-        // Nếu có upload ảnh mới, xử lý thay thế ảnh cũ
-        if (empty($errors) && !empty($_FILES['main_image']['name'])) {
-            if (!empty($main_image) && file_exists(__DIR__ . '/../../' . $main_image)) {
-                unlink(__DIR__ . '/../../' . $main_image);
-            }
-            $new_image = uploadMainImage($product_name, $_FILES['main_image']);
-            if ($new_image) {
-                $main_image = $new_image;
-            } else {
-                $errors['main_image'] = "Tải ảnh thất bại.";
-            }
-        }
+      
         
         if (empty($errors)) {
             if (updateProduct($conn, $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image)) {

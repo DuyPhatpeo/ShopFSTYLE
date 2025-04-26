@@ -140,15 +140,19 @@ $allCategories = getAllCategories($conn);
                         <td class="p-3"><?= $stt++ ?></td>
                         <td class="p-3"><?= htmlspecialchars($product['product_name']) ?></td>
                         <td class="p-3 sm:p-3 text-center align-middle">
-                            <?php if (!empty($product['main_image'])): ?>
-                            <img src="../../../<?= htmlspecialchars($product['main_image']) ?>"
+                            <?php 
+                                // Lấy ảnh chính của sản phẩm bằng hàm getMainProductImage
+                                $mainImage = getMainProductImage($conn, $product['product_id']);
+                                if ($mainImage): 
+                                ?>
+                            <img src="../../uploads/products/<?= htmlspecialchars($mainImage) ?>"
                                 alt="<?= htmlspecialchars($product['product_name']) ?>"
                                 class="w-[80px] h-[80px] object-cover rounded-lg mx-auto sm:w-[100px] sm:h-[100px]">
-
                             <?php else: ?>
                             <span class="text-gray-500 text-xs">No image</span>
                             <?php endif; ?>
                         </td>
+
                         <td class="p-3 hidden sm:table-cell">
                             <?= !empty($product['brand_name']) ? htmlspecialchars($product['brand_name']) : 'N/A' ?>
                         </td>
@@ -213,17 +217,6 @@ $allCategories = getAllCategories($conn);
                                         <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path>
                                         <path d="M10 11v6"></path>
                                         <path d="M14 11v6"></path>
-                                    </svg>
-                                </a>
-                                <a href="update_quantity.php?id=<?= urlencode($product['product_id']) ?>"
-                                    class="bg-purple-200 hover:bg-purple-300 p-2 rounded-lg shadow "
-                                    title="Cập nhật số lượng">
-                                    <!-- Icon cập nhật số lượng -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" viewBox="0 0 24 24">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
                                     </svg>
                                 </a>
                             </div>

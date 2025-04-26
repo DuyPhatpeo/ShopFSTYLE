@@ -8,16 +8,12 @@ require_once('../../controller/productController.php');
 require_once('../../controller/brandController.php');
 require_once('../../controller/categoryController.php');
 
-$allBrands = getAllBrands($conn);
+$allBrands     = getAllBrands($conn);
 $allCategories = getAllCategories($conn);
 
 $errors = [];
-$product_id = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $result = processAddProduct($conn);
-    if (is_array($result) && !empty($result)) {
-        $errors = $result;
-    }
+    $errors = processAddProduct($conn);
 }
 ?>
 
@@ -25,225 +21,207 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <main class="container mx-auto px-4 py-6">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">
-            Thêm Sản Phẩm
-        </h1>
-        <a href="index.php"
-            class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition duration-150">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 448 512" fill="currentColor">
-                <path
-                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.2L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L9.4 233.4z" />
-            </svg>
+        <h1 class="text-3xl font-bold text-gray-800">Thêm Sản Phẩm</h1>
+        <a href="index.php" class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
             <span class="hidden md:inline">Quay lại</span>
         </a>
     </div>
 
     <?php if (!empty($errors['general'])): ?>
-    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
-        <?= htmlspecialchars($errors['general']) ?>
-    </div>
+    <div class="mb-4 p-4 bg-red-100 text-red-700 rounded"><?= htmlspecialchars($errors['general']) ?></div>
     <?php endif; ?>
 
     <form action="" method="POST" enctype="multipart/form-data" class="bg-white rounded shadow p-6 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- LEFT -->
             <div class="space-y-4">
                 <div>
-                    <label for="product_name" class="block text-sm font-medium text-gray-700 mb-1">
-                        Tên sản phẩm <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" id="product_name" name="product_name" placeholder="Nhập tên sản phẩm"
-                        class="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300 <?= !empty($errors['product_name']) ? 'border-red-500' : 'border-gray-300'; ?>"
-                        value="<?= isset($_POST['product_name']) ? htmlspecialchars($_POST['product_name']) : '' ?>">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tên sản phẩm <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" name="product_name" required
+                        value="<?= htmlspecialchars($_POST['product_name'] ?? '') ?>"
+                        class="w-full p-3 border rounded <?= !empty($errors['product_name']) ? 'border-red-500' : 'border-gray-300'; ?>">
                     <?php if (!empty($errors['product_name'])): ?>
-                    <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['product_name']) ?></p>
+                    <p class="text-red-500 text-xs mt-1"><?= htmlspecialchars($errors['product_name']) ?></p>
                     <?php endif; ?>
                 </div>
-
                 <div>
-                    <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        Danh mục <span class="text-red-500">*</span>
-                    </label>
-                    <select id="category_id" name="category_id"
-                        class="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300 <?= !empty($errors['category_id']) ? 'border-red-500' : 'border-gray-300'; ?>">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Danh mục <span
+                            class="text-red-500">*</span></label>
+                    <select name="category_id" required
+                        class="w-full p-3 border rounded <?= !empty($errors['category_id']) ? 'border-red-500' : 'border-gray-300'; ?>">
                         <option value="">-- Chọn danh mục --</option>
                         <?php foreach ($allCategories as $cat): ?>
-                        <option value="<?= htmlspecialchars($cat['category_id']) ?>"
-                            <?= (isset($_POST['category_id']) && $_POST['category_id'] == $cat['category_id']) ? 'selected' : ''; ?>>
+                        <option value="<?= $cat['category_id'] ?>"
+                            <?= (($_POST['category_id'] ?? '') == $cat['category_id']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($cat['category_name']) ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
                     <?php if (!empty($errors['category_id'])): ?>
-                    <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['category_id']) ?></p>
+                    <p class="text-red-500 text-xs mt-1"><?= htmlspecialchars($errors['category_id']) ?></p>
                     <?php endif; ?>
                 </div>
-
                 <div>
-                    <label for="brand_id" class="block text-sm font-medium text-gray-700 mb-1">
-                        Thương hiệu <span class="text-red-500">*</span>
-                    </label>
-                    <select id="brand_id" name="brand_id"
-                        class="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300 <?= !empty($errors['brand_id']) ? 'border-red-500' : 'border-gray-300'; ?>">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Thương hiệu <span
+                            class="text-red-500">*</span></label>
+                    <select name="brand_id" required
+                        class="w-full p-3 border rounded <?= !empty($errors['brand_id']) ? 'border-red-500' : 'border-gray-300'; ?>">
                         <option value="">-- Chọn thương hiệu --</option>
-                        <?php foreach ($allBrands as $b): ?>
-                        <option value="<?= htmlspecialchars($b['brand_id']) ?>"
-                            <?= (isset($_POST['brand_id']) && $_POST['brand_id'] == $b['brand_id']) ? 'selected' : ''; ?>>
-                            <?= htmlspecialchars($b['brand_name']) ?>
+                        <?php foreach ($allBrands as $brand): ?>
+                        <option value="<?= $brand['brand_id'] ?>"
+                            <?= (($_POST['brand_id'] ?? '') == $brand['brand_id']) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($brand['brand_name']) ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
                     <?php if (!empty($errors['brand_id'])): ?>
-                    <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['brand_id']) ?></p>
+                    <p class="text-red-500 text-xs mt-1"><?= htmlspecialchars($errors['brand_id']) ?></p>
                     <?php endif; ?>
                 </div>
             </div>
 
+            <!-- RIGHT -->
             <div class="space-y-4">
                 <div>
-                    <label for="original_price" class="block text-sm font-medium text-gray-700 mb-1">
-                        Giá gốc (VND) <span class="text-red-500">*</span>
-                    </label>
-                    <input type="number" id="original_price" name="original_price" placeholder="Nhập giá gốc"
-                        class="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300 <?= !empty($errors['original_price']) ? 'border-red-500' : 'border-gray-300'; ?>"
-                        value="<?= isset($_POST['original_price']) ? htmlspecialchars($_POST['original_price']) : '' ?>">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Giá gốc (VND) <span
+                            class="text-red-500">*</span></label>
+                    <input type="number" name="original_price" required
+                        value="<?= htmlspecialchars($_POST['original_price'] ?? '') ?>"
+                        class="w-full p-3 border rounded <?= !empty($errors['original_price']) ? 'border-red-500' : 'border-gray-300'; ?>">
                     <?php if (!empty($errors['original_price'])): ?>
-                    <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['original_price']) ?></p>
+                    <p class="text-red-500 text-xs mt-1"><?= htmlspecialchars($errors['original_price']) ?></p>
                     <?php endif; ?>
                 </div>
-
                 <div>
-                    <label for="discount_price" class="block text-sm font-medium text-gray-700 mb-1">
-                        Giá khuyến mãi (VND)
-                    </label>
-                    <input type="number" id="discount_price" name="discount_price"
-                        placeholder="Nhập giá khuyến mãi (nếu có)"
-                        class="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300 <?= !empty($errors['discount_price']) ? 'border-red-500' : 'border-gray-300'; ?>"
-                        value="<?= isset($_POST['discount_price']) ? htmlspecialchars($_POST['discount_price']) : '' ?>">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Giá khuyến mãi</label>
+                    <input type="number" name="discount_price"
+                        value="<?= htmlspecialchars($_POST['discount_price'] ?? '') ?>"
+                        class="w-full p-3 border rounded <?= !empty($errors['discount_price']) ? 'border-red-500' : 'border-gray-300'; ?>">
                     <?php if (!empty($errors['discount_price'])): ?>
-                    <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['discount_price']) ?></p>
+                    <p class="text-red-500 text-xs mt-1"><?= htmlspecialchars($errors['discount_price']) ?></p>
                     <?php endif; ?>
                 </div>
-
                 <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
-                        Trạng thái <span class="text-red-500">*</span>
-                    </label>
-                    <select id="status" name="status"
-                        class="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300">
-                        <option value="1" <?= (isset($_POST['status']) && $_POST['status'] == 1) ? 'selected' : ''; ?>>
-                            Hiển thị</option>
-                        <option value="2" <?= (isset($_POST['status']) && $_POST['status'] == 2) ? 'selected' : ''; ?>>
-                            Ẩn</option>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Trạng thái <span
+                            class="text-red-500">*</span></label>
+                    <select name="status" required class="w-full p-3 border rounded border-gray-300">
+                        <option value="1" <?= (($_POST['status'] ?? 1) == 1) ? 'selected' : '' ?>>Hiển thị</option>
+                        <option value="2" <?= (($_POST['status'] ?? 1) == 2) ? 'selected' : '' ?>>Ẩn</option>
                     </select>
-                    <?php if (!empty($errors['status'])): ?>
-                    <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['status']) ?></p>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>
 
-        <!-- <div>
-            <label for="main_image" class="block text-sm font-medium text-gray-700 mb-1">
-                Ảnh chính <span class="text-red-500">*</span>
-            </label>
-            <div id="uploadArea"
-                class="relative border-2 border-dashed border-gray-300 rounded-lg h-72 flex items-center justify-center hover:border-blue-400 transition duration-150 overflow-hidden">
-                <div id="uploadPlaceholder"
-                    class="absolute flex flex-col items-center justify-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none"
-                        viewBox="0 0 48 48" stroke="currentColor">
-                        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            d="M28 8H20v8H8v20h32V16H28V8z" />
-                    </svg>
-                    <p class="mt-2 text-gray-600 text-sm">Chọn ảnh hoặc kéo thả vào đây</p>
-                </div>
-                <img id="imagePreview" src="#" alt="Xem trước ảnh" class="hidden object-contain w-full h-full" />
-                <input type="file" id="main_image" name="main_image" accept="image/*"
-                    class="absolute inset-0 opacity-0 cursor-pointer">
-            </div>
-            <?php if (!empty($errors['main_image'])): ?>
-            <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['main_image']) ?></p>
-            <?php endif; ?>
-        </div> -->
-        <div class="mb-4">
-            <label for="content-imgs" class="block text-sm font-medium text-gray-700 mb-2">Chọn ảnh</label>
-            <input type="file" id="content-imgs" name="content-imgs[]" accept="image/*" multiple
-                onchange="previewImagesAdd2(event)"
-                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <?php if (isset($messages['images'])): ?>
-            <small class="text-red-500 mt-2 block text-xs"><?= htmlspecialchars($messages['images']) ?></small>
-            <?php endif; ?>
-        </div>
-
-        <!-- Mô tả sản phẩm -->
         <div>
-            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
-                Mô tả sản phẩm <span class="text-red-500">*</span>
-            </label>
-            <textarea id="description" name="description" rows="5" placeholder="Nhập mô tả chi tiết cho sản phẩm"
-                class="w-full p-3 border rounded focus:outline-none focus:ring focus:border-blue-300 <?= !empty($errors['description']) ? 'border-red-500' : 'border-gray-300'; ?>"><?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : '' ?></textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mô tả sản phẩm</label>
+            <textarea name="description" rows="4" required
+                class="w-full p-3 border rounded <?= !empty($errors['description']) ? 'border-red-500' : 'border-gray-300'; ?>"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
             <?php if (!empty($errors['description'])): ?>
-            <p class="mt-1 text-xs text-red-500"><?= htmlspecialchars($errors['description']) ?></p>
+            <p class="text-red-500 text-xs mt-1"><?= htmlspecialchars($errors['description']) ?></p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Ảnh sản phẩm -->
+        <div>
+            <label class="block text-sm font-semibold text-gray-800 mb-3">
+                Ảnh sản phẩm <span class="text-xs text-gray-500">(Kéo thả để sắp xếp)</span>
+            </label>
+            <div class="overflow-x-auto">
+                <div id="image-upload-wrapper" class="space-y-4 min-w-[300px] w-full"></div>
+            </div>
+            <button type="button" onclick="addMoreImageInput()"
+                class="mt-3 inline-flex items-center px-4 py-2 bg-blue-500 text-white text-sm rounded-md shadow-sm hover:bg-blue-600">
+                + Thêm ảnh
+            </button>
+            <?php if (!empty($errors['content-imgs'])): ?>
+            <p class="mt-2 text-sm text-red-500"><?= htmlspecialchars($errors['content-imgs']) ?></p>
             <?php endif; ?>
         </div>
 
         <div class="flex justify-end">
-            <button type="submit"
-                class="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white py-2 px-6 rounded shadow transition duration-150">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                        d="M17 3H7c-1.1 0-2 .9-2 2v14h16V7l-4-4zM12 19c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-7H9V5h6v7z" />
-                </svg>
-                <span>Hoàn thành sản phẩm</span>
-            </button>
+            <button type="submit" class="bg-green-700 hover:bg-green-800 text-white px-6 py-2 rounded">Hoàn thành sản
+                phẩm</button>
         </div>
     </form>
 </main>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const mainInput = document.getElementById('main_image');
-    const imagePreview = document.getElementById('imagePreview');
-    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
-    const uploadArea = document.getElementById('uploadArea');
+const wrapper = document.getElementById('image-upload-wrapper');
+let dragSrcEl = null;
 
-    mainInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreview.classList.remove('hidden');
-                uploadPlaceholder.style.display = 'none';
+function addMoreImageInput() {
+    const group = document.createElement('div');
+    group.className =
+        'image-group flex flex-wrap sm:flex-nowrap items-center gap-4 p-4 border rounded-lg shadow-sm bg-white';
+
+    group.innerHTML = `
+      <input type="file" name="content-imgs[]" accept="image/*" required
+             class="block w-full sm:w-48 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+             onchange="previewSingleImage(event, this)">
+      <input type="number" name="positions[]" min="1" placeholder="Vị trí" required
+             class="block p-2 border border-gray-300 rounded-md w-20 text-center">
+      <label class="inline-flex items-center space-x-2 text-sm text-gray-700">
+        <input type="radio" name="is_main" value="" required class="text-blue-600">
+        <span>Ảnh chính</span>
+      </label>
+      <div class="preview-container w-48 h-48 rounded overflow-hidden border border-gray-200 bg-gray-50"></div>
+    `;
+
+    wrapper.appendChild(group);
+    addDnDHandlers([group]);
+    updatePositions();
+}
+
+function previewSingleImage(e, input) {
+    const reader = new FileReader();
+    reader.onload = ev => {
+        input.closest('.image-group').querySelector('.preview-container').innerHTML =
+            `<img src="${ev.target.result}" class="object-cover w-full h-full" alt="Preview">`;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+}
+
+function updatePositions() {
+    wrapper.querySelectorAll('.image-group').forEach((group, idx) => {
+        group.querySelector('input[name="positions[]"]').value = idx + 1;
+        group.querySelector('input[type="radio"][name="is_main"]').value = idx + 1;
+    });
+}
+
+function addDnDHandlers(items) {
+    items.forEach(item => {
+        item.draggable = true;
+        item.addEventListener('dragstart', e => {
+            dragSrcEl = item;
+            e.dataTransfer.effectAllowed = 'move';
+            item.classList.add('opacity-50');
+        });
+        item.addEventListener('dragenter', () => item.classList.add('border-blue-400', 'border-dashed'));
+        item.addEventListener('dragleave', () => item.classList.remove('border-blue-400', 'border-dashed'));
+        item.addEventListener('dragover', e => e.preventDefault());
+        item.addEventListener('drop', e => {
+            e.preventDefault();
+            if (dragSrcEl && dragSrcEl !== item) {
+                const nodes = Array.from(wrapper.children);
+                const from = nodes.indexOf(dragSrcEl),
+                    to = nodes.indexOf(item);
+                if (from < to) wrapper.insertBefore(dragSrcEl, item.nextSibling);
+                else wrapper.insertBefore(dragSrcEl, item);
+                updatePositions();
             }
-            reader.readAsDataURL(file);
-        } else {
-            uploadPlaceholder.style.display = 'flex';
-            imagePreview.classList.add('hidden');
-        }
+        });
+        item.addEventListener('dragend', () => {
+            item.classList.remove('opacity-50');
+            wrapper.querySelectorAll('.image-group').forEach(i => i.classList.remove('border-blue-400',
+                'border-dashed'));
+        });
     });
+}
 
-    uploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        uploadArea.classList.add('bg-gray-100');
-    });
-
-    uploadArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('bg-gray-100');
-    });
-
-    uploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('bg-gray-100');
-        const files = e.dataTransfer.files;
-        mainInput.files = files;
-        mainInput.dispatchEvent(new Event('change'));
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    addMoreImageInput();
 });
 </script>
 
-<?php 
-include('../../includes/footer.php');
-ob_end_flush();
-?>
+<?php include('../../includes/footer.php'); ob_end_flush(); ?>

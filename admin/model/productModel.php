@@ -217,3 +217,33 @@ function deleteProduct($conn, $product_id) {
     $stmt->close();
     return $success;
 }
+/**
+ * Lấy ảnh chính của sản phẩm
+ */
+function getMainProductImage($conn, $product_id) {
+    $stmt = $conn->prepare("SELECT image_url FROM product_images WHERE product_id = ? AND is_main = 1 LIMIT 1");
+    $stmt->bind_param("s", $product_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $image = $result->fetch_assoc();
+    $stmt->close();
+
+    return $image ? $image['image_url'] : null;
+}
+/**
+ * Lấy danh sách ảnh của sản phẩm dưới dạng mảng
+ */
+function getProductImagesArray($conn, $product_id) {
+    $stmt = $conn->prepare("SELECT * FROM product_images WHERE product_id = ? ORDER BY position ASC");
+    $stmt->bind_param("s", $product_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $images = [];
+    while ($row = $result->fetch_assoc()) {
+        $images[] = $row;
+    }
+    
+    $stmt->close();
+    return $images;
+}
