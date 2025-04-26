@@ -3,8 +3,8 @@ session_start();
 include('../../includes/header.php');
 include('../../includes/search.php');
 require_once '../../includes/db.php';
-require_once '../../model/FavouriteModel.php';
-require_once '../../model/ProductModel.php';
+require_once '../../model/favouriteModel.php';
+require_once '../../model/productModel.php';
 
 // Kiểm tra đăng nhập
 if (!isset($_SESSION['customer'])) {
@@ -26,13 +26,19 @@ $favourites = $favouriteModel->getFavourites($customer_id);
     <?php if ($favourites->num_rows > 0): ?>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <?php while ($product = $favourites->fetch_assoc()): 
+                // Kiểm tra giảm giá
                 $hasDiscount = $product['discount_price'] > 0 && $product['discount_price'] < $product['original_price'];
                 $discountPercent = $hasDiscount ? round(100 - ($product['discount_price'] / $product['original_price']) * 100) : 0;
+
+                // Lấy ảnh chính của sản phẩm
+                $image_url = $productModel->getMainProductImage($conn, $product['product_id']);
+                $image_url = $image_url ? $image_url : 'default-image.jpg'; // Nếu không có ảnh chính, dùng ảnh mặc định
             ?>
         <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <a href="<?= USER_URL ?>/views/product_detail.php?id=<?= $product['product_id'] ?>">
-                <img src="<?= USER_URL ?>/<?= htmlspecialchars($product['main_image']) ?>"
-                    alt="<?= htmlspecialchars($product['product_name']) ?>" class="w-full h-64 object-cover">
+                <!-- Hình sản phẩm -->
+                <img src="../../admin/uploads/products/<?= htmlspecialchars($image_url) ?>"
+                    alt="<?= htmlspecialchars($product['product_name']) ?>" class="w-full h-96 object-cover rounded-lg">
             </a>
             <div class="p-4">
                 <h3 class="text-lg font-semibold mb-2">
