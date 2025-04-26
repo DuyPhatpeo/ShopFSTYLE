@@ -47,7 +47,7 @@
                     class="absolute inset-x-0 bottom-0 flex justify-end pr-2 pb-2 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition duration-300 rounded-b-lg">
                     <button onclick="event.stopPropagation(); addToCart('<?php echo $product['product_id']; ?>')"
                         class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded-md shadow-lg transition duration-300 transform hover:scale-105">
-                        <i class="fas fa-cart-plus mr-1"></i> Thêm vào giỏ
+                        <i class="fas fa-cart-plus mr-1"></i> Chi tiết sản phẩm
                     </button>
                 </div>
             </div>
