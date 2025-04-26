@@ -108,5 +108,14 @@ class CategoryModel {
         return $categories;
     }
     
+    // Lấy danh mục cha kèm danh mục con
+    public function getParentWithChildren() {
+        $parents = $this->getParentCategories();
+        foreach ($parents as &$parent) {
+            $parent['children'] = $this->getChildCategories($parent['category_id']);
+        }
+        return $parents;
+    }
+
 }
 ?>
