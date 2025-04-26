@@ -1,9 +1,6 @@
 <?php 
     // Bao gồm các tệp cần thiết
     include ('../includes/header.php'); 
-    include ('../includes/search.php');  
-
-    // Kết nối cơ sở dữ liệu
     require_once '../includes/db.php';
     require_once '../model/productModel.php';
 
@@ -19,11 +16,6 @@
     $products = $productModel->getProductsByCategoryUUID($category_id);
 ?>
 
-<!-- Toastr CSS -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-<!-- Font Awesome -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-
 <!-- Nội dung danh sách sản phẩm -->
 <div class="container mx-auto p-4">
     <h1 class="text-2xl font-semibold mb-4">Sản phẩm thuộc danh mục</h1>
@@ -32,6 +24,11 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <?php foreach ($products as $product): ?>
         <?php
+            // Lấy ảnh chính của sản phẩm
+            $image_url = $productModel->getMainProductImage($conn, $product['product_id']);
+            $image_url = $image_url ? $image_url : 'default-image.jpg'; // Nếu không có ảnh chính, dùng ảnh mặc định
+
+            // Các thông tin về giá cả
             $original_price = $product['original_price'];
             $discount_price = $product['discount_price'];
             $has_discount = $discount_price && $discount_price < $original_price;
@@ -42,7 +39,7 @@
             class="block rounded-xl transition duration-300 p-4 relative group">
             <div class="relative">
                 <!-- Hình sản phẩm -->
-                <img src="../<?php echo htmlspecialchars($product['image_url']); ?>"
+                <img src="../admin/uploads/products/<?php echo htmlspecialchars($image_url); ?>"
                     alt="<?php echo htmlspecialchars($product['product_name']); ?>"
                     class="w-full h-96 object-cover rounded-lg">
                 <!-- Overlay nút thêm giỏ -->
@@ -75,9 +72,6 @@
     <p class="text-center">Không có sản phẩm nào trong danh mục này.</p>
     <?php endif; ?>
 </div>
-
-<!-- Toastr JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
 function addToCart(productId) {
