@@ -144,10 +144,6 @@ function processAddProduct($conn) {
 
 
 
-/**
- * Xử lý cập nhật thông tin sản phẩm.
- * Nếu có upload ảnh mới, sẽ xoá ảnh cũ và cập nhật ảnh mới.
- */
 function processEditProduct($conn, $product_id) {
     $errors = [];
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -163,7 +159,6 @@ function processEditProduct($conn, $product_id) {
         if (empty($product_name)) {
             $errors['product_name'] = "Tên sản phẩm không được để trống.";
         }
-        // Sau dòng: if (empty($product_name)) { ... }
         if (!empty($product_name) && isProductNameExists($conn, $product_name, $product_id)) {
             $errors['product_name'] = "Tên sản phẩm đã tồn tại.";
         }
@@ -182,13 +177,60 @@ function processEditProduct($conn, $product_id) {
         if ($status !== 1 && $status !== 2) {
             $errors['status'] = "Trạng thái không hợp lệ.";
         }
-        
+
         // Lấy thông tin sản phẩm hiện có
         $product = getProductById($conn, $product_id);
         $main_image = $product['main_image'] ?? null;
-        
-      
-        
+
+        // Xử lý ảnh mới nếu có
+        $mainImageIndex = isset($_POST['is_main']) ? (int)$_POST['is_main'] : 0;
+        $positions = $_POST['positions'] ?? [];
+        $targetDir = __DIR__ . "/../uploads/products";
+        $imagesToDelete = [];
+
+        if (!empty($_FILES['content-imgs']['name']) && is_array($_FILES['content-imgs']['name'])) {
+            $total = count($_FILES['content-imgs']['name']);
+            for ($i = 0; $i < $total; $i++) {
+                if ($_FILES['content-imgs']['error'][$i] === UPLOAD_ERR_OK) {
+                    $file = [
+                        'name'     => $_FILES['content-imgs']['name'][$i],
+                        'type'     => $_FILES['content-imgs']['type'][$i],
+                        'tmp_name' => $_FILES['content-imgs']['tmp_name'][$i],
+                        'error'    => $_FILES['content-imgs']['error'][$i],
+                        'size'     => $_FILES['content-imgs']['size'][$i],
+                    ];
+
+                    // Gọi hàm upload ảnh
+                    $up = uploadImage($file, $targetDir, $product_name, $positions[$i]);
+                    if ($up['success']) {
+                        // Xóa ảnh cũ nếu có
+                        if ($main_image && file_exists($targetDir . '/' . $main_image)) {
+                            unlink($targetDir . '/' . $main_image); // Xóa ảnh cũ
+                        }
+
+                        // Đánh dấu ảnh chính: nếu thứ tự i+1 trùng với mainImageIndex
+                        $is_main = ($i + 1 === $mainImageIndex) ? 1 : 0;
+
+                        // Cập nhật thông tin ảnh mới vào database
+                        addImage(
+                            $conn,
+                            $product_id,
+                            $up['filename'],
+                            $positions[$i],
+                            1,   // status = 1 (active)
+                            $is_main   // Đánh dấu ảnh chính hoặc phụ
+                        );
+
+                        // Cập nhật tên ảnh chính mới nếu có
+                        if ($is_main) {
+                            $main_image = $up['filename'];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Nếu không có lỗi thì cập nhật sản phẩm
         if (empty($errors)) {
             if (updateProduct($conn, $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image)) {
                 header("Location: index.php?msg=Cập nhật sản phẩm thành công&type=success");
@@ -201,18 +243,6 @@ function processEditProduct($conn, $product_id) {
     return $errors;
 }
 
-/**
- * Xử lý xóa sản phẩm, bao gồm xoá ảnh vật lý nếu có.
- */
-function processDeleteProduct($conn, $product_id) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (deleteProduct($conn, $product_id)) {
-            header("Location: index.php?msg=Xóa sản phẩm thành công&type=success");
-            exit;
-        }
-    }
-    return ['general' => 'Xóa sản phẩm thất bại.'];
-}
 
 /**
  * Lấy chi tiết sản phẩm theo product_id.

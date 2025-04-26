@@ -121,12 +121,12 @@ function addImage($conn, $product_id, $image_url, $position, $status, $is_main) 
 /**
  * Cập nhật sản phẩm
  */
-function updateProduct($conn, $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image) {
+function updateProduct($conn, $product_id, $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status) {
     $product_slug = createSlug($product_name);
     $stmt = $conn->prepare("UPDATE product 
-        SET product_name=?, description=?, original_price=?, discount_price=?, brand_id=?, category_id=?, status=?, main_image=?, product_slug=? 
+        SET product_name=?, description=?, original_price=?, discount_price=?, brand_id=?, category_id=?, status=?, product_slug=? 
         WHERE product_id=?");
-    $stmt->bind_param("ssddssisss", $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $main_image, $product_slug, $product_id);
+    $stmt->bind_param("ssddssiss", $product_name, $description, $original_price, $discount_price, $brand_id, $category_id, $status, $product_slug, $product_id);
     $success = $stmt->execute();
     $stmt->close();
     return $success;
@@ -246,4 +246,14 @@ function getProductImagesArray($conn, $product_id) {
     
     $stmt->close();
     return $images;
+}
+
+function getImagesByProductId($conn, $product_id) {
+    $sql = "SELECT * FROM product_images WHERE product_id = :product_id";
+    $stmt = $conn->prepare($sql);
+    $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Fetch all images related to the product
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

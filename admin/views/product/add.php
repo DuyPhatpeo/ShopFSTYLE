@@ -22,7 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <main class="container mx-auto px-4 py-6">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-3xl font-bold text-gray-800">Thêm Sản Phẩm</h1>
-        <a href="index.php" class="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+        <!-- Quay lại -->
+        <a href="index.php" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center shadow">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-1" viewBox="0 0 448 512" fill="currentColor">
+                <path
+                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.2L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L9.4 233.4z" />
+            </svg>
             <span class="hidden md:inline">Quay lại</span>
         </a>
     </div>
