@@ -41,15 +41,21 @@ include_once __DIR__ . "/../includes/config.php";
                     <img src="<?= USER_URL ?>/assets/icons/search.svg" alt="search" class="w-6 h-6" />
                 </button>
             </div>
+
+            <!-- Logo dẫn về trang chủ như Desktop -->
             <a href="<?= USER_URL ?>">
                 <img src="<?= USER_URL ?>/assets/images/logo-fstyle.png" alt="logo" class="w-12 h-12 object-contain" />
             </a>
+
             <div class="flex items-center space-x-4">
-                <a href="<?= USER_URL ?>/views/user/shopping-card.php" class="text-gray-600 hover:text-black">
+                <!-- Cart: đổi từ /views/user/shopping-card.php -->
+                <a href="<?= USER_URL ?>/views/cart.php" class="text-gray-600 hover:text-black">
                     <img src="<?= USER_URL ?>/assets/icons/bag-shopping.svg" alt="bag-shopping" class="w-8 h-8" />
                 </a>
+
                 <?php if (isset($_SESSION['customer'])): ?>
-                <a href="<?= USER_URL ?>/views/user/profile.php">
+                <!-- Profile: đổi từ /views/user/profile.php sang /views/account/info.php -->
+                <a href="<?= USER_URL ?>/views/account/info.php">
                     <img src="<?= USER_URL ?>/assets/icons/user.svg" alt="user"
                         class="w-8 h-8 p-1 rounded-full ring-2 ring-blue-500 bg-blue-100 transition-all duration-200" />
                 </a>
@@ -60,6 +66,7 @@ include_once __DIR__ . "/../includes/config.php";
                 <?php endif; ?>
             </div>
         </div>
+
 
         <!-- Desktop Header -->
         <div class="hidden md:flex justify-between items-center">

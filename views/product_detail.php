@@ -62,8 +62,40 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
     transform: rotate(-45deg);
     transform-origin: center;
 }
-</style>
 
+#toast {
+    z-index: 9999;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+
+    /* Tăng padding và font-size để toast to hơn */
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+
+    /* Bo góc và nền tối nhẹ */
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    border-radius: 0.5rem;
+
+    /* Giãn cách so với phần tử phía trên */
+    margin-top: 1.5rem;
+
+    /* Giữ vị trí cũ với translateY */
+    transform: translateY(20px);
+}
+
+#toast.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+</style>
+<!-- Toast Notification -->
+<div id="toast"
+    class="hidden fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 opacity-0">
+    <span id="toastMessage">Sản phẩm đã được thêm vào giỏ hàng!</span>
+</div>
 <div class="container mx-auto p-6">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
         <!-- Hình ảnh sản phẩm -->
@@ -251,10 +283,6 @@ const favBtn = document.getElementById('favBtn');
 const sizeOptionsEl = document.getElementById('sizeOptions');
 
 
-
-
-
-
 // Xử lý khi trang tải xong
 document.addEventListener('DOMContentLoaded', () => {
     const uniqueColors = [...new Set(variants.map(v => v.color_id))];
@@ -277,7 +305,7 @@ function addToCart(variantId) {
     formData.append('product_id', '<?= $product_id; ?>');
     formData.append('quantity', quantity);
 
-    fetch('/controller/cartController.php', {
+    fetch('<?= USER_URL ?>/controller/cartController.php', {
             method: 'POST',
             body: formData
         })
@@ -289,39 +317,27 @@ function addToCart(variantId) {
         })
         .then(data => {
             if (data.status === 'success') {
-                toastr.options = {
-                    "closeButton": true,
-                    "progressBar": true,
-                    "positionClass": "toast-top-right",
-                    "timeOut": "3000",
-                    "showDuration": "300",
-                    "hideDuration": "1000",
-                    "extendedTimeOut": "1000",
-                    "showEasing": "swing",
-                    "hideEasing": "linear",
-                    "showMethod": "fadeIn",
-                    "hideMethod": "fadeOut"
-                };
-                toastr.success('🎉 Đã thêm <b><?= htmlspecialchars($product['product_name']); ?></b> vào giỏ hàng!',
-                    'Thành công');
-
+                showToast('Sản phẩm đã được thêm vào giỏ hàng!',
+                    '<?= htmlspecialchars($product['product_name']); ?>');
                 updateCartCount();
             } else {
-                toastr.options = {
-                    "closeButton": true,
-                    "progressBar": true,
-                    "positionClass": "toast-top-right",
-                    "timeOut": "3000",
-                };
-                toastr.error(data.message || 'Có lỗi xảy ra, vui lòng thử lại!', 'Thất bại');
+                alert(data.message || 'Có lỗi xảy ra');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            toastr.error('Lỗi kết nối server, vui lòng thử lại!', 'Lỗi');
         });
 }
 
+function showToast(message, productName) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    toastMessage.textContent = `${productName}: ${message}`;
+    toast.classList.add('show');
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000); // Ẩn toast sau 3 giây
+}
 
 function updateCartCount() {
     fetch('<?= USER_URL ?>/controller/cartController.php')
