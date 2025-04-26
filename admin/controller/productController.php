@@ -257,4 +257,16 @@ function getProductDetail($conn, $product_id) {
 function getPaginatedProducts($conn, $page, $limit, $search, $brandId, $categoryId, $status) {
     return getProductsWithPagination($conn, $page, $limit, $search, $brandId, $categoryId, $status);
 }
+/**
+ * Xử lý xóa sản phẩm, bao gồm xoá ảnh vật lý nếu có.
+ */
+function processDeleteProduct($conn, $product_id) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (deleteProduct($conn, $product_id)) {
+            header("Location: index.php?msg=Xóa sản phẩm thành công&type=success");
+            exit;
+        }
+    }
+    return ['general' => 'Xóa sản phẩm thất bại.'];
+}
 ?>

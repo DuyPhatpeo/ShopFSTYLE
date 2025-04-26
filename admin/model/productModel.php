@@ -203,20 +203,25 @@ function deleteProductImages($conn, $product_id) {
  * Xóa sản phẩm (bao gồm ảnh chính và ảnh phụ)
  */
 function deleteProduct($conn, $product_id) {
-    $product = getProductById($conn, $product_id);
-    if ($product && $product['main_image']) {
-        $mainImage = __DIR__ . '/../../' . $product['main_image'];
-        if (file_exists($mainImage)) unlink($mainImage);
-    }
+    // Xóa các bản ghi trong product_variants liên quan đến sản phẩm
+    $deleteVariantsQuery = "DELETE FROM product_variants WHERE product_id = ?";
+    $stmt = $conn->prepare($deleteVariantsQuery);
+    $stmt->bind_param("s", $product_id);
+    $stmt->execute();
+    $stmt->close();
 
+    // Xóa ảnh sản phẩm
     deleteProductImages($conn, $product_id);
 
+    // Xóa sản phẩm
     $stmt = $conn->prepare("DELETE FROM product WHERE product_id = ?");
     $stmt->bind_param("s", $product_id);
     $success = $stmt->execute();
     $stmt->close();
+
     return $success;
 }
+    
 /**
  * Lấy ảnh chính của sản phẩm
  */

@@ -3,8 +3,8 @@ session_start();
 include('../includes/header.php');
 include('../includes/search.php');
 require_once '../includes/db.php';
-require_once '../model/ProductModel.php';
-require_once '../model/FavouriteModel.php';
+require_once '../model/productModel.php';
+require_once '../model/favouriteModel.php';
 
 // Lấy product_id từ URL
 $product_id = $_GET['id'] ?? '';
@@ -150,9 +150,9 @@ $starsEmpty = 5 - $starsFull;
                     class="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow hover:shadow-lg hover:scale-105 transform transition disabled:opacity-50"
                     title="<?= $isFav ? 'Xóa khỏi yêu thích':'Thêm vào yêu thích'; ?>">
                     <?php if ($isFav): ?>
-                        Xóa khỏi yêu thích
+                    Xóa khỏi yêu thích
                     <?php else: ?>
-                        Thêm vào yêu thích
+                    Thêm vào yêu thích
                     <?php endif; ?>
                 </button>
             </div>
@@ -209,7 +209,7 @@ function selectColor(cid) {
 // Cập nhật các tùy chọn kích thước khi chọn màu
 function updateSizeOptions(cid) {
     sizeOptionsEl.innerHTML = ''; // Xóa các tùy chọn kích thước cũ
-    
+
     // Lọc các biến thể có size cho màu đã chọn
     const sizes = variants.filter(v => v.color_id === cid && v.size_name !== null);
 
@@ -258,7 +258,7 @@ function selectSize(sid) {
 favBtn.addEventListener('click', async function() {
     const isFav = this.dataset.favourited == '1';
     const action = isFav ? 'remove' : 'add';
-    
+
     try {
         const formData = new FormData();
         formData.append('action', action);
@@ -268,9 +268,9 @@ favBtn.addEventListener('click', async function() {
             method: 'POST',
             body: formData
         });
-        
+
         const data = await res.json();
-        
+
         if (!data.success) {
             if (data.message === 'Vui lòng đăng nhập') {
                 alert('Bạn cần đăng nhập để tiếp tục');
@@ -283,8 +283,8 @@ favBtn.addEventListener('click', async function() {
 
         // Cập nhật trạng thái nút
         this.dataset.favourited = isFav ? '0' : '1';
-        this.innerHTML = isFav ? 
-            'Thêm vào yêu thích' : 
+        this.innerHTML = isFav ?
+            'Thêm vào yêu thích' :
             'Xóa khỏi yêu thích';
         this.title = isFav ? 'Thêm vào yêu thích' : 'Xóa khỏi yêu thích';
         alert(data.message);
@@ -315,47 +315,47 @@ function addToCart(variantId, quantity = 1) {
     formData.append('quantity', quantity);
 
     fetch('<?= USER_URL ?>/controller/cartController.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Đã thêm vào giỏ hàng!');
-            updateCartCount();
-        } else {
-            alert(data.message || 'Có lỗi xảy ra');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Có lỗi xảy ra, vui lòng thử lại!');
-    });
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Đã thêm vào giỏ hàng!');
+                updateCartCount();
+            } else {
+                alert(data.message || 'Có lỗi xảy ra');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra, vui lòng thử lại!');
+        });
 }
 
 function updateCartCount() {
     fetch('<?= USER_URL ?>/controller/cartController.php')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            const cartCount = document.getElementById('cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.data.items.length;
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                const cartCount = document.getElementById('cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.data.items.length;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 </script>
