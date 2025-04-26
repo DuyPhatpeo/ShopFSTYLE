@@ -10,7 +10,7 @@ class OrderModel {
 
     /**
      * Tạo đơn hàng mới
-     * @return string $order_id
+     * @return string|bool
      */
     public function createOrder($data) {
         $sql = "
@@ -82,23 +82,34 @@ class OrderModel {
         return $stmt->affected_rows > 0;
     }
 
-    /* Các method khác giữ nguyên */
-
     /**
      * Lấy thông tin chi tiết đơn hàng
      */
     public function getOrder($order_id) {
-        $stmt = $this->conn->prepare("SELECT *, o.status as order_status FROM `order` o LEFT JOIN customer c ON o.customer_id = c.customer_id WHERE o.order_id = ?");
+        $stmt = $this->conn->prepare("
+            SELECT *, o.status as order_status 
+            FROM `order` o 
+            LEFT JOIN customer c ON o.customer_id = c.customer_id 
+            WHERE o.order_id = ?
+        ");
         $stmt->bind_param("s", $order_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
     }
 
     /**
-     * Lấy chi tiết các sản phẩm trong đơn hàng
+     * Lấy chi tiết các sản phẩm trong đơn hàng (đã bỏ main_image)
      */
     public function getOrderDetails($order_id) {
-        $stmt = $this->conn->prepare("SELECT od.*, p.product_name, p.main_image, c.color_name, s.size_name FROM order_detail od LEFT JOIN product_variants pv ON od.variant_id = pv.variant_id LEFT JOIN color c ON pv.color_id = c.color_id LEFT JOIN sizes s ON pv.size_id = s.size_id LEFT JOIN product p ON pv.product_id = p.product_id WHERE od.order_id = ?");
+        $stmt = $this->conn->prepare("
+            SELECT od.*, p.product_name, c.color_name, s.size_name 
+            FROM order_detail od 
+            LEFT JOIN product_variants pv ON od.variant_id = pv.variant_id 
+            LEFT JOIN color c ON pv.color_id = c.color_id 
+            LEFT JOIN sizes s ON pv.size_id = s.size_id 
+            LEFT JOIN product p ON pv.product_id = p.product_id 
+            WHERE od.order_id = ?
+        ");
         $stmt->bind_param("s", $order_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
@@ -149,18 +160,20 @@ class OrderModel {
         return $stmt->affected_rows > 0;
     }
 
+    /**
+     * Huỷ đơn hàng và hoàn kho
+     */
     public function cancelOrder($order_id) {
-        // Bắt đầu transaction
         $this->conn->begin_transaction();
     
         try {
-            // Cập nhật trạng thái đơn hàng thành "cancelled"
+            // Cập nhật trạng thái
             $updateStatus = $this->updateOrderStatus($order_id, 'cancelled');
             if (!$updateStatus) {
                 throw new Exception("Không thể cập nhật trạng thái đơn hàng.");
             }
     
-            // Lấy chi tiết sản phẩm trong đơn hàng để hoàn lại kho
+            // Lấy chi tiết sản phẩm
             $sql = "
                 SELECT od.variant_id, od.quantity 
                 FROM order_detail od
@@ -171,25 +184,21 @@ class OrderModel {
             $stmt->execute();
             $result = $stmt->get_result();
     
-            // Lặp qua từng sản phẩm để hoàn kho
+            // Hoàn lại kho
             while ($row = $result->fetch_assoc()) {
                 $success = $this->increaseStock($row['variant_id'], $row['quantity']);
                 if (!$success) {
-                    throw new Exception("Không thể hoàn lại kho cho variant_id: " . $row['variant_id']);
+                    throw new Exception("Không thể hoàn kho cho variant_id: " . $row['variant_id']);
                 }
             }
     
-            // Commit transaction nếu mọi việc thành công
             $this->conn->commit();
             return true;
         } catch (Exception $e) {
-            // Rollback nếu có lỗi
             $this->conn->rollback();
             error_log("OrderModel::cancelOrder error: " . $e->getMessage());
             return false;
         }
     }
-    
 }
-
 ?>

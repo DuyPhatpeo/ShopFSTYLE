@@ -8,7 +8,7 @@ class ProductModel {
 
     // Lấy sản phẩm theo category_id (UUID)
     public function getProductsByCategoryUUID($category_id) {
-        $query = "SELECT product_id, product_name, original_price, discount_price, main_image AS image_url
+        $query = "SELECT product_id, product_name, original_price, discount_price
                   FROM product
                   WHERE category_id = ? AND status = 1";
         $stmt = $this->conn->prepare($query);
@@ -21,7 +21,7 @@ class ProductModel {
     public function getProductDetail($product_id) {
         $query = "SELECT p.product_id, p.product_name, p.product_slug, p.description,
                          p.original_price, p.discount_price, p.brand_id, p.category_id,
-                         p.created_at, p.status, p.main_image
+                         p.created_at, p.status
                   FROM product p
                   WHERE p.product_id = ? AND p.status = 1";
         $stmt = $this->conn->prepare($query);
@@ -59,11 +59,9 @@ class ProductModel {
 
         $variants = [];
         while ($row = $result->fetch_assoc()) {
-            // Nếu có size, thêm vào mảng biến thể
             if ($row['size_id'] !== null) {
                 $variants[] = $row;
             } else {
-                // Nếu không có size, chỉ thêm màu
                 $row['size_name'] = 'Không có kích thước';
                 $variants[] = $row;
             }
@@ -99,7 +97,7 @@ class ProductModel {
         }
 
         $where_clause = $where ? "WHERE " . implode(" AND ", $where) : "";
-        
+
         switch ($sort) {
             case 'price_asc':
                 $order_by = "price ASC";
@@ -157,13 +155,42 @@ class ProductModel {
         return $result->fetch_assoc()['total'];
     }
 
-
     public function getProductVariantsBySizeAndColor($size_id, $color_id, $product_id) {
         $query = "SELECT * FROM product_variants WHERE size_id = ? AND color_id = ? AND product_id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param("sss", $size_id, $color_id, $product_id);
         $stmt->execute();
         return $stmt->get_result()->fetch_assoc();
+    }
+    /**
+     * Lấy ảnh chính của sản phẩm
+     */
+    public function getMainProductImage($conn, $product_id) {
+        $stmt = $conn->prepare("SELECT image_url FROM product_images WHERE product_id = ? AND is_main = 1 LIMIT 1");
+        $stmt->bind_param("s", $product_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $image = $result->fetch_assoc();
+        $stmt->close();
+
+        return $image ? $image['image_url'] : null;
+    }
+    /**
+     * Lấy danh sách ảnh của sản phẩm dưới dạng mảng
+     */
+    public function getProductImagesArray($conn, $product_id) {
+        $stmt = $conn->prepare("SELECT * FROM product_images WHERE product_id = ? ORDER BY position ASC");
+        $stmt->bind_param("s", $product_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $images = [];
+        while ($row = $result->fetch_assoc()) {
+            $images[] = $row;
+        }
+        
+        $stmt->close();
+        return $images;
     }
 }
 ?>

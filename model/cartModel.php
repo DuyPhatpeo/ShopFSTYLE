@@ -80,7 +80,7 @@ class CartModel {
 
     // Lấy tất cả sản phẩm trong giỏ hàng
     public function getCartItems($cart_id) {
-        $sql = "SELECT ci.*, p.product_name, p.original_price, p.discount_price, p.main_image,
+        $sql = "SELECT ci.*, p.product_name, p.original_price, p.discount_price,
                         c.color_name, s.size_name, pv.quantity AS stock_quantity
                  FROM cart_items ci
                  JOIN product_variants pv ON ci.variant_id = pv.variant_id
@@ -112,7 +112,7 @@ class CartModel {
     // Lấy các sản phẩm đã được chọn từ giỏ hàng
     public function getSelectedItems($cart_id, $selected_items) {
         $placeholders = str_repeat('?,', count($selected_items) - 1) . '?'; // Chuẩn bị câu truy vấn
-        $sql = "SELECT ci.*, p.product_name, p.original_price, p.discount_price, p.main_image,
+        $sql = "SELECT ci.*, p.product_name, p.original_price, p.discount_price,
                     c.color_name, s.size_name, pv.quantity AS stock_quantity
                 FROM cart_items ci
                 JOIN product_variants pv ON ci.variant_id = pv.variant_id
