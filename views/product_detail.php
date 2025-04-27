@@ -250,7 +250,13 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
             </div>
         </div>
     </div>
+
 </div>
+
+<?php    
+include('comment.php'); 
+?>
+
 
 <?php include('../includes/footer.php'); ?>
 
