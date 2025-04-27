@@ -96,9 +96,8 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
     class="hidden fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 opacity-0">
     <span id="toastMessage">Sản phẩm đã được thêm vào giỏ hàng!</span>
 </div>
-<div class="container mx-auto p-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-        <!-- Hình ảnh sản phẩm -->
+<div class="container mx-auto p-6 justify-center flex">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start max-w-7xl">
         <!-- Hình ảnh sản phẩm -->
         <div>
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Hình ảnh sản phẩm</h2>
@@ -145,58 +144,44 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
         </div>
 
 
-
-
-
-
-        <!-- Ảnh sản phẩm phụ -->
-        <?php if (!empty($images)): ?>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 justify-center">
-            <?php foreach ($images as $image): ?>
-            <div class="flex justify-center">
-                <img src="../<?= htmlspecialchars($image['image_url']); ?>"
-                    alt="<?= htmlspecialchars($product['product_name']); ?> - Ảnh phụ"
-                    class="w-full max-w-[150px] h-auto rounded-xl shadow-md transition-transform hover:scale-105 duration-300 cursor-pointer">
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-
-
         <!-- Thông tin sản phẩm -->
         <div>
-            <h1 class="text-4xl font-extrabold mb-4 text-gray-800"><?= htmlspecialchars($product['product_name']); ?>
+            <h1 class="text-5xl font-extrabold mb-6 text-gray-800"><?= htmlspecialchars($product['product_name']); ?>
             </h1>
 
             <!-- Giá -->
-            <p class="text-2xl font-bold text-blue-600 mb-6 flex items-center gap-2">
+            <p class="text-3xl font-bold text-blue-600 mb-8 flex items-center gap-3">
                 <?php if ($hasDiscount): ?>
-                <span class="text-lg line-through text-gray-400"><?= number_format($_orig); ?>₫</span>
+                <span class="text-xl line-through text-gray-400"><?= number_format($_orig); ?>₫</span>
                 <?= number_format($_disc); ?>₫
-                <span
-                    class="bg-blue-200 text-blue-800 text-sm font-semibold px-2 py-0.5 rounded-full">-<?= $discountPercent; ?>%</span>
+                <span class="bg-blue-200 text-blue-800 text-base font-semibold px-3 py-1 rounded-full">
+                    -<?= $discountPercent; ?>%
+                </span>
                 <?php else: ?>
                 <?= number_format($_orig); ?>₫
                 <?php endif; ?>
             </p>
 
             <!-- Đánh giá -->
-            <p class="mb-6 flex items-center gap-1">
-                <?php for ($i = 0; $i < $starsFull; $i++): ?><span
-                    class="text-yellow-400 text-xl">★</span><?php endfor; ?>
-                <?php for ($i = 0; $i < $starsEmpty; $i++): ?><span
-                    class="text-gray-300 text-xl">★</span><?php endfor; ?>
-                <span class="text-sm text-gray-500 ml-2">(<?= $rating; ?>)</span>
+            <p class="mb-8 flex items-center gap-1">
+                <?php for ($i = 0; $i < $starsFull; $i++): ?>
+                <span class="text-yellow-400 text-2xl">★</span>
+                <?php endfor; ?>
+                <?php for ($i = 0; $i < $starsEmpty; $i++): ?>
+                <span class="text-gray-300 text-2xl">★</span>
+                <?php endfor; ?>
+                <span class="text-base text-gray-500 ml-2">(<?= $rating; ?>)</span>
             </p>
 
             <!-- Thông tin thêm -->
-            <p class="text-sm text-gray-500 mb-2">Ngày tạo: <?= date('d-m-Y', strtotime($product['created_at'])); ?></p>
-            <p class="text-sm text-gray-500 mb-4">Trạng thái: <?= $product['status'] == 1 ? 'Còn bán' : 'Ngừng bán'; ?>
+            <p class="text-base text-gray-500 mb-4">
+                Trạng thái: <?= $product['status'] == 1 ? 'Còn bán' : 'Ngừng bán'; ?>
             </p>
-            <p class="text-sm mb-6">
+            <p class="text-base mb-8">
                 <span class="text-gray-600">Tồn kho:</span>
-                <span id="stockDisplay" class="font-medium text-gray-900"><?= $total_stock; ?></span>
+                <span id="stockDisplay" class="font-semibold text-gray-900"><?= $total_stock; ?></span>
             </p>
+
 
             <!-- Biến thể sản phẩm -->
             <?php if (!empty($variants)): ?>
@@ -220,7 +205,6 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
                     <?php endforeach; ?>
                 </div>
 
-                <!-- Chọn kích cỡ -->
                 <!-- Chọn kích cỡ -->
                 <p class="font-medium text-gray-700 mb-2">Chọn kích cỡ:</p>
                 <div id="sizeOptions" class="flex flex-wrap mb-4 space-x-4 space-y-2"></div>
