@@ -192,5 +192,15 @@ class ProductModel {
         $stmt->close();
         return $images;
     }
+    public function getAllActiveProducts() {
+        $query = "SELECT product_id, product_name, original_price, discount_price
+                  FROM product
+                  WHERE status = 1
+                  ORDER BY created_at DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+    }
+    
 }
 ?>

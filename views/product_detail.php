@@ -242,13 +242,18 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
 
 
 
-            <!-- Mô tả sản phẩm (Đưa xuống dưới cùng) -->
-            <div class="mt-8 p-4 bg-gray-50 rounded-lg">
-                <h2 class="text-xl font-semibold mb-2 text-gray-800">Mô tả sản phẩm</h2>
+
+        </div>
+        <div class="col-span-2 mt-8">
+            <div class="w-full p-6 bg-white rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800 border-b pb-2">Mô tả sản phẩm</h2>
                 <p class="text-gray-700 leading-relaxed whitespace-pre-line">
-                    <?= htmlspecialchars($product['description']); ?></p>
+                    <?= htmlspecialchars($product['description']); ?>
+                </p>
             </div>
         </div>
+
+
     </div>
 
 </div>

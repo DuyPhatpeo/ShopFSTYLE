@@ -77,11 +77,9 @@ include_once __DIR__ . "/../includes/config.php";
                 </a>
             </div>
             <nav class="hidden md:flex space-x-4 text-base lg:text-lg font-medium text-gray-700 items-center">
-                <a href="#" class="text-gray-600 hover:text-black">Áo Sơ Mi</a>
-                <a href="#" class="text-gray-600 hover:text-black">Mặc Hằng Ngày</a>
-                <a href="#" class="text-gray-600 hover:text-black">Đồ Chạy Bộ</a>
-                <a href="#" class="text-gray-600 hover:text-black">Quần Lót</a>
-                <a href="#" class="text-gray-600 hover:text-black">Liên Hệ</a>
+                <a href="#" class="text-gray-600 hover:text-black">Sản phẩm</a>
+                <a href="#" class="text-gray-600 hover:text-black">Liên hệ</a>
+                <a href="#" class="text-gray-600 hover:text-black">Giới thiệu</a>
             </nav>
             <div class="flex items-center space-x-4">
                 <form class="relative hidden lg:block" onsubmit="return false;">
