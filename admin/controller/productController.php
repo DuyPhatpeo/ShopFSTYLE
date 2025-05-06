@@ -265,8 +265,13 @@ function processDeleteProduct($conn, $product_id) {
         if (deleteProduct($conn, $product_id)) {
             header("Location: index.php?msg=Xóa sản phẩm thành công&type=success");
             exit;
+        } else {
+            // Xoá thất bại do ràng buộc (ví dụ đang tồn tại trong order_detail)
+            header("Location: index.php?msg=Xóa sản phẩm thất bại. Sản phẩm đang được sử dụng trong đơn hàng&type=error");
+            exit;
         }
     }
-    return ['general' => 'Xóa sản phẩm thất bại.'];
+
+    // Trường hợp không phải POST
+    return ['general' => 'Phương thức không hợp lệ.'];
 }
-?>

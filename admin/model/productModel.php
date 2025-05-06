@@ -203,24 +203,30 @@ function deleteProductImages($conn, $product_id) {
  * Xóa sản phẩm (bao gồm ảnh chính và ảnh phụ)
  */
 function deleteProduct($conn, $product_id) {
-    // Xóa các bản ghi trong product_variants liên quan đến sản phẩm
-    $deleteVariantsQuery = "DELETE FROM product_variants WHERE product_id = ?";
-    $stmt = $conn->prepare($deleteVariantsQuery);
-    $stmt->bind_param("s", $product_id);
-    $stmt->execute();
-    $stmt->close();
+    try {
+        // Xóa các biến thể của sản phẩm
+        $deleteVariantsQuery = "DELETE FROM product_variants WHERE product_id = ?";
+        $stmt = $conn->prepare($deleteVariantsQuery);
+        $stmt->bind_param("s", $product_id);
+        $stmt->execute();
+        $stmt->close();
 
-    // Xóa ảnh sản phẩm
-    deleteProductImages($conn, $product_id);
+        // Xóa ảnh sản phẩm
+        deleteProductImages($conn, $product_id);
 
-    // Xóa sản phẩm
-    $stmt = $conn->prepare("DELETE FROM product WHERE product_id = ?");
-    $stmt->bind_param("s", $product_id);
-    $success = $stmt->execute();
-    $stmt->close();
+        // Xóa sản phẩm chính
+        $stmt = $conn->prepare("DELETE FROM product WHERE product_id = ?");
+        $stmt->bind_param("s", $product_id);
+        $success = $stmt->execute();
+        $stmt->close();
 
-    return $success;
+        return $success;
+    } catch (mysqli_sql_exception $e) {
+        // Ghi log nếu cần: error_log($e->getMessage());
+        return false; // Báo về controller là xoá thất bại
+    }
 }
+
     
 /**
  * Lấy ảnh chính của sản phẩm
