@@ -176,10 +176,10 @@ $totalOrders = $data['totalOrders'];
                                         <line x1="12" y1="8" x2="12" y2="8"></line>
                                     </svg>
                                 </a>
+                                <!-- 
                                 <a href="delete.php?delete_order=<?= urlencode($order['order_id']) ?>"
                                     class="bg-red-200 hover:bg-red-300 p-2 rounded-lg shadow"
                                     onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này?');" title="Xóa">
-                                    <!-- Icon xóa -->
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round" viewBox="0 0 24 24">
@@ -189,7 +189,8 @@ $totalOrders = $data['totalOrders'];
                                         <path d="M10 11v6"></path>
                                         <path d="M14 11v6"></path>
                                     </svg>
-                                </a>
+                                </a> -->
+
                             </div>
                         </td>
                     </tr>
