@@ -36,12 +36,30 @@ function getRecentOrders($conn, $limit = 5) {
     $stmt->execute();
     return $stmt->get_result();
 }
-// File: admin/model/dashboardModel.php
 
+// Doanh thu theo ngày
+function getDailyRevenue($conn) {
+    $revenue = [];
+    $stmt = $conn->prepare("
+        SELECT 
+            DATE(created_at) AS day,
+            SUM(total_amount) as total
+        FROM `order`
+        WHERE status = 'completed'
+        GROUP BY day
+        ORDER BY day ASC
+    ");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $revenue[$row['day']] = (int)$row['total'];
+    }
+    return $revenue;
+}
+
+// Doanh thu theo tháng
 function getMonthlyRevenue($conn) {
     $revenue = [];
-
-    // Lấy doanh thu nhóm theo từng tháng
     $stmt = $conn->prepare("
         SELECT 
             DATE_FORMAT(created_at, '%Y-%m') AS month,
@@ -53,13 +71,29 @@ function getMonthlyRevenue($conn) {
     ");
     $stmt->execute();
     $result = $stmt->get_result();
-
     while ($row = $result->fetch_assoc()) {
         $revenue[$row['month']] = (int)$row['total'];
     }
-
     return $revenue;
 }
 
-
+// Doanh thu theo quý
+function getQuarterlyRevenue($conn) {
+    $revenue = [];
+    $stmt = $conn->prepare("
+        SELECT 
+            CONCAT(YEAR(created_at), '-Q', QUARTER(created_at)) AS quarter,
+            SUM(total_amount) as total
+        FROM `order`
+        WHERE status = 'completed'
+        GROUP BY quarter
+        ORDER BY quarter ASC
+    ");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $revenue[$row['quarter']] = (int)$row['total'];
+    }
+    return $revenue;
+}
 ?>

@@ -31,9 +31,21 @@ require_once('../../controller/dashboardController.php'); // Controller
             </div>
         </div>
 
+        <!-- Filter chọn loại doanh thu -->
+        <div class="mb-4">
+            <label for="revenueFilter" class="block text-gray-700 font-semibold mb-2">Xem doanh thu theo:</label>
+            <select id="revenueFilter" class="border rounded px-3 py-2">
+                <option value="day" <?= ($data['filter'] === 'day') ? 'selected' : '' ?>>Ngày</option>
+                <option value="month" <?= ($data['filter'] === 'month') ? 'selected' : '' ?>>Tháng</option>
+                <option value="quarter" <?= ($data['filter'] === 'quarter') ? 'selected' : '' ?>>Quý</option>
+            </select>
+        </div>
+
         <!-- Biểu đồ doanh thu -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-10">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">Doanh thu theo tháng</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700" id="chartTitle">
+                Doanh thu theo <?= ucfirst($data['filter']) ?>
+            </h2>
             <canvas id="revenueChart" height="100"></canvas>
         </div>
 
@@ -57,33 +69,30 @@ require_once('../../controller/dashboardController.php'); // Controller
                             <td class="px-6 py-4"><?= htmlspecialchars($order['order_id']) ?></td>
                             <td class="px-6 py-4"><?= htmlspecialchars($order['full_name']) ?></td>
                             <td class="px-6 py-4"><?= number_format($order['total_amount']) ?> đ</td>
-
-                            <!-- Hiển thị trạng thái với màu sắc -->
                             <td class="px-6 py-4">
                                 <?php
-                                    switch ($order['status']) {
-                                        case 'pending':
-                                            echo '<span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded">Chờ xác nhận</span>';
-                                            break;
-                                        case 'processing':
-                                            echo '<span class="px-2 py-1 bg-blue-200 text-blue-800 rounded">Đang xử lý</span>';
-                                            break;
-                                        case 'shipping':
-                                            echo '<span class="px-2 py-1 bg-indigo-200 text-indigo-800 rounded">Đang giao</span>';
-                                            break;
-                                        case 'completed':
-                                            echo '<span class="px-2 py-1 bg-green-200 text-green-800 rounded">Hoàn thành</span>';
-                                            break;
-                                        case 'cancelled':
-                                            echo '<span class="px-2 py-1 bg-red-200 text-red-800 rounded">Đã huỷ</span>';
-                                            break;
-                                        default:
-                                            echo '<span class="px-2 py-1 bg-gray-200 text-gray-800 rounded">Unknown</span>';
-                                            break;
-                                    }
+                                switch ($order['status']) {
+                                    case 'pending':
+                                        echo '<span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded">Chờ xác nhận</span>';
+                                        break;
+                                    case 'processing':
+                                        echo '<span class="px-2 py-1 bg-blue-200 text-blue-800 rounded">Đang xử lý</span>';
+                                        break;
+                                    case 'shipping':
+                                        echo '<span class="px-2 py-1 bg-indigo-200 text-indigo-800 rounded">Đang giao</span>';
+                                        break;
+                                    case 'completed':
+                                        echo '<span class="px-2 py-1 bg-green-200 text-green-800 rounded">Hoàn thành</span>';
+                                        break;
+                                    case 'cancelled':
+                                        echo '<span class="px-2 py-1 bg-red-200 text-red-800 rounded">Đã huỷ</span>';
+                                        break;
+                                    default:
+                                        echo '<span class="px-2 py-1 bg-gray-200 text-gray-800 rounded">Unknown</span>';
+                                        break;
+                                }
                                 ?>
                             </td>
-
                             <td class="px-6 py-4"><?= htmlspecialchars($order['created_at']) ?></td>
                         </tr>
                         <?php endwhile; ?>
@@ -98,14 +107,29 @@ require_once('../../controller/dashboardController.php'); // Controller
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Lấy dữ liệu doanh thu từ PHP
+const revenueData = <?= json_encode($data['revenueData']) ?>;
+const filter = '<?= $data['filter'] ?>';
+
+// Chuẩn bị labels và data cho biểu đồ
+const labels = Object.keys(revenueData);
+const dataValues = Object.values(revenueData);
+
+// Thay đổi tiêu đề theo filter
+const titleMap = {
+    day: 'Doanh thu theo ngày',
+    month: 'Doanh thu theo tháng',
+    quarter: 'Doanh thu theo quý'
+};
+
 const ctx = document.getElementById('revenueChart').getContext('2d');
-const revenueChart = new Chart(ctx, {
+let revenueChart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: <?= json_encode(array_keys($data['monthlyRevenue'])) ?>,
+        labels: labels,
         datasets: [{
             label: 'Doanh thu (VNĐ)',
-            data: <?= json_encode(array_values($data['monthlyRevenue'])) ?>,
+            data: dataValues,
             borderColor: 'rgb(99, 102, 241)',
             backgroundColor: 'rgba(99, 102, 241, 0.1)',
             fill: true,
@@ -127,6 +151,20 @@ const revenueChart = new Chart(ctx, {
         }
     }
 });
+
+// Xử lý thay đổi filter
+document.getElementById('revenueFilter').addEventListener('change', function() {
+    const selectedFilter = this.value;
+
+    // Chuyển trang với filter mới (reload page)
+    const url = new URL(window.location.href);
+    url.searchParams.set('filter', selectedFilter);
+    window.location.href = url.toString();
+});
+
+// Cập nhật tiêu đề
+document.getElementById('chartTitle').textContent = titleMap[filter] || 'Doanh thu theo tháng';
 </script>
+
 
 <?php include("../../includes/footer.php"); ?>
