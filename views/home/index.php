@@ -35,7 +35,7 @@ $products = $productModel->getAllActiveProducts(); // ✅ Hàm mới cần thêm
             // Các thông tin về giá cả
             $original_price = $product['original_price'];
             $discount_price = $product['discount_price'];
-            $has_discount = $discount_price && $discount_price < $original_price;
+            $has_discount = $discount_price > 0 && $discount_price < $original_price; // Chỉ có giảm giá nếu discount > 0 và nhỏ hơn giá gốc
             $discount_percent = $has_discount ? round(100 - ($discount_price / $original_price) * 100) : 0;
         ?>
         <!-- Card sản phẩm -->
@@ -53,12 +53,12 @@ $products = $productModel->getAllActiveProducts(); // ✅ Hàm mới cần thêm
             </h2>
             <div class="text-base font-medium text-gray-900 flex items-center gap-2 mt-1">
                 <?php if ($has_discount): ?>
-                <span class="text-blue-600 text-xl"><?php echo number_format($discount_price); ?>đ</span>
+                <span class="text-black text-xl"><?php echo number_format($discount_price); ?>đ</span>
                 <span class="line-through text-sm text-gray-400"><?php echo number_format($original_price); ?>đ</span>
                 <span
-                    class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-md"><?php echo "-$discount_percent%"; ?></span>
+                    class="bg-gray-100 text-blue-600 text-xs px-2 py-0.5 rounded-md"><?php echo "-$discount_percent%"; ?></span>
                 <?php else: ?>
-                <span class="text-xl"><?php echo number_format($original_price); ?>đ</span>
+                <span class="text-black text-xl"><?php echo number_format($original_price); ?>đ</span>
                 <?php endif; ?>
             </div>
         </a>

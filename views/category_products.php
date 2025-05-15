@@ -33,7 +33,11 @@ include ('../includes/header.php');
 
                 $original = $product['original_price'];
                 $discount = $product['discount_price'];
-                $has_discount = $discount && $discount < $original;
+
+                // Kiểm tra giá giảm có hợp lệ không
+                $has_discount = $discount > 0 && $discount < $original;
+
+                // Tính phần trăm giảm giá
                 $percent = $has_discount ? round(100 - ($discount / $original) * 100) : 0;
             ?>
             <a href="product_detail.php?id=<?php echo htmlspecialchars($product['product_id']); ?>"
@@ -46,17 +50,19 @@ include ('../includes/header.php');
                     </h2>
                     <div class="flex items-center gap-2">
                         <?php if ($has_discount): ?>
-                        <span class="text-blue-600 text-xl font-bold">
-                            <?php echo number_format($discount); ?>đ
-                        </span>
-                        <span class="line-through text-gray-400">
-                            <?php echo number_format($original); ?>đ
-                        </span>
-                        <span class="bg-blue-100 text-blue-600 text-xs px-2 py-0.5 rounded-md">
-                            -<?php echo $percent; ?>%
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-black text-xl font-bold">
+                                <?php echo number_format($discount); ?>đ
+                            </span>
+                            <span class="line-through text-gray-400">
+                                <?php echo number_format($original); ?>đ
+                            </span>
+                            <span class="bg-gray-100 text-blue-600 text-xs px-2 py-0.5 rounded-md">
+                                -<?php echo $percent; ?>%
+                            </span>
+                        </div>
                         <?php else: ?>
-                        <span class="text-gray-900 text-xl font-bold">
+                        <span class="text-black text-xl font-bold">
                             <?php echo number_format($original); ?>đ
                         </span>
                         <?php endif; ?>
