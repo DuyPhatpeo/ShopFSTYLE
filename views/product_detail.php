@@ -69,17 +69,6 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
     opacity: 0;
     transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 
-    /* Tăng padding và font-size để toast to hơn */
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-
-    /* Bo góc và nền tối nhẹ */
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    border-radius: 0.5rem;
-
-    /* Giãn cách so với phần tử phía trên */
-    margin-top: 1.5rem;
 
     /* Giữ vị trí cũ với translateY */
     transform: translateY(20px);
@@ -92,10 +81,21 @@ $productImages = $model->getProductImagesArray($conn, $product_id);
 }
 </style>
 <!-- Toast Notification -->
-<div id="toast"
-    class="hidden fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 opacity-0">
-    <span id="toastMessage">Sản phẩm đã được thêm vào giỏ hàng!</span>
+<!-- Toast Notification -->
+<div id="toast" class="hidden fixed top-4 right-4 w-72 max-w-full flex items-center gap-3 p-4 bg-white text-gray-900 
+            border border-gray-200 rounded-2xl shadow-lg transition-all duration-300 ease-out opacity-0">
+    <!-- Icon -->
+    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+        viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+
+    <!-- Message -->
+    <span id="toastMessage" class="flex-1 text-sm font-medium">
+        Sản phẩm đã được thêm vào giỏ hàng!
+    </span>
 </div>
+
 <div class="container mx-auto p-6 justify-center flex">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start max-w-7xl">
         <!-- Hình ảnh sản phẩm -->
