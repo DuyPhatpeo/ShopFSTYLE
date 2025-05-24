@@ -36,7 +36,7 @@ Dự án nhằm xây dựng một **website bán hàng trực tuyến cho Shop F
 
 ## 🧱 Công nghệ sử dụng
 
-- **Frontend:** HTML, CSS, Tailwind CSS, JavaScript, Bootstrap (một số phần)
+- **Frontend:** HTML, CSS, Tailwind CSS, JavaScript
 - **Backend:** PHP thuần (Không sử dụng framework)
 - **Database:** MySQL (thiết kế chuẩn hóa, có ERD, physical schema, 20+ bảng)
 - **Khác:** UUID, Xử lý ảnh, Phân trang, Giao diện động, Thông báo Tailwind, Responsive
