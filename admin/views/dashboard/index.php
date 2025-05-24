@@ -49,58 +49,6 @@ require_once('../../controller/dashboardController.php'); // Controller
             <canvas id="revenueChart" height="100"></canvas>
         </div>
 
-        <!-- Đơn hàng mới nhất -->
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">Đơn hàng mới nhất</h2>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-gray-700">
-                    <thead class="text-xs uppercase bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-3">Mã đơn</th>
-                            <th class="px-6 py-3">Khách hàng</th>
-                            <th class="px-6 py-3">Tổng tiền</th>
-                            <th class="px-6 py-3">Trạng thái</th>
-                            <th class="px-6 py-3">Ngày tạo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php while ($order = $data['recentOrders']->fetch_assoc()) : ?>
-                        <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="px-6 py-4"><?= htmlspecialchars($order['order_id']) ?></td>
-                            <td class="px-6 py-4"><?= htmlspecialchars($order['full_name']) ?></td>
-                            <td class="px-6 py-4"><?= number_format($order['total_amount']) ?> đ</td>
-                            <td class="px-6 py-4">
-                                <?php
-                                switch ($order['status']) {
-                                    case 'pending':
-                                        echo '<span class="px-2 py-1 bg-yellow-200 text-yellow-800 rounded">Chờ xác nhận</span>';
-                                        break;
-                                    case 'processing':
-                                        echo '<span class="px-2 py-1 bg-blue-200 text-blue-800 rounded">Đang xử lý</span>';
-                                        break;
-                                    case 'shipping':
-                                        echo '<span class="px-2 py-1 bg-indigo-200 text-indigo-800 rounded">Đang giao</span>';
-                                        break;
-                                    case 'completed':
-                                        echo '<span class="px-2 py-1 bg-green-200 text-green-800 rounded">Hoàn thành</span>';
-                                        break;
-                                    case 'cancelled':
-                                        echo '<span class="px-2 py-1 bg-red-200 text-red-800 rounded">Đã huỷ</span>';
-                                        break;
-                                    default:
-                                        echo '<span class="px-2 py-1 bg-gray-200 text-gray-800 rounded">Unknown</span>';
-                                        break;
-                                }
-                                ?>
-                            </td>
-                            <td class="px-6 py-4"><?= htmlspecialchars($order['created_at']) ?></td>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
     </div>
 </main>
 
